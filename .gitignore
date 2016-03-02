@@ -1,0 +1,9 @@
+# JetBrains IDEs
+.idea/
+*.iml
+
+# NodeJS and NPM
+node_modules/
+
+# Project specific
+

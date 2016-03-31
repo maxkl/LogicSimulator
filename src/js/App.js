@@ -7,11 +7,13 @@ var App = (function (window, document) {
 	"use strict";
 
 	function App() {
-		console.log("App constructed");
+		this.log = new Logger("App");
+
+		this.log.debug("Constructed");
 	}
 
 	App.prototype.start = function () {
-		console.log("App started");
+		this.log.debug("Started");
 	};
 
 	return App;

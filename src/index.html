@@ -7,10 +7,16 @@
 	</head>
 	<body>
 		<div id="editor" class="editor">
-			<svg id="editor-svg" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+			<svg id="editor-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
+				<g id="editor-viewport" transform="matrix(1 0 0 1 0 0)">
+					<circle cx="0" cy="0" r="3" fill="black"></circle>
+					<text x="5" y="21" text-anchor="start" font-size="16px" font-family="monospace" pointer-events="none">Origin</text>
+				</g>
+			</svg>
 		</div>
 
 		<script src="js/lib/Logger.js"></script>
+		<script src="js/Viewport.js"></script>
 		<script src="js/Renderer.js"></script>
 		<script src="js/Editor.js"></script>
 		<script src="js/App.js"></script>

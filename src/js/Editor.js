@@ -8,6 +8,8 @@ var Editor = (function (window, document) {
 
 	function Editor() {
 		this.log = new Logger("Editor");
+
+		this.renderer = new Renderer();
 		
 		this.log.debug("Constructed");
 	}

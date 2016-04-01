@@ -3,11 +3,5 @@
  * License: MIT
  */
 
-(function (window, document) {
-	"use strict";
-
-	var app = new App();
-
-	window.app = app;
-
-})(window, document);
+// app ends up in global scope in dev builds and is optimized out by UglifyJS in production builds
+var app = new App();

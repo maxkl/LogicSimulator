@@ -1,9 +1,11 @@
 # JetBrains IDEs
-.idea/
+/.idea/
 *.iml
 
 # NodeJS and NPM
-node_modules/
+/node_modules/
+/npm-debug.log
 
 # Project specific
-
+/build/
+/build-dev/

@@ -10,6 +10,4 @@
 
 	window.app = app;
 
-	app.start();
-
 })(window, document);

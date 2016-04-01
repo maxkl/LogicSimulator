@@ -11,12 +11,8 @@ var App = (function (window, document) {
 
 		this.editor = new Editor();
 
-		this.log.debug("Constructed");
-	}
-
-	App.prototype.start = function () {
 		this.log.debug("Started");
-	};
+	}
 
 	return App;
 })(window, document);

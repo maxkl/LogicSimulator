@@ -9,7 +9,7 @@ var App = (function (window, document) {
 	function App() {
 		this.log = new Logger("App");
 
-		this.editor = new Editor();
+		this.editor = new Editor(this);
 
 		this.log.debug("Started");
 	}

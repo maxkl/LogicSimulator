@@ -6,10 +6,12 @@
 var Editor = (function (window, document) {
 	"use strict";
 
-	function Editor() {
+	function Editor(app) {
 		this.log = new Logger("Editor");
 
-		this.renderer = new Renderer();
+		this.app = app;
+
+		this.renderer = new Renderer(app);
 		
 		this.log.debug("Constructed");
 	}

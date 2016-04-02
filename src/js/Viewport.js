@@ -6,8 +6,10 @@
 var Viewport = (function (window, document) {
 	"use strict";
 
-	function Viewport($svg) {
+	function Viewport(app, $svg) {
 		this.log = new Logger("Viewport");
+
+		this.app = app;
 
 		this.$svg = $svg;
 

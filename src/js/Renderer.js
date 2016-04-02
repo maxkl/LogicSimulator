@@ -9,8 +9,8 @@ var Renderer = (function (window, document) {
 	function Renderer() {
 		this.log = new Logger("Renderer");
 		
-		this.svg = document.getElementById("editor-svg");
-		this.viewport = new Viewport(this.svg);
+		this.$svg = document.getElementById("editor-svg");
+		this.viewport = new Viewport(this.$svg);
 
 		this.log.debug("Constructed");
 	}

@@ -6,13 +6,18 @@
 var Viewport = (function (window, document) {
 	"use strict";
 
-	function Viewport(svg) {
+	function Viewport($svg) {
 		this.log = new Logger("Viewport");
 
-		this.svg = svg;
-		this.viewportGroup = svg.getElementById("editor-viewport");
-		this.transform = this.viewportGroup.transform.baseVal[0];
+		this.$svg = $svg;
+
+		this.$viewportGroup = $svg.getElementById("editor-viewport");
+		this.transform = this.$viewportGroup.transform.baseVal[0];
 		this.transformMatrix = this.transform.matrix;
+
+		this.$backgroundPattern = $svg.getElementById("background-pattern");
+		this.bgTransform = this.$backgroundPattern.patternTransform.baseVal[0];
+		this.bgTransformMatrix = this.bgTransform.matrix;
 
 		this.x = 0;
 		this.y = 0;
@@ -45,8 +50,12 @@ var Viewport = (function (window, document) {
 	 */
 	Viewport.prototype.setScale = function (scale) {
 		this.scale = scale;
+
 		var matrix = this.transformMatrix;
 		matrix.d = matrix.a = scale;
+
+		var bgMatrix = this.bgTransformMatrix;
+		bgMatrix.d = bgMatrix.a = scale;
 	};
 
 	/**
@@ -57,9 +66,14 @@ var Viewport = (function (window, document) {
 	Viewport.prototype.setPosition = function (x, y) {
 		this.x = x;
 		this.y = y;
+
 		var matrix = this.transformMatrix;
 		matrix.e = x;
 		matrix.f = y;
+
+		var bgMatrix = this.bgTransformMatrix;
+		bgMatrix.e = x;
+		bgMatrix.f = y;
 	};
 
 	/**

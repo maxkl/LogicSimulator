@@ -51,6 +51,10 @@ var Viewport = (function (window, document) {
 	 * @param {number} scale
 	 */
 	Viewport.prototype.setScale = function (scale) {
+		if(scale > 8) {
+			scale = 8;
+		}
+
 		this.scale = scale;
 
 		var matrix = this.transformMatrix;

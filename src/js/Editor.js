@@ -54,7 +54,9 @@ var Editor = (function (window, document) {
 			evt.stopPropagation();
 
 			if(moving) {
-				renderer.viewport.setPosition(startX + (evt.clientX - startMouseX), startY + (evt.clientY - startMouseY));
+				var diffX = evt.clientX - startMouseX,
+					diffY = evt.clientY - startMouseY;
+				renderer.viewport.setPosition(startX + diffX, startY + diffY);
 			}
 		});
 

@@ -1,4 +1,7 @@
 
+@import url(open-sans.css);
+@import url(source-code-pro.css);
+
 * {
 	box-sizing: border-box;
 }
@@ -10,7 +13,7 @@ html, body {
 	margin: 0;
 	padding: 0;
 
-	font: 16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font: 16px "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	color: #222;
 	background-color: #fff;
 

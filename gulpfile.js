@@ -20,17 +20,24 @@ var srcDir = "src",
 var paths = {
 	js: [
 		"lib/Logger.js",
+		"lib/SvgUtil.js",
 		"Viewport.js",
 		"Renderer.js",
 		"Editor.js",
+		"Component.js",
 		"App.js",
 		"main.js"
 	].map(function (s) {
 		return srcDir + "/js/" + s;
 	}),
 	css: srcDir + "/css/**/*.css",
-	html: srcDir + "/**/*.html"
+	html: srcDir + "/**/*.html",
+	fonts: srcDir + "/fonts/**/*.{woff,woff2}"
 };
+
+function errorHandler() {
+	console.log("Error:", Array.prototype.slice.call(arguments));
+}
 
 gulp.task("clean", function () {
 	return del([destDir]);
@@ -42,57 +49,74 @@ gulp.task("dev:clean", function () {
 gulp.task("js", function () {
 	return gulp.src(paths.js, { base: srcDir })
 		.pipe(sourcemaps.init())
-		.pipe(concat("main.js"))
+		.pipe(concat("js/main.js"))
 		.pipe(wrap('(function(window, document) { "use strict"; <%=contents%> })(window, document);'))
 		.pipe(uglify())
 		.pipe(sourcemaps.write("./"))
-		.pipe(gulp.dest(destDir + "/js"));
+		.pipe(gulp.dest(destDir))
+		.on("error", errorHandler);
 });
 gulp.task("dev:js", function () {
 	return gulp.src(paths.js, { base: srcDir })
 		.pipe(sourcemaps.init())
-		.pipe(concat("main.js"))
+		.pipe(concat("js/main.js"))
 		.pipe(sourcemaps.write("./"))
-		.pipe(gulp.dest(destDevDir + "/js"));
+		.pipe(gulp.dest(destDevDir))
+		.on("error", errorHandler);
 });
 
 gulp.task("html", function () {
 	return gulp.src(paths.html, { base: srcDir })
-		.pipe(gulp.dest(destDir));
+		.pipe(gulp.dest(destDir))
+		.on("error", errorHandler);
 });
 gulp.task("dev:html", function () {
 	return gulp.src(paths.html, { base: srcDir })
-		.pipe(gulp.dest(destDevDir));
+		.pipe(gulp.dest(destDevDir))
+		.on("error", errorHandler);
 });
 
 gulp.task("css", function () {
-	return gulp.src(paths.css)
+	return gulp.src(paths.css, { base: srcDir })
 		.pipe(autoprefixer())
 		.pipe(cleanCSS())
-		.pipe(gulp.dest(destDir + "/css"));
+		.pipe(gulp.dest(destDir))
+		.on("error", errorHandler);
 });
 gulp.task("dev:css", function () {
-	return gulp.src(paths.css)
+	return gulp.src(paths.css, { base: srcDir })
 		.pipe(autoprefixer())
-		.pipe(gulp.dest(destDevDir + "/css"));
+		.pipe(gulp.dest(destDevDir))
+		.on("error", errorHandler);
+});
+
+gulp.task("fonts", function () {
+	return gulp.src(paths.fonts, { base: srcDir })
+		.pipe(gulp.dest(destDir))
+		.on("error", errorHandler);
+});
+gulp.task("dev:fonts", function () {
+	return gulp.src(paths.fonts, { base: srcDir })
+		.pipe(gulp.dest(destDevDir))
+		.on("error", errorHandler);
 });
 
 gulp.task("build", function (cb) {
 	runSequence(
 		"clean",
-		["js", "html", "css"],
+		["js", "html", "css", "fonts"],
 		cb
 	);
 });
 gulp.task("dev:build", function (cb) {
 	runSequence(
 		"dev:clean",
-		["dev:js", "dev:html", "dev:css"],
+		["dev:js", "dev:html", "dev:css", "dev:fonts"],
 		cb
 	);
 });
 
-gulp.task("watch", function () {
+gulp.task("watch", ["dev:build"], function () {
 	watch(srcDir + "/**/*", function () {
 		gulp.start("dev:build");
 	})

@@ -16,9 +16,9 @@ var App = (function (window, document) {
 		this.log.debug("Started");
 	}
 	
-	App.prototype.addComponent = function (component) {
+	App.prototype.addComponent = function (component, x, y) {
 		var $container = SvgUtil.createElement("g");
-		$container.setAttribute("transform", "matrix(1 0 0 1 300 300)");
+		$container.setAttribute("transform", "matrix(1 0 0 1 " + x + " " + y + ")");
 
 		component.initDisplay($container);
 

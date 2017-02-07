@@ -34,18 +34,8 @@ var paths = {
 	fonts: srcDir + "/fonts/**/*.{woff,woff2}"
 };
 
-function errorHandler() {
-	console.log("Error (handler):", Array.prototype.slice.call(arguments));
-}
-
 gulp.task("clean", function () {
-	return del([destDir]).catch(function (err) {
-		console.error("Del error:", err);
-	});
-});
-
-process.on("error", function (err) {
-	console.error("Global error:", err);
+	return del([destDir]).catch();
 });
 
 gulp.task("js", function () {
@@ -55,14 +45,12 @@ gulp.task("js", function () {
 		.pipe(wrap('(function(window, document) { "use strict"; <%=contents%> })(window, document);'))
 		.pipe(uglify())
 		.pipe(sourcemaps.write("./"))
-		.pipe(gulp.dest(destDir))
-		.on("error", errorHandler);
+		.pipe(gulp.dest(destDir));
 });
 
 gulp.task("html", function () {
 	return gulp.src(paths.html, { base: srcDir })
-		.pipe(gulp.dest(destDir))
-		.on("error", errorHandler);
+		.pipe(gulp.dest(destDir));
 });
 
 gulp.task("sass", function () {
@@ -71,14 +59,12 @@ gulp.task("sass", function () {
 		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 		.pipe(autoprefixer())
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destDir))
-		.on("error", errorHandler);
+		.pipe(gulp.dest(destDir));
 });
 
 gulp.task("fonts", function () {
 	return gulp.src(paths.fonts, { base: srcDir })
-		.pipe(gulp.dest(destDir))
-		.on("error", errorHandler);
+		.pipe(gulp.dest(destDir));
 });
 
 gulp.task("build", function (cb) {

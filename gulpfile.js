@@ -15,8 +15,7 @@ var del = require("del"),
 	autoprefixer = require("gulp-autoprefixer");
 
 var srcDir = "src",
-	destDir = "build",
-	destDevDir = "build-dev";
+	destDir = "build";
 var paths = {
 	js: [
 		"lib/Logger.js",
@@ -44,11 +43,6 @@ gulp.task("clean", function () {
 		console.error("Del error:", err);
 	});
 });
-gulp.task("dev:clean", function () {
-	return del([destDevDir]).catch(function (err) {
-		console.error("Del error:", err);
-	});
-});
 
 process.on("error", function (err) {
 	console.error("Global error:", err);
@@ -64,23 +58,10 @@ gulp.task("js", function () {
 		.pipe(gulp.dest(destDir))
 		.on("error", errorHandler);
 });
-gulp.task("dev:js", function () {
-	return gulp.src(paths.js, { base: srcDir })
-		.pipe(sourcemaps.init())
-		.pipe(concat("js/main.js"))
-		.pipe(sourcemaps.write("./"))
-		.pipe(gulp.dest(destDevDir))
-		.on("error", errorHandler);
-});
 
 gulp.task("html", function () {
 	return gulp.src(paths.html, { base: srcDir })
 		.pipe(gulp.dest(destDir))
-		.on("error", errorHandler);
-});
-gulp.task("dev:html", function () {
-	return gulp.src(paths.html, { base: srcDir })
-		.pipe(gulp.dest(destDevDir))
 		.on("error", errorHandler);
 });
 
@@ -93,22 +74,10 @@ gulp.task("sass", function () {
 		.pipe(gulp.dest(destDir))
 		.on("error", errorHandler);
 });
-gulp.task("dev:sass", function () {
-	return gulp.src(paths.sass, { base: srcDir })
-		.pipe(sass())
-		.pipe(autoprefixer())
-		.pipe(gulp.dest(destDevDir))
-		.on("error", errorHandler);
-});
 
 gulp.task("fonts", function () {
 	return gulp.src(paths.fonts, { base: srcDir })
 		.pipe(gulp.dest(destDir))
-		.on("error", errorHandler);
-});
-gulp.task("dev:fonts", function () {
-	return gulp.src(paths.fonts, { base: srcDir })
-		.pipe(gulp.dest(destDevDir))
 		.on("error", errorHandler);
 });
 
@@ -119,17 +88,10 @@ gulp.task("build", function (cb) {
 		cb
 	);
 });
-gulp.task("dev:build", function (cb) {
-	runSequence(
-		"dev:clean",
-		["dev:js", "dev:html", "dev:sass", "dev:fonts"],
-		cb
-	);
-});
 
-gulp.task("watch", ["dev:build"], function () {
+gulp.task("watch", ["build"], function () {
 	watch(srcDir + "/**/*", function () {
-		gulp.start("dev:build");
+		gulp.start("build");
 	})
 });
 

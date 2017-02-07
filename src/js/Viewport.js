@@ -5,8 +5,6 @@
 
 var Viewport = (function () {
 	function Viewport(app, $svg) {
-		this.log = new Logger('Viewport');
-
 		this.app = app;
 
 		this.$svg = $svg;
@@ -23,7 +21,7 @@ var Viewport = (function () {
 		this.y = 0;
 		this.scale = 1;
 
-		this.log.debug('Constructed');
+		console.log('Viewport constructed');
 	}
 
 	// Convert a coordinate in screen space to world space

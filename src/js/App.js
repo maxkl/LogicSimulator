@@ -5,13 +5,11 @@
 
 var App = (function () {
 	function App() {
-		this.log = new Logger('App');
-
 		this.components = [];
 
 		this.editor = new Editor(this);
 
-		this.log.debug('Started');
+		console.log('App started');
 	}
 
 	App.prototype.addComponent = function (component, x, y) {

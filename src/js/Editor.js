@@ -5,15 +5,13 @@
 
 var Editor = (function () {
 	function Editor(app) {
-		this.log = new Logger('Editor');
-
 		this.app = app;
 
 		this.renderer = new Renderer(app);
 
 		this.registerListeners();
 
-		this.log.debug('Constructed');
+		console.log('Editor constructed');
 	}
 
 	Editor.prototype.registerListeners = function () {

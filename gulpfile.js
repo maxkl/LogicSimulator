@@ -36,14 +36,22 @@ var paths = {
 };
 
 function errorHandler() {
-	console.log("Error:", Array.prototype.slice.call(arguments));
+	console.log("Error (handler):", Array.prototype.slice.call(arguments));
 }
 
 gulp.task("clean", function () {
-	return del([destDir]);
+	return del([destDir]).catch(function (err) {
+		console.error("Del error:", err);
+	});
 });
 gulp.task("dev:clean", function () {
-	return del([destDevDir]);
+	return del([destDevDir]).catch(function (err) {
+		console.error("Del error:", err);
+	});
+});
+
+process.on("error", function (err) {
+	console.error("Global error:", err);
 });
 
 gulp.task("js", function () {

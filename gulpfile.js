@@ -18,7 +18,6 @@ const srcDir = 'src/';
 const destDir = 'build/';
 const paths = {
 	js: [
-		'lib/Logger.js',
 		'lib/SvgUtil.js',
 		'Viewport.js',
 		'Renderer.js',

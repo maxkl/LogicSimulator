@@ -86,8 +86,10 @@ gulp.task("dev:html", function () {
 
 gulp.task("sass", function () {
 	return gulp.src(paths.sass, { base: srcDir })
-		.pipe(sass())
+		.pipe(sourcemaps.init())
+		.pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
 		.pipe(autoprefixer())
+		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(destDir))
 		.on("error", errorHandler);
 });

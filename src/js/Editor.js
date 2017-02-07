@@ -1,21 +1,19 @@
 /**
- * Copyright: (c) 2016 Max Klein
+ * Copyright: (c) 2016-2017 Max Klein
  * License: MIT
  */
 
-var Editor = (function (window, document) {
-	"use strict";
-
+var Editor = (function () {
 	function Editor(app) {
-		this.log = new Logger("Editor");
+		this.log = new Logger('Editor');
 
 		this.app = app;
 
 		this.renderer = new Renderer(app);
 
 		this.registerListeners();
-		
-		this.log.debug("Constructed");
+
+		this.log.debug('Constructed');
 	}
 
 	Editor.prototype.registerListeners = function () {
@@ -27,7 +25,7 @@ var Editor = (function (window, document) {
 		var startMouseX, startMouseY;
 		var startX, startY;
 
-		$canvas.addEventListener("mousedown", function (evt) {
+		$canvas.addEventListener('mousedown', function (evt) {
 			evt.preventDefault();
 			evt.stopPropagation();
 
@@ -37,38 +35,38 @@ var Editor = (function (window, document) {
 			startX = renderer.viewport.x;
 			startY = renderer.viewport.y;
 
-			$canvas.style.cursor = "move";
+			$canvas.style.cursor = 'move';
 		});
 
-		var zoomInAmount = 1.1,
-			zoomOutAmount = 1 / zoomInAmount;
-		$canvas.addEventListener("wheel", function (evt) {
+		var zoomInAmount = 1.1;
+		var zoomOutAmount = 1 / zoomInAmount;
+		$canvas.addEventListener('wheel', function (evt) {
 			if(evt.deltaY != 0) {
 				var zoomAmount = evt.deltaY < 0 ? zoomInAmount : zoomOutAmount;
 				renderer.viewport.zoom(zoomAmount, evt.clientX, evt.clientY);
 			}
 		});
 
-		window.addEventListener("mousemove", function (evt) {
+		window.addEventListener('mousemove', function (evt) {
 			evt.preventDefault();
 			evt.stopPropagation();
 
 			if(moving) {
-				var diffX = evt.clientX - startMouseX,
-					diffY = evt.clientY - startMouseY;
+				var diffX = evt.clientX - startMouseX;
+				var diffY = evt.clientY - startMouseY;
 				renderer.viewport.setPosition(startX + diffX, startY + diffY);
 			}
 		});
 
-		window.addEventListener("mouseup", function (evt) {
+		window.addEventListener('mouseup', function (evt) {
 			evt.preventDefault();
 			evt.stopPropagation();
 
 			moving = false;
 
-			$canvas.style.removeProperty("cursor");
+			$canvas.style.removeProperty('cursor');
 		});
 	};
 
 	return Editor;
-})(window, document);
+})();

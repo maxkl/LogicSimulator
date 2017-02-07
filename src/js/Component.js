@@ -1,11 +1,9 @@
 /**
- * Copyright: (c) 2016 Max Klein
+ * Copyright: (c) 2016-2017 Max Klein
  * License: MIT
  */
 
-var Component = (function (window, document) {
-	"use strict";
-
+var Component = (function () {
 	function Component(inputCount, outputCount, fn, displayFn) {
 		this.inputCount = inputCount;
 		this.outputCount = outputCount;
@@ -25,10 +23,10 @@ var Component = (function (window, document) {
 
 		this.displayFn($container);
 	};
-	
+
 	Component.prototype.execute = function () {
 		this.fn(this.inputValues, this.outputValues);
 	};
 
 	return Component;
-})(window, document);
+})();

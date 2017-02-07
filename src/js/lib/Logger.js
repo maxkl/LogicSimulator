@@ -1,22 +1,19 @@
 /**
- * Copyright: (c) 2016 Max Klein
+ * Copyright: (c) 2016-2017 Max Klein
  * License: MIT
  */
 
-var Logger = (function (window, document) {
-	"use strict";
-
-	var console = window.console;
+var Logger = (function () {
 	var concat = Array.prototype.concat;
 
-	var enabledGlobally = true,
-		globalLevel = 0;
+	var enabledGlobally = true;
+	var globalLevel = 0;
 
 	var levelIndices = {
-		"debug": 0,
-		"info": 1,
-		"warn": 2,
-		"error": 3
+		debug: 0,
+		info: 1,
+		warn: 2,
+		error: 3
 	};
 
 	function Logger(name, enabled, level) {
@@ -26,7 +23,7 @@ var Logger = (function (window, document) {
 	}
 
 	Logger.prototype._call = function (thisArg, fn, args) {
-		var prefix = this.name ? ["[" + this.name + "]"] : [];
+		var prefix = this.name ? [ '[' + this.name + ']' ] : [];
 		var allArgs = concat.apply(prefix, args);
 		fn.apply(thisArg, allArgs);
 	};
@@ -88,4 +85,4 @@ var Logger = (function (window, document) {
 	};
 
 	return Logger;
-})(window, document);
+})();

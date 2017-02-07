@@ -11,8 +11,8 @@ var del = require("del"),
 	sourcemaps = require("gulp-sourcemaps"),
 	concat = require("gulp-concat"),
 	wrap = require("gulp-wrap"),
-	autoprefixer = require("gulp-autoprefixer"),
-	cleanCSS = require("gulp-clean-css");
+	sass = require("gulp-sass"),
+	autoprefixer = require("gulp-autoprefixer");
 
 var srcDir = "src",
 	destDir = "build",
@@ -30,7 +30,7 @@ var paths = {
 	].map(function (s) {
 		return srcDir + "/js/" + s;
 	}),
-	css: srcDir + "/css/**/*.css",
+	sass: srcDir + "/css/**/*.{sass,scss}",
 	html: srcDir + "/**/*.html",
 	fonts: srcDir + "/fonts/**/*.{woff,woff2}"
 };
@@ -84,15 +84,16 @@ gulp.task("dev:html", function () {
 		.on("error", errorHandler);
 });
 
-gulp.task("css", function () {
-	return gulp.src(paths.css, { base: srcDir })
+gulp.task("sass", function () {
+	return gulp.src(paths.sass, { base: srcDir })
+		.pipe(sass())
 		.pipe(autoprefixer())
-		.pipe(cleanCSS())
 		.pipe(gulp.dest(destDir))
 		.on("error", errorHandler);
 });
-gulp.task("dev:css", function () {
-	return gulp.src(paths.css, { base: srcDir })
+gulp.task("dev:sass", function () {
+	return gulp.src(paths.sass, { base: srcDir })
+		.pipe(sass())
 		.pipe(autoprefixer())
 		.pipe(gulp.dest(destDevDir))
 		.on("error", errorHandler);
@@ -112,14 +113,14 @@ gulp.task("dev:fonts", function () {
 gulp.task("build", function (cb) {
 	runSequence(
 		"clean",
-		["js", "html", "css", "fonts"],
+		["js", "html", "sass", "fonts"],
 		cb
 	);
 });
 gulp.task("dev:build", function (cb) {
 	runSequence(
 		"dev:clean",
-		["dev:js", "dev:html", "dev:css", "dev:fonts"],
+		["dev:js", "dev:html", "dev:sass", "dev:fonts"],
 		cb
 	);
 });

@@ -1,6 +1,6 @@
 
-@import url(open-sans.css);
-@import url(source-code-pro.css);
+@import url(css/open-sans.css);
+@import url(css/source-code-pro.css);
 
 * {
 	box-sizing: border-box;

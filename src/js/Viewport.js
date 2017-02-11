@@ -3,7 +3,7 @@
  * License: MIT
  */
 
-var Viewport = (function () {
+define(function () {
 	function Viewport(app, $svg) {
 		this.app = app;
 
@@ -95,4 +95,4 @@ var Viewport = (function () {
 	};
 
 	return Viewport;
-})();
+});

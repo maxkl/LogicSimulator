@@ -3,7 +3,10 @@
  * License: MIT
  */
 
-var App = (function () {
+define([
+	'lib/SvgUtil',
+	'Editor'
+], function (SvgUtil, Editor) {
 	function App() {
 		this.components = [];
 
@@ -24,4 +27,4 @@ var App = (function () {
 	};
 
 	return App;
-})();
+});

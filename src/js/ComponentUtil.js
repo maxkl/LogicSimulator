@@ -3,10 +3,10 @@
  * License: MIT
  */
 
-var ComponentUtil = (function () {
+define(function () {
 	function ComponentUtil() {
 
 	}
 
 	return ComponentUtil;
-})();
+});

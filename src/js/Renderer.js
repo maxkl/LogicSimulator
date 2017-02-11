@@ -3,7 +3,9 @@
  * License: MIT
  */
 
-var Renderer = (function () {
+define([
+	'Viewport'
+], function (Viewport) {
 	function Renderer(app) {
 		this.app = app;
 
@@ -14,4 +16,4 @@ var Renderer = (function () {
 	}
 
 	return Renderer;
-})();
+});

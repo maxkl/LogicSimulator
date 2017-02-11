@@ -3,7 +3,7 @@
  * License: MIT
  */
 
-var Component = (function () {
+define(function () {
 	function Component(inputCount, outputCount, fn, displayFn) {
 		this.inputCount = inputCount;
 		this.outputCount = outputCount;
@@ -29,4 +29,4 @@ var Component = (function () {
 	};
 
 	return Component;
-})();
+});

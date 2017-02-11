@@ -3,7 +3,9 @@
  * License: MIT
  */
 
-var Editor = (function () {
+define([
+	'Renderer'
+], function (Renderer) {
 	function Editor(app) {
 		this.app = app;
 
@@ -67,4 +69,4 @@ var Editor = (function () {
 	};
 
 	return Editor;
-})();
+});

@@ -3,7 +3,7 @@
  * License: MIT
  */
 
-var SvgUtil = (function () {
+define(function () {
 	var NS = 'http://www.w3.org/2000/svg';
 
 	function createSvgElement(name) {
@@ -13,5 +13,4 @@ var SvgUtil = (function () {
 	return {
 		createElement: createSvgElement
 	};
-
-})();
+});

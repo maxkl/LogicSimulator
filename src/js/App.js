@@ -11,8 +11,6 @@ define([
 		this.components = [];
 
 		this.editor = new Editor(this);
-
-		console.log('App started');
 	}
 
 	App.prototype.addComponent = function (component, x, y) {

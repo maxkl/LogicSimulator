@@ -26,8 +26,6 @@ define([
 		this.startY = 0;
 
 		this.registerListeners();
-
-		console.log('Editor constructed');
 	}
 
 	Editor.prototype.registerListeners = function () {

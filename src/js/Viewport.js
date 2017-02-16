@@ -20,8 +20,6 @@ define(function () {
 		this.x = 0;
 		this.y = 0;
 		this.scale = 1;
-
-		console.log('Viewport constructed');
 	}
 
 	// Convert a coordinate in screen space to world space

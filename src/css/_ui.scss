@@ -7,10 +7,49 @@
 	flex-direction: column;
 
 	.toolbar {
+		$toolbar-height: 40px;
+		$toolbar-padding: 3px;
+
 		flex: none;
-		height: 30px;
+		display: flex;
+		flex-direction: row;
+		height: $toolbar-height;
+		padding: $toolbar-padding;
 
 		border-bottom: 1px solid #bdbdbd;
+
+		> * {
+			margin: 0 3px;
+		}
+
+		> .sep {
+			flex: none;
+			width: 1px;
+
+			background-color: #bdbdbd;
+		}
+
+		> button {
+			flex: none;
+			display: block;
+			line-height: $toolbar-height - 2 * $toolbar-padding;
+			padding: 0 5px;
+
+			background: none;
+			border: none;
+			font: inherit;
+			color: inherit;
+			outline: none;
+			cursor: pointer;
+
+			&:hover {
+				background-color: rgba(#000, .1);
+			}
+
+			&:active {
+				background-color: rgba(#000, .2);
+			}
+		}
 	}
 
 	.content {

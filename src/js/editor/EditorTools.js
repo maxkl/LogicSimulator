@@ -20,9 +20,9 @@ define([
 	EditorTools.prototype.registerListeners = function () {
 		var self = this;
 
-		window.run = function () {
+		document.getElementById('toolbar-run').addEventListener('click', function () {
 			self.emit('run');
-		};
+		});
 	};
 
 	return EditorTools;

@@ -52,7 +52,10 @@ define([
 		this.$svg.addEventListener('wheel', function (evt) {
 			if(evt.deltaY != 0) {
 				var zoomAmount = evt.deltaY < 0 ? zoomInAmount : zoomOutAmount;
-				self.viewport.zoom(zoomAmount, evt.clientX, evt.clientY);
+				var rect = self.$svg.getBoundingClientRect();
+				var mouseX = evt.clientX - rect.left;
+				var mouseY = evt.clientY - rect.top;
+				self.viewport.zoom(zoomAmount, mouseX, mouseY);
 			}
 		});
 

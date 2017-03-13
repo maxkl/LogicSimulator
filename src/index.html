@@ -6,28 +6,34 @@
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 	</head>
 	<body>
-		<div id="editor" class="editor">
-			<svg id="editor-svg" xmlns="http://www.w3.org/2000/svg" version="1.1">
-				<defs>
-					<pattern id="small-grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
-						<path d="M 10 0 L 0 0 L 0 10" fill="none" stroke="gray" stroke-width="0.5"></path>
-					</pattern>
-					<pattern id="grid-pattern" width="100" height="100" patternUnits="userSpaceOnUse">
-						<rect width="100" height="100" fill="url(#small-grid-pattern)"></rect>
-						<path d="M 100 0 L 0 0 L 0 100" fill="none" stroke="gray" stroke-width="1"></path>
-					</pattern>
+		<div class="ui">
+			<div class="toolbar">
 
-					<pattern id="background-pattern" patternTransform="matrix(1 0 0 1 0 0)" width="100" height="100" patternUnits="userSpaceOnUse">
-						<rect width="100" height="100" fill="url(#grid-pattern)"></rect>
-					</pattern>
-				</defs>
+			</div>
+			<div class="content">
+				<div class="sidebar">
 
-				<rect width="100%" height="100%" fill="url(#background-pattern)"></rect>
-				<g id="editor-viewport" transform="matrix(1 0 0 1 0 0)">
-					<circle cx="0" cy="0" r="3" fill="black"></circle>
-					<text x="5" y="21" text-anchor="start" font-size="16px" font-family="Source Code Pro" pointer-events="none">Origin</text>
-				</g>
-			</svg>
+				</div>
+				<div id="editor" class="editor">
+					<svg id="editor-svg" class="editor-canvas" xmlns="http://www.w3.org/2000/svg" version="1.1">
+						<defs>
+							<pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+								<path d="M 10 0 L 0 0 L 0 10" fill="none" stroke="gray" stroke-width="0.5"></path>
+							</pattern>
+
+							<pattern id="background-pattern" patternTransform="matrix(1 0 0 1 0 0)" width="100" height="100" patternUnits="userSpaceOnUse">
+								<rect width="100" height="100" fill="url(#grid-pattern)"></rect>
+							</pattern>
+						</defs>
+
+						<rect width="100%" height="100%" fill="url(#background-pattern)"></rect>
+						<g id="editor-viewport" transform="matrix(1 0 0 1 0 0)">
+							<circle cx="0" cy="0" r="3" fill="black"></circle>
+							<text x="5" y="21" text-anchor="start" font-size="16px" font-family="Source Code Pro" pointer-events="none">Origin</text>
+						</g>
+					</svg>
+				</div>
+			</div>
 		</div>
 
 		<script src="lib/require.js" data-main="js/main.js"></script>

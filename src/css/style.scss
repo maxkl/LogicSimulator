@@ -20,14 +20,4 @@ html, body {
 	user-select: none;
 }
 
-.editor {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-.editor > svg {
-	display: block;
-	width: 100%;
-	height: 100%;
-}
+@import "layout";

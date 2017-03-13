@@ -66,8 +66,8 @@ define([
 				if(self.mouseMode == MOUSE_PAN) {
 					self.viewport.setPosition(self.startX + diffX, self.startY + diffY);
 				} else if(self.mouseMode == MOUSE_DRAG_COMPONENT) {
-					var newX = self.startX + diffX * self.viewport.scale;
-					var newY = self.startY + diffY * self.viewport.scale;
+					var newX = self.startX + diffX / self.viewport.scale;
+					var newY = self.startY + diffY / self.viewport.scale;
 					var snappedX = Math.round(newX / 10) * 10;
 					var snappedY = Math.round(newY / 10) * 10;
 					self.targetComponentTransform.matrix.e = snappedX;

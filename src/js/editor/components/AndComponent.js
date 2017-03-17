@@ -6,12 +6,12 @@
 define([
 	'editor/displayComponent'
 ], function (displayComponent) {
-	function Component() {}
+	function AndComponent() {}
 
-	Component.prototype.display = function ($c, mousedown) {
+	AndComponent.prototype.display = function ($c, mousedown) {
 		var $handle = displayComponent($c, ['A', 'B'], ['Q'], '&');
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
-	return Component;
+	return AndComponent;
 });

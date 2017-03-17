@@ -11,6 +11,7 @@ define([
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG_COMPONENT = 2;
+	var MOUSE_CONNECT = 3;
 
 	function Editor(app) {
 		this.app = app;
@@ -36,14 +37,29 @@ define([
 		this.$svg.addEventListener('mousedown', function (evt) {
 			evt.preventDefault();
 
-			if(self.mouseMode == MOUSE_UP) {
-				self.mouseMode = MOUSE_PAN;
-				self.mouseStartX = evt.clientX;
-				self.mouseStartY = evt.clientY;
-				self.startX = self.viewport.x;
-				self.startY = self.viewport.y;
+			if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
+				if(self.mouseMode == MOUSE_UP) {
+					self.mouseMode = MOUSE_PAN;
 
-				self.$svg.style.cursor = 'move';
+					self.mouseStartX = evt.clientX;
+					self.mouseStartY = evt.clientY;
+					self.startX = self.viewport.x;
+					self.startY = self.viewport.y;
+
+					self.$svg.style.cursor = 'move';
+				}
+			} else if(self.tools.currentTool === EditorTools.TOOL_CONNECT) {
+				if(self.mouseMode === MOUSE_UP) {
+					self.mouseMode = MOUSE_CONNECT;
+
+					var rect = self.$svg.getBoundingClientRect();
+					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
+					var y = self.viewport.viewportToWorldY(evt.clientY - rect.top);
+					var snappedX = Math.round(x / 10) * 10;
+					var snappedY = Math.round(y / 10) * 10;
+
+					// TODO
+				}
 			}
 		});
 
@@ -75,6 +91,14 @@ define([
 					var snappedY = Math.round(newY / 10) * 10;
 					self.targetComponentTransform.matrix.e = snappedX;
 					self.targetComponentTransform.matrix.f = snappedY;
+				} else if(self.mouseMode === MOUSE_CONNECT) {
+					var rect = self.$svg.getBoundingClientRect();
+					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
+					var y = self.viewport.viewportToWorldY(evt.clientY - rect.top);
+					var snappedX = Math.round(x / 10) * 10;
+					var snappedY = Math.round(y / 10) * 10;
+
+					// TODO
 				}
 			}
 		});
@@ -101,15 +125,17 @@ define([
 		function mousedown(evt) {
 			evt.preventDefault();
 
-			if(self.mouseMode == MOUSE_UP) {
-				self.mouseMode = MOUSE_DRAG_COMPONENT;
-				self.mouseStartX = evt.clientX;
-				self.mouseStartY = evt.clientY;
-				self.startX = transform.matrix.e;
-				self.startY = transform.matrix.f;
-				self.targetComponentTransform = transform;
+			if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
+				if(self.mouseMode == MOUSE_UP) {
+					self.mouseMode = MOUSE_DRAG_COMPONENT;
+					self.mouseStartX = evt.clientX;
+					self.mouseStartY = evt.clientY;
+					self.startX = transform.matrix.e;
+					self.startY = transform.matrix.f;
+					self.targetComponentTransform = transform;
 
-				self.$svg.style.cursor = 'move';
+					self.$svg.style.cursor = 'move';
+				}
 			}
 		}
 

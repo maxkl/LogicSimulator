@@ -6,8 +6,9 @@
 define([
 	'Viewport',
 	'editor/EditorTools',
+	'editor/Connection',
 	'lib/SvgUtil'
-], function (Viewport, EditorTools, SvgUtil) {
+], function (Viewport, EditorTools, Connection, SvgUtil) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG_COMPONENT = 2;
@@ -25,6 +26,9 @@ define([
 		this.mouseStartY = 0;
 		this.startX = 0;
 		this.startY = 0;
+
+		this.connections = [];
+		this.currentConnection = null;
 
 		this.registerListeners();
 	}
@@ -55,10 +59,11 @@ define([
 					var rect = self.$svg.getBoundingClientRect();
 					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
 					var y = self.viewport.viewportToWorldY(evt.clientY - rect.top);
-					var snappedX = Math.round(x / 10) * 10;
-					var snappedY = Math.round(y / 10) * 10;
+					var snappedX = Math.round(x / 10);
+					var snappedY = Math.round(y / 10);
 
-					// TODO
+					self.currentConnection = new Connection(snappedX, snappedY, snappedX, snappedY);
+					self.currentConnection.display(self.viewport.$viewportGroup);
 				}
 			}
 		});
@@ -95,16 +100,34 @@ define([
 					var rect = self.$svg.getBoundingClientRect();
 					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
 					var y = self.viewport.viewportToWorldY(evt.clientY - rect.top);
-					var snappedX = Math.round(x / 10) * 10;
-					var snappedY = Math.round(y / 10) * 10;
 
-					// TODO
+					var snappedX, snappedY;
+					if(Math.abs(x - self.currentConnection.x1 * 10) < Math.abs(y - self.currentConnection.y1 * 10)) {
+						snappedX = self.currentConnection.x1;
+						snappedY = Math.round(y / 10);
+					} else {
+						snappedX = Math.round(x / 10);
+						snappedY = self.currentConnection.y1;
+					}
+
+					self.currentConnection.x2 = snappedX;
+					self.currentConnection.y2 = snappedY;
+					self.currentConnection.updateDisplay();
 				}
 			}
 		});
 
 		window.addEventListener('mouseup', function (evt) {
 			evt.preventDefault();
+
+			if(self.mouseMode === MOUSE_CONNECT) {
+				if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
+					self.connections.push(self.currentConnection);
+				} else {
+					self.currentConnection.remove();
+				}
+				self.currentConnection = null;
+			}
 
 			self.mouseMode = MOUSE_UP;
 

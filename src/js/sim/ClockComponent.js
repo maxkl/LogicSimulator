@@ -3,8 +3,13 @@
  * License: MIT
  */
 
-define(function () {
+define([
+	'sim/Component',
+	'lib/extend'
+], function (Component, extend) {
 	function ClockComponent(period) {
+		Component.call(this, arguments);
+
 		this.period = period;
 		this.halfPeriod = period / 2;
 		this.in = {};
@@ -14,6 +19,8 @@ define(function () {
 
 		this.ticks = 0;
 	}
+
+	extend(ClockComponent, Component);
 
 	ClockComponent.prototype.exec = function () {
 		this.ticks++;

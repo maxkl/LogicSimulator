@@ -3,8 +3,13 @@
  * License: MIT
  */
 
-define(function () {
+define([
+	'sim/Component',
+	'lib/extend'
+], function (Component, extend) {
 	function AndComponent() {
+		Component.call(this, arguments);
+
 		this.in = {
 			A: false,
 			B: false
@@ -13,6 +18,8 @@ define(function () {
 			Q: false
 		};
 	}
+
+	extend(AndComponent, Component);
 
 	AndComponent.prototype.exec = function () {
 		this.out.Q = this.in.A && this.in.B;

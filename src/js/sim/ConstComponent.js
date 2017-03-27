@@ -3,13 +3,20 @@
  * License: MIT
  */
 
-define(function () {
+define([
+	'sim/Component',
+	'lib/extend'
+], function (Component, extend) {
 	function ConstComponent(value) {
+		Component.call(this, arguments);
+
 		this.in = {};
 		this.out = {
 			Q: value
 		};
 	}
+
+	extend(ConstComponent, Component);
 
 	ConstComponent.prototype.exec = function () {};
 

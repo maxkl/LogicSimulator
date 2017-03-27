@@ -3,8 +3,13 @@
  * License: MIT
  */
 
-define(function () {
+define([
+	'sim/Component',
+	'lib/extend'
+], function (Component, extend) {
 	function NotComponent() {
+		Component.call(this, arguments);
+
 		this.in = {
 			A: false
 		};
@@ -12,6 +17,8 @@ define(function () {
 			Q: true
 		};
 	}
+
+	extend(NotComponent, Component);
 
 	NotComponent.prototype.exec = function () {
 		this.out.Q = !this.in.A;

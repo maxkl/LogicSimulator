@@ -3,8 +3,13 @@
  * License: MIT
  */
 
-define(function () {
+define([
+	'sim/Component',
+	'lib/extend'
+], function (Component, extend) {
 	function DFlipFlopComponent() {
+		Component.call(this, arguments);
+
 		this.in = {
 			D: false,
 			CLK: false
@@ -14,6 +19,8 @@ define(function () {
 		};
 		this.lastClk = false;
 	}
+
+	extend(DFlipFlopComponent, Component);
 
 	DFlipFlopComponent.prototype.exec = function () {
 		if(!this.lastClk && this.in.CLK) {

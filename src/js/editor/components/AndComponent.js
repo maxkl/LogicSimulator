@@ -6,7 +6,7 @@
 define([
 	'editor/Component',
 	'editor/displayComponent',
-	'sim/AndComponent',
+	'sim/components/AndComponent',
 	'lib/extend'
 ], function (Component, displayComponent, SimAndComponent, extend) {
 	function AndComponent() {

@@ -6,7 +6,7 @@
 define([
 	'editor/Component',
 	'editor/displayComponent',
-	'sim/FullAdderComponent',
+	'sim/components/FullAdderComponent',
 	'lib/extend'
 ], function (Component, displayComponent, SimFullAdderComponent, extend) {
 	function FullAdderComponent() {

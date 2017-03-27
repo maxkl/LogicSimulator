@@ -6,7 +6,7 @@
 define([
 	'editor/Component',
 	'editor/displayComponent',
-	'sim/NotComponent',
+	'sim/components/NotComponent',
 	'lib/extend'
 ], function (Component, displayComponent, SimNotComponent, extend) {
 	function NotComponent() {

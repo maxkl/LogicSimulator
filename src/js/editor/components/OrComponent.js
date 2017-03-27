@@ -6,7 +6,7 @@
 define([
 	'editor/Component',
 	'editor/displayComponent',
-	'sim/OrComponent',
+	'sim/components/OrComponent',
 	'lib/extend'
 ], function (Component, displayComponent, SimOrComponent, extend) {
 	function OrComponent() {

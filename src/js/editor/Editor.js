@@ -7,8 +7,9 @@ define([
 	'Viewport',
 	'editor/EditorTools',
 	'editor/Connection',
+	'sim/Connection',
 	'lib/SvgUtil'
-], function (Viewport, EditorTools, Connection, SvgUtil) {
+], function (Viewport, EditorTools, Connection, SimConnection, SvgUtil) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG_COMPONENT = 2;
@@ -135,7 +136,7 @@ define([
 		});
 
 		this.tools.on('run', function () {
-			console.log('RUN!');
+			self.run();
 		});
 	};
 
@@ -165,6 +166,134 @@ define([
 		component.display($container, mousedown);
 
 		this.viewport.$viewportGroup.appendChild($container);
+	};
+
+	function mergeConnections(cons, coords, con1, con2) {
+		if(con1 === con2) return;
+
+		// Copy points from con2 to con1
+		for(var i = 0; i < con2.length; i++) {
+			var pt = con2[i];
+			con1.push(pt);
+			coords[pt] = con1;
+		}
+
+		// Remove con2 from connection list
+		var index = cons.indexOf(con2);
+		if(index !== -1) {
+			cons.splice(index, 1);
+		} else {
+			console.warn('con2 not in cons');
+		}
+	}
+
+	Editor.prototype.constructCircuit = function () {
+		var coords = {};
+		var cons = [];
+
+		// TODO: add all compononts' connection points
+		// for(var i = 0; i < this.components.length; i++) {
+		// 	var com = this.components[i];
+		//
+		// }
+		// TODO: like that:
+		var comp1 = ['0|0'];
+		coords['0|0'] = comp1;
+		cons.push(comp1);
+
+		// Find connections on endpoints
+		for(var i = 0; i < this.connections.length; i++) {
+			var con = this.connections[i];
+			var pt1 = con.x1 + '|' + con.y1;
+			var pt2 = con.x2 + '|' + con.y2;
+			if(coords[pt1] && coords[pt2]) {
+				// There are connections at both endpoints
+				// -> merge them
+				mergeConnections(cons, coords, coords[pt1], coords[pt2]);
+			} else if(coords[pt1]) {
+				// There is a connection at the first endpoint
+				// -> add pt2 to it
+				coords[pt1].push(pt2);
+				coords[pt2] = coords[pt1];
+			} else if(coords[pt2]) {
+				// There is a connection at the second endpoint
+				// -> add pt1 to it
+				coords[pt2].push(pt1);
+				coords[pt1] = coords[pt2];
+			} else {
+				// There is no connection at any endpoint
+				// -> create a new connection with both endpoints in it
+				var connection = [pt1, pt2];
+				coords[pt1] = coords[pt2] = connection;
+				cons.push(connection);
+			}
+		}
+
+		// Find connections inbetween endpoints
+		for(var i = 0; i < this.connections.length; i++) {
+			var con = this.connections[i];
+
+			var pt1 = con.x1 + '|' + con.y1;
+			var con1 = coords[pt1];
+
+			if(con.x1 === con.x2) {
+				// Vertical line
+				var start = Math.min(con.y1, con.y2);
+				var end = Math.max(con.y1, con.y2);
+				for(var y = start + 1; y < end; y++) {
+					var pt2 = con.x1 + '|' + y;
+					// If there is an endpoint beneath this connection
+					// -> connect the current connection with it
+					if(coords[pt2]) {
+						mergeConnections(cons, coords, con1, coords[pt2]);
+					}
+				}
+			} else {
+				// Horizontal line
+				var start = Math.min(con.x1, con.x2);
+				var end = Math.max(con.x1, con.x2);
+				for(var x = start + 1; x < end; x++) {
+					var pt2 = x + '|' + con.y1;
+					// If there is an endpoint beneath this connection
+					// -> connect the current connection with it
+					if(coords[pt2]) {
+						mergeConnections(cons, coords, con1, coords[pt2]);
+					}
+				}
+			}
+		}
+
+		// Convert all the found connections to simulation connections
+		for(var i = 0; i < cons.length; i++) {
+			var con = cons[i];
+			var simCon = new SimConnection();
+
+			for(var j = 0; j < con.length; j++) {
+				var pt = con[j];
+				coords[pt] = simCon;
+			}
+
+			cons[i] = simCon;
+		}
+
+		// TODO: add components to connections
+		// for(var i = 0; i < this.components.length; i++) {
+		// 	var com = this.components[i];
+		//
+		// }
+
+		return null;
+	};
+
+	Editor.prototype.run = function () {
+		var dateObj = window.performance || Date;
+		var time = dateObj.now();
+		var circuit = this.constructCircuit();
+		time = dateObj.now() - time;
+		console.log('Constructed circuit in ' + time + 'ms');
+
+		window.circuit = circuit;
+		console.log(circuit);
 	};
 
 	return Editor;

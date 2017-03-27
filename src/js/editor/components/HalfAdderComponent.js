@@ -4,11 +4,17 @@
  */
 
 define([
-	'editor/displayComponent'
-], function (displayComponent) {
-	function HalfAdderComponent() {}
+	'editor/Component',
+	'editor/displayComponent',
+	'lib/extend'
+], function (Component, displayComponent, extend) {
+	function HalfAdderComponent() {
+		Component.call(this);
+	}
 
-	HalfAdderComponent.prototype.display = function ($c, mousedown) {
+	extend(HalfAdderComponent, Component);
+
+	HalfAdderComponent.prototype._display = function ($c, mousedown) {
 		var $handle = displayComponent($c, ['A', 'B'], ['S', 'C'], 'HA');
 		$handle.addEventListener('mousedown', mousedown);
 	};

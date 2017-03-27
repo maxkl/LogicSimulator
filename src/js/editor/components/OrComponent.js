@@ -4,11 +4,17 @@
  */
 
 define([
-	'editor/displayComponent'
-], function (displayComponent) {
-	function OrComponent() {}
+	'editor/Component',
+	'editor/displayComponent',
+	'lib/extend'
+], function (Component, displayComponent, extend) {
+	function OrComponent() {
+		Component.call(this);
+	}
 
-	OrComponent.prototype.display = function ($c, mousedown) {
+	extend(OrComponent, Component);
+
+	OrComponent.prototype._display = function ($c, mousedown) {
 		var $handle = displayComponent($c, ['A', 'B', 'C'], ['Q'], '≥1');
 		$handle.addEventListener('mousedown', mousedown);
 	};

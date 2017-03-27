@@ -14,20 +14,20 @@ define([
 ], function (SvgUtil, App, AndComponent, NotComponent, HalfAdderComponent, OrComponent, FullAdderComponent) {
 	var app = new App();
 
-	app.addComponent(new AndComponent(), 100, 700);
+	app.editor.addComponent(new AndComponent(), 10, 70);
 
 	// 1-1
-	app.addComponent(new NotComponent(), 100, 100);
+	app.editor.addComponent(new NotComponent(), 10, 10);
 
 	// 2-1
-	app.addComponent(new AndComponent(), 100, 300);
+	app.editor.addComponent(new AndComponent(), 10, 30);
 
 	// 2-2
-	app.addComponent(new HalfAdderComponent(), 200, 300);
+	app.editor.addComponent(new HalfAdderComponent(), 20, 30);
 
 	// 3-1
-	app.addComponent(new OrComponent(), 100, 500);
+	app.editor.addComponent(new OrComponent(), 10, 50);
 
 	// 3-2
-	app.addComponent(new FullAdderComponent(), 200, 500);
+	app.editor.addComponent(new FullAdderComponent(), 20, 50);
 });

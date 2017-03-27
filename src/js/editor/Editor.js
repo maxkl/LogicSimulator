@@ -31,6 +31,9 @@ define([
 		this.connections = [];
 		this.currentConnection = null;
 
+		this.components = [];
+		this.currentComponent = null;
+
 		this.registerListeners();
 	}
 
@@ -91,12 +94,15 @@ define([
 				if(self.mouseMode == MOUSE_PAN) {
 					self.viewport.setPosition(self.startX + diffX, self.startY + diffY);
 				} else if(self.mouseMode == MOUSE_DRAG_COMPONENT) {
-					var newX = self.startX + diffX / self.viewport.scale;
-					var newY = self.startY + diffY / self.viewport.scale;
-					var snappedX = Math.round(newX / 10) * 10;
-					var snappedY = Math.round(newY / 10) * 10;
-					self.targetComponentTransform.matrix.e = snappedX;
-					self.targetComponentTransform.matrix.f = snappedY;
+					var scaledDiffX = diffX / self.viewport.scale;
+					var scaledDiffY = diffY / self.viewport.scale;
+
+					var snappedX = self.startX + Math.round(scaledDiffX / 10);
+					var snappedY = self.startY + Math.round(scaledDiffY / 10);
+
+					self.currentComponent.x = snappedX;
+					self.currentComponent.y = snappedY;
+					self.currentComponent.updateDisplay();
 				} else if(self.mouseMode === MOUSE_CONNECT) {
 					var rect = self.$svg.getBoundingClientRect();
 					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
@@ -121,7 +127,9 @@ define([
 		window.addEventListener('mouseup', function (evt) {
 			evt.preventDefault();
 
-			if(self.mouseMode === MOUSE_CONNECT) {
+			if(self.mouseMode === MOUSE_DRAG_COMPONENT) {
+				self.currentComponent = null;
+			} else if(self.mouseMode === MOUSE_CONNECT) {
 				if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
 					self.connections.push(self.currentConnection);
 				} else {
@@ -141,9 +149,10 @@ define([
 	};
 
 	Editor.prototype.addComponent = function (component, x, y) {
-		var $container = SvgUtil.createElement('g');
-		$container.setAttribute('transform', 'matrix(1 0 0 1 ' + x + ' ' + y + ')');
-		var transform = $container.transform.baseVal[0];
+		this.components.push(component);
+
+		component.x = x;
+		component.y = y;
 
 		var self = this;
 		function mousedown(evt) {
@@ -154,18 +163,16 @@ define([
 					self.mouseMode = MOUSE_DRAG_COMPONENT;
 					self.mouseStartX = evt.clientX;
 					self.mouseStartY = evt.clientY;
-					self.startX = transform.matrix.e;
-					self.startY = transform.matrix.f;
-					self.targetComponentTransform = transform;
+					self.startX = component.x;
+					self.startY = component.y;
+					self.currentComponent = component;
 
 					self.$svg.style.cursor = 'move';
 				}
 			}
 		}
 
-		component.display($container, mousedown);
-
-		this.viewport.$viewportGroup.appendChild($container);
+		component.display(this.viewport.$viewportGroup, mousedown);
 	};
 
 	function mergeConnections(cons, coords, con1, con2) {
@@ -192,10 +199,11 @@ define([
 		var cons = [];
 
 		// TODO: add all compononts' connection points
-		// for(var i = 0; i < this.components.length; i++) {
-		// 	var com = this.components[i];
-		//
-		// }
+		for(var i = 0; i < this.components.length; i++) {
+			var com = this.components[i];
+			var pts = com.getConnectionPoints();
+
+		}
 		// TODO: like that:
 		var comp1 = ['0|0'];
 		coords['0|0'] = comp1;

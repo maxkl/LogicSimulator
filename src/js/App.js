@@ -8,16 +8,8 @@ define([
 	'editor/Editor'
 ], function (SvgUtil, Editor) {
 	function App() {
-		this.components = [];
-
 		this.editor = new Editor(this);
 	}
-
-	App.prototype.addComponent = function (component, x, y) {
-		this.editor.addComponent(component, x, y);
-
-		this.components.push(component);
-	};
 
 	return App;
 });

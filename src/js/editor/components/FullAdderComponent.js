@@ -4,11 +4,17 @@
  */
 
 define([
-	'editor/displayComponent'
-], function (displayComponent) {
-	function FullAdderComponent() {}
+	'editor/Component',
+	'editor/displayComponent',
+	'lib/extend'
+], function (Component, displayComponent, extend) {
+	function FullAdderComponent() {
+		Component.call(this);
+	}
 
-	FullAdderComponent.prototype.display = function ($c, mousedown) {
+	extend(FullAdderComponent, Component);
+
+	FullAdderComponent.prototype._display = function ($c, mousedown) {
 		var $handle = displayComponent($c, ['A', 'B', 'C'], ['S', 'C'], 'FA');
 		$handle.addEventListener('mousedown', mousedown);
 	};

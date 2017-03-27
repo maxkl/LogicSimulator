@@ -6,10 +6,46 @@
 define([
 	'editor/Component',
 	'editor/displayComponent',
+	'sim/FullAdderComponent',
 	'lib/extend'
-], function (Component, displayComponent, extend) {
+], function (Component, displayComponent, SimFullAdderComponent, extend) {
 	function FullAdderComponent() {
 		Component.call(this);
+
+		this.component = new SimFullAdderComponent();
+
+		this.connectionPoints = [
+			{
+				out: false,
+				x: -1,
+				y: 3,
+				name: 'A'
+			},
+			{
+				out: false,
+				x: -1,
+				y: 7,
+				name: 'B'
+			},
+			{
+				out: false,
+				x: -1,
+				y: 11,
+				name: 'C'
+			},
+			{
+				out: true,
+				x: 6,
+				y: 5,
+				name: 'S'
+			},
+			{
+				out: true,
+				x: 6,
+				y: 9,
+				name: 'C'
+			}
+		];
 	}
 
 	extend(FullAdderComponent, Component);

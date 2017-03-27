@@ -6,16 +6,40 @@
 define([
 	'editor/Component',
 	'editor/displayComponent',
+	'sim/OrComponent',
 	'lib/extend'
-], function (Component, displayComponent, extend) {
+], function (Component, displayComponent, SimOrComponent, extend) {
 	function OrComponent() {
 		Component.call(this);
+
+		this.component = new SimOrComponent();
+
+		this.connectionPoints = [
+			{
+				out: false,
+				x: -1,
+				y: 3,
+				name: 'A'
+			},
+			{
+				out: false,
+				x: -1,
+				y: 7,
+				name: 'B'
+			},
+			{
+				out: true,
+				x: 6,
+				y: 5,
+				name: 'Q'
+			}
+		];
 	}
 
 	extend(OrComponent, Component);
 
 	OrComponent.prototype._display = function ($c, mousedown) {
-		var $handle = displayComponent($c, ['A', 'B', 'C'], ['Q'], '≥1');
+		var $handle = displayComponent($c, ['A', 'B'], ['Q'], '≥1');
 		$handle.addEventListener('mousedown', mousedown);
 	};
 

@@ -15,6 +15,10 @@ define([
 		this.transform = null;
 	}
 
+	Component.prototype.constructSimComponent = function () {
+		return this.component.construct();
+	};
+
 	Component.prototype.display = function ($container, mousedown) {
 		this.$group = SvgUtil.createElement('g');
 		this.$group.setAttribute('transform', 'matrix(1 0 0 1 0 0)');

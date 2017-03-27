@@ -8,8 +8,9 @@ define([
 	'editor/EditorTools',
 	'editor/Connection',
 	'sim/Connection',
+	'sim/Circuit',
 	'lib/SvgUtil'
-], function (Viewport, EditorTools, Connection, SimConnection, SvgUtil) {
+], function (Viewport, EditorTools, Connection, SimConnection, SimCircuit, SvgUtil) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG_COMPONENT = 2;
@@ -196,18 +197,26 @@ define([
 
 	Editor.prototype.constructCircuit = function () {
 		var coords = {};
-		var cons = [];
 
-		// TODO: add all compononts' connection points
+		var connections = [];
+		var components = [];
+
 		for(var i = 0; i < this.components.length; i++) {
 			var com = this.components[i];
-			var pts = com.getConnectionPoints();
+			var pts = com.connectionPoints;
 
+			for(var j = 0; j < pts.length; j++) {
+				var x = com.x + pts[j].x;
+				var y = com.y + pts[j].y;
+				var pt = x + '|' + y;
+
+				if(!coords[pt]) {
+					var con = [pt];
+					coords[pt] = con;
+					connections.push(con);
+				}
+			}
 		}
-		// TODO: like that:
-		var comp1 = ['0|0'];
-		coords['0|0'] = comp1;
-		cons.push(comp1);
 
 		// Find connections on endpoints
 		for(var i = 0; i < this.connections.length; i++) {
@@ -217,7 +226,7 @@ define([
 			if(coords[pt1] && coords[pt2]) {
 				// There are connections at both endpoints
 				// -> merge them
-				mergeConnections(cons, coords, coords[pt1], coords[pt2]);
+				mergeConnections(connections, coords, coords[pt1], coords[pt2]);
 			} else if(coords[pt1]) {
 				// There is a connection at the first endpoint
 				// -> add pt2 to it
@@ -233,7 +242,7 @@ define([
 				// -> create a new connection with both endpoints in it
 				var connection = [pt1, pt2];
 				coords[pt1] = coords[pt2] = connection;
-				cons.push(connection);
+				connections.push(connection);
 			}
 		}
 
@@ -253,7 +262,7 @@ define([
 					// If there is an endpoint beneath this connection
 					// -> connect the current connection with it
 					if(coords[pt2]) {
-						mergeConnections(cons, coords, con1, coords[pt2]);
+						mergeConnections(connections, coords, con1, coords[pt2]);
 					}
 				}
 			} else {
@@ -265,15 +274,15 @@ define([
 					// If there is an endpoint beneath this connection
 					// -> connect the current connection with it
 					if(coords[pt2]) {
-						mergeConnections(cons, coords, con1, coords[pt2]);
+						mergeConnections(connections, coords, con1, coords[pt2]);
 					}
 				}
 			}
 		}
 
 		// Convert all the found connections to simulation connections
-		for(var i = 0; i < cons.length; i++) {
-			var con = cons[i];
+		for(var i = 0; i < connections.length; i++) {
+			var con = connections[i];
 			var simCon = new SimConnection();
 
 			for(var j = 0; j < con.length; j++) {
@@ -281,16 +290,30 @@ define([
 				coords[pt] = simCon;
 			}
 
-			cons[i] = simCon;
+			connections[i] = simCon;
 		}
 
-		// TODO: add components to connections
-		// for(var i = 0; i < this.components.length; i++) {
-		// 	var com = this.components[i];
-		//
-		// }
+		for(var i = 0; i < this.components.length; i++) {
+			var com = this.components[i];
+			var pts = com.connectionPoints;
 
-		return null;
+			var component = com.constructSimComponent();
+			for(var j = 0; j < pts.length; j++) {
+				var pt = pts[j];
+				var x = com.x + pts[j].x;
+				var y = com.y + pts[j].y;
+				var con = coords[x + '|' + y];
+
+				if(pts[j].out) {
+					con.addInput(component, pts[j].name);
+				} else {
+					con.addOutput(component, pts[j].name);
+				}
+			}
+			components.push(component);
+		}
+
+		return new SimCircuit(components, connections);
 	};
 
 	Editor.prototype.run = function () {

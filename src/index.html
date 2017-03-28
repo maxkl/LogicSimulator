@@ -16,26 +16,30 @@
 				<div class="sep"></div>
 				<button id="toolbar-run">Run</button>
 			</div>
-			<div class="content">
-				<div class="sidebar">
+			<div id="editor" class="editor">
+				<div id="sidebar-wrapper" class="sidebar-wrapper">
+					<button id="sidebar-min-max" class="sidebar-min-max">
+						<span class="min">Min</span>
+						<span class="max">Max</span>
+					</button>
+					<div class="sidebar">
 
+					</div>
 				</div>
-				<div id="editor" class="editor">
-					<svg id="editor-svg" class="editor-canvas" xmlns="http://www.w3.org/2000/svg" version="1.1">
-						<defs>
-							<pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
-								<path d="M 10 0 L 0 0 L 0 10" fill="none" stroke="gray" stroke-width="0.5"></path>
-							</pattern>
+				<svg id="editor-svg" class="editor-canvas" xmlns="http://www.w3.org/2000/svg" version="1.1">
+					<defs>
+						<pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+							<path d="M 10 0 L 0 0 L 0 10" fill="none" stroke="gray" stroke-width="0.5"></path>
+						</pattern>
 
-							<pattern id="background-pattern" patternTransform="matrix(1 0 0 1 0 0)" width="100" height="100" patternUnits="userSpaceOnUse">
-								<rect width="100" height="100" fill="url(#grid-pattern)"></rect>
-							</pattern>
-						</defs>
+						<pattern id="background-pattern" patternTransform="matrix(1 0 0 1 0 0)" width="100" height="100" patternUnits="userSpaceOnUse">
+							<rect width="100" height="100" fill="url(#grid-pattern)"></rect>
+						</pattern>
+					</defs>
 
-						<rect width="100%" height="100%" fill="url(#background-pattern)"></rect>
-						<g id="editor-viewport" transform="matrix(1 0 0 1 0 0)"></g>
-					</svg>
-				</div>
+					<rect width="100%" height="100%" fill="url(#background-pattern)"></rect>
+					<g id="editor-viewport" transform="matrix(1 0 0 1 0 0)"></g>
+				</svg>
 			</div>
 		</div>
 

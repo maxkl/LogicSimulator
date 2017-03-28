@@ -6,11 +6,12 @@
 define([
 	'Viewport',
 	'editor/EditorTools',
+	'editor/Sidebar',
 	'editor/Connection',
 	'sim/Connection',
 	'sim/Circuit',
 	'lib/SvgUtil'
-], function (Viewport, EditorTools, Connection, SimConnection, SimCircuit, SvgUtil) {
+], function (Viewport, EditorTools, Sidebar, Connection, SimConnection, SimCircuit, SvgUtil) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG_COMPONENT = 2;
@@ -20,6 +21,7 @@ define([
 		this.app = app;
 
 		this.tools = new EditorTools(app);
+		this.sidebar = new Sidebar(app);
 		this.$svg = document.getElementById('editor-svg');
 		this.viewport = new Viewport(app, this.$svg);
 

@@ -52,27 +52,74 @@
 		}
 	}
 
-	.content {
+	.editor {
 		flex: auto;
-		display: flex;
-		flex-direction: row;
+		position: relative;
+		height: 0;
 
-		.sidebar {
-			flex: none;
-			width: 200px;
+		.sidebar-wrapper {
+			$sidebar-width: 200px;
 
-			border-right: 1px solid #bdbdbd;
+			position: absolute;
+			left: 0;
+			top: 0;
+			bottom: 0;
+
+			&.hidden {
+				.sidebar-min-max {
+					left: 0;
+
+					.min {
+						display: none;
+					}
+
+					.max {
+						display: inline;
+					}
+				}
+
+				.sidebar {
+					visibility: hidden;
+				}
+			}
+
+			.sidebar-min-max {
+				display: block;
+				position: absolute;
+				left: $sidebar-width;
+
+				background: none;
+				background-color: #fff;
+				border: none;
+				border-right: 1px solid #bdbdbd;
+				border-bottom: 1px solid #bdbdbd;
+				border-bottom-right-radius: 8px;
+				font: inherit;
+
+				cursor: pointer;
+
+				.min {
+					display: inline;
+				}
+
+				.max {
+					display: none;
+				}
+			}
+
+			.sidebar {
+				width: $sidebar-width;
+				height: 100%;
+
+				background-color: #fff;
+				border-right: 1px solid #bdbdbd;
+			}
 		}
 
-		.editor {
-			flex: auto;
-			position: relative;
-
-			.editor-canvas {
-				display: block;
-				width: 100%;
-				height: 100%;
-			}
+		.editor-canvas {
+			display: block;
+			width: 100%;
+			height: 100%;
 		}
 	}
 }

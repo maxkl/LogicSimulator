@@ -3,24 +3,25 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>LogicSimulator</title>
+		<link rel="stylesheet" href="https://cdn.materialdesignicons.com/1.8.36/css/materialdesignicons.min.css" />
 		<link rel="stylesheet" type="text/css" href="css/style.css" />
 	</head>
 	<body>
 		<div class="ui">
 			<div class="toolbar">
-				<button>Save</button>
-				<button>Open</button>
+				<button><span class="mdi mdi-content-save"></button>
+				<button><span class="mdi mdi-folder-outline"></button>
 				<div class="sep"></div>
-				<button id="toolbar-tool-normal">Normal</button>
-				<button id="toolbar-tool-connect">Connect</button>
+				<button id="toolbar-tool-normal"><span class="mdi mdi-cursor-default-outline"></span></button>
+				<button id="toolbar-tool-connect"><span class="mdi mdi-vector-line"></span></button>
 				<div class="sep"></div>
-				<button id="toolbar-run">Run</button>
+				<button id="toolbar-run"><span class="mdi mdi-play"></button>
 			</div>
 			<div id="editor" class="editor">
 				<div id="sidebar-wrapper" class="sidebar-wrapper">
 					<button id="sidebar-min-max" class="sidebar-min-max">
-						<span class="min">Min</span>
-						<span class="max">Max</span>
+						<span class="min mdi mdi-chevron-left"></span>
+						<span class="max mdi mdi-chevron-right"></span>
 					</button>
 					<div class="sidebar">
 

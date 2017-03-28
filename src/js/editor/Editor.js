@@ -143,7 +143,17 @@ define([
 
 			self.mouseMode = MOUSE_UP;
 
-			self.$svg.style.removeProperty('cursor');
+			if(self.tools.currentTool !== EditorTools.TOOL_CONNECT) {
+				self.$svg.style.removeProperty('cursor');
+			}
+		});
+
+		this.tools.on('tool-changed', function (tool) {
+			if(tool === EditorTools.TOOL_CONNECT) {
+				self.$svg.style.cursor = 'crosshair';
+			} else {
+				self.$svg.style.removeProperty('cursor');
+			}
 		});
 
 		this.tools.on('run', function () {

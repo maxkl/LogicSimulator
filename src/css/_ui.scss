@@ -112,9 +112,48 @@
 			.sidebar {
 				width: $sidebar-width;
 				height: 100%;
+				overflow-y: scroll;
 
 				background-color: #fff;
 				border-right: 1px solid #bdbdbd;
+
+				.section {
+					.section-title {
+						background-color: #e0e0e0;
+						padding: 3px 5px;
+					}
+
+					.components {
+						display: flex;
+						flex-direction: row;
+						flex-wrap: wrap;
+
+						.component {
+							width: 50%;
+
+							padding: 5px 0;
+
+							.component-preview {
+								display: block;
+								width: 80px;
+								height: 100px;
+								margin: 0 auto;
+								margin-bottom: 5px;
+
+								svg {
+									pointer-events: none;
+								}
+							}
+
+							.component-name {
+								text-align: center;
+								white-space: nowrap;
+								overflow: hidden;
+								text-overflow: ellipsis;
+							}
+						}
+					}
+				}
 			}
 		}
 

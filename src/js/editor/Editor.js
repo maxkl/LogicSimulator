@@ -236,24 +236,33 @@ define([
 		component.display(this.viewport.$viewportGroup, mousedown);
 	};
 
-	function mergeConnections(cons, coords, con1, con2) {
-		if(con1 === con2) return;
-
-		// Copy points from con2 to con1
-		for(var i = 0; i < con2.length; i++) {
-			var pt = con2[i];
-			con1.push(pt);
-			coords[pt] = con1;
-		}
-
-		// Remove con2 from connection list
-		var index = cons.indexOf(con2);
-		if(index !== -1) {
-			cons.splice(index, 1);
-		} else {
-			console.warn('con2 not in cons');
-		}
+	function ConstructionConnection(points, editorConnections) {
+		this.points = points;
+		this.editorConnections = editorConnections;
 	}
+
+	ConstructionConnection.prototype.merge = function (other, coords, connections) {
+		if(other === this) return;
+
+		// Copy points from `other` to `this`
+		for(var i = 0; i < other.points.length; i++) {
+			var point = other.points[i];
+			this.points.push(point);
+			coords[point] = this;
+		}
+
+		for(var i = 0; i < other.editorConnections.length; i++) {
+			this.editorConnections.push(other.editorConnections[i]);
+		}
+
+		// Remove `other` from connection list
+		var index = connections.indexOf(other);
+		if(index !== -1) {
+			connections.splice(index, 1);
+		} else {
+			console.warn('`other` not in connections list');
+		}
+	};
 
 	Editor.prototype.constructCircuit = function () {
 		var coords = {};
@@ -271,7 +280,7 @@ define([
 				var pt = x + '|' + y;
 
 				if(!coords[pt]) {
-					var con = [pt];
+					var con = new ConstructionConnection([pt], []);
 					coords[pt] = con;
 					connections.push(con);
 				}
@@ -286,21 +295,24 @@ define([
 			if(coords[pt1] && coords[pt2]) {
 				// There are connections at both endpoints
 				// -> merge them
-				mergeConnections(connections, coords, coords[pt1], coords[pt2]);
+				coords[pt1].merge(coords[pt2], coords, connections);
+				coords[pt1].editorConnections.push(con);
 			} else if(coords[pt1]) {
 				// There is a connection at the first endpoint
 				// -> add pt2 to it
-				coords[pt1].push(pt2);
+				coords[pt1].points.push(pt2);
+				coords[pt1].editorConnections.push(con);
 				coords[pt2] = coords[pt1];
 			} else if(coords[pt2]) {
 				// There is a connection at the second endpoint
 				// -> add pt1 to it
-				coords[pt2].push(pt1);
+				coords[pt2].points.push(pt1);
+				coords[pt2].editorConnections.push(con);
 				coords[pt1] = coords[pt2];
 			} else {
 				// There is no connection at any endpoint
 				// -> create a new connection with both endpoints in it
-				var connection = [pt1, pt2];
+				var connection = new ConstructionConnection([pt1, pt2], [con]);
 				coords[pt1] = coords[pt2] = connection;
 				connections.push(connection);
 			}
@@ -322,7 +334,7 @@ define([
 					// If there is an endpoint beneath this connection
 					// -> connect the current connection with it
 					if(coords[pt2]) {
-						mergeConnections(connections, coords, con1, coords[pt2]);
+						con1.merge(coords[pt2], coords, connections);
 					}
 				}
 			} else {
@@ -334,7 +346,7 @@ define([
 					// If there is an endpoint beneath this connection
 					// -> connect the current connection with it
 					if(coords[pt2]) {
-						mergeConnections(connections, coords, con1, coords[pt2]);
+						con1.merge(coords[pt2], coords, connections);
 					}
 				}
 			}
@@ -344,9 +356,10 @@ define([
 		for(var i = 0; i < connections.length; i++) {
 			var con = connections[i];
 			var simCon = new SimConnection();
+			simCon.userData = con.editorConnections;
 
-			for(var j = 0; j < con.length; j++) {
-				var pt = con[j];
+			for(var j = 0; j < con.points.length; j++) {
+				var pt = con.points[j];
 				coords[pt] = simCon;
 			}
 
@@ -383,6 +396,8 @@ define([
 		var circuit = this.constructCircuit();
 		time = dateObj.now() - time;
 		console.log('Constructed circuit in ' + time + 'ms');
+
+		console.log(circuit);
 
 		console.log('simulation started');
 	};

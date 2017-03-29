@@ -10,6 +10,8 @@ define([
 		this.inputs = inputs || [];
 		this.outputs = outputs || [];
 
+		this.value = false;
+
 		this.userData = null;
 	}
 
@@ -35,6 +37,8 @@ define([
 			var output = this.outputs[n];
 			output.component.in[output.name] = value;
 		}
+
+		this.value = value;
 	};
 
 	return Connection;

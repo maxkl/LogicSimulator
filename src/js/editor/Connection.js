@@ -37,5 +37,10 @@ define([
 		this.$line.setAttribute('y2', this.y2 * 10);
 	};
 
+	Connection.prototype.setState = function (state) {
+		if(!this.$line) return;
+		this.$line.setAttribute('stroke', state ? 'red' : 'black');
+	};
+
 	return Connection;
 });

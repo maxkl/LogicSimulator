@@ -38,6 +38,13 @@ define([
 		this.components = [];
 		this.currentComponent = null;
 
+		this.simulationCircuit = null;
+		var self = this;
+		this.boundSimulationCycle = function () {
+			self.simulationCycle();
+		};
+		this.simulationInterval = null;
+
 		this.registerListeners();
 	}
 
@@ -390,6 +397,32 @@ define([
 		return new SimCircuit(components, connections);
 	};
 
+	Editor.prototype.updateSimulationDisplay = function () {
+		var simConnections = this.simulationCircuit.connections;
+		for(var i = 0; i < simConnections.length; i++) {
+			var simConnection = simConnections[i];
+
+			var connections = simConnection.userData;
+			for(var j = 0; j < connections.length; j++) {
+				var connection = connections[j];
+				connection.setState(simConnection.value);
+			}
+		}
+	};
+
+	Editor.prototype.simulationCycle = function () {
+		this.simulationCircuit.cycle();
+		this.updateSimulationDisplay();
+	};
+
+	Editor.prototype.startSimulationInterval = function () {
+		this.simulationInterval = setInterval(this.boundSimulationCycle, 500);
+	};
+
+	Editor.prototype.stopSimulationInterval = function () {
+		clearInterval(this.simulationInterval);
+	};
+
 	Editor.prototype.startSimulation = function () {
 		var dateObj = window.performance || Date;
 		var time = dateObj.now();
@@ -397,20 +430,30 @@ define([
 		time = dateObj.now() - time;
 		console.log('Constructed circuit in ' + time + 'ms');
 
-		console.log(circuit);
+		this.simulationCircuit = circuit;
+
+		this.startSimulationInterval();
 
 		console.log('simulation started');
 	};
 
 	Editor.prototype.stopSimulation = function () {
+		this.stopSimulationInterval();
+
+		this.simulationCircuit = null;
+
 		console.log('simulation stopped');
 	};
 
 	Editor.prototype.resumeSimulation = function () {
+		this.startSimulationInterval();
+
 		console.log('simulation resumed');
 	};
 
 	Editor.prototype.pauseSimulation = function () {
+		this.stopSimulationInterval();
+
 		console.log('simulation paused');
 	};
 

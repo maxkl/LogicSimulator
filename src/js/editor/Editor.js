@@ -167,19 +167,20 @@ define([
 		this.tools.on('run', function () {
 			self.sidebar.hide(true);
 			self.tools.setTool(EditorTools.TOOL_NORMAL);
-			self.run();
+			self.startSimulation();
 		});
 
 		this.tools.on('stop', function () {
 			self.sidebar.show();
+			self.stopSimulation();
 		});
 
 		this.tools.on('resume', function () {
-			console.log('resume');
+			self.resumeSimulation();
 		});
 
 		this.tools.on('pause', function () {
-			console.log('pause');
+			self.pauseSimulation();
 		});
 
 		this.sidebar.on('component-mousedown', function (evt, entry) {
@@ -375,15 +376,26 @@ define([
 		return new SimCircuit(components, connections);
 	};
 
-	Editor.prototype.run = function () {
+	Editor.prototype.startSimulation = function () {
 		var dateObj = window.performance || Date;
 		var time = dateObj.now();
 		var circuit = this.constructCircuit();
 		time = dateObj.now() - time;
 		console.log('Constructed circuit in ' + time + 'ms');
 
-		window.circuit = circuit;
-		console.log(circuit);
+		console.log('simulation started');
+	};
+
+	Editor.prototype.stopSimulation = function () {
+		console.log('simulation stopped');
+	};
+
+	Editor.prototype.resumeSimulation = function () {
+		console.log('simulation resumed');
+	};
+
+	Editor.prototype.pauseSimulation = function () {
+		console.log('simulation paused');
 	};
 
 	return Editor;

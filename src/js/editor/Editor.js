@@ -147,11 +147,13 @@ define([
 				self.currentConnection = null;
 			}
 
-			self.mouseMode = MOUSE_UP;
-
-			if(self.tools.currentTool !== EditorTools.TOOL_CONNECT) {
+			if(self.tools.currentTool === EditorTools.TOOL_CONNECT) {
+				self.$svg.style.cursor = 'crosshair';
+			} else {
 				self.$svg.style.removeProperty('cursor');
 			}
+
+			self.mouseMode = MOUSE_UP;
 		});
 
 		this.tools.on('tool-changed', function (tool) {

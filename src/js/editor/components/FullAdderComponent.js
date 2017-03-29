@@ -55,5 +55,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	FullAdderComponent.sidebarEntry = {
+		name: 'Full Adder',
+		category: 'Adder',
+		drawPreview: function (svg) {
+			displayComponent(svg, ['A', 'B', 'C'], ['S', 'C'], 'FA');
+		}
+	};
+
 	return FullAdderComponent;
 });

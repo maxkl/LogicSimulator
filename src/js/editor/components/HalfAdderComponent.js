@@ -49,5 +49,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	HalfAdderComponent.sidebarEntry = {
+		name: 'Half Adder',
+		category: 'Adder',
+		drawPreview: function (svg) {
+			displayComponent(svg, ['A', 'B'], ['S', 'C'], 'HA');
+		}
+	};
+
 	return HalfAdderComponent;
 });

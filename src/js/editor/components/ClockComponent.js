@@ -33,5 +33,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	ClockComponent.sidebarEntry = {
+		name: 'Clock',
+		category: 'Basic',
+		drawPreview: function (svg) {
+			displayComponent(svg, [], ['Q'], 'CLK');
+		}
+	};
+
 	return ClockComponent;
 });

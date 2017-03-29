@@ -43,5 +43,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	OrComponent.sidebarEntry = {
+		name: 'Or',
+		category: 'Gates',
+		drawPreview: function (svg) {
+			displayComponent(svg, ['A', 'B'], ['Q'], '≥1');
+		}
+	};
+
 	return OrComponent;
 });

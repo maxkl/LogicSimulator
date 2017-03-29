@@ -43,5 +43,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	DFlipFlopComponent.sidebarEntry = {
+		name: 'D FF',
+		category: 'Memory',
+		drawPreview: function (svg) {
+			displayComponent(svg, ['D', 'CLK'], ['Q'], 'D');
+		}
+	};
+
 	return DFlipFlopComponent;
 });

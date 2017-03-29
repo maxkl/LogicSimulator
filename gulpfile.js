@@ -14,6 +14,8 @@ const concat = require('gulp-concat');
 const wrap = require('gulp-wrap');
 const sass = require('gulp-sass');
 const autoprefixer = require('gulp-autoprefixer');
+const filelist = require('gulp-filelist');
+const mergeStream = require('merge-stream');
 
 const srcDir = 'src/';
 const destDir = 'build/';
@@ -27,6 +29,7 @@ const dirs = {
 const paths = {
 	js_modules: srcDir + dirs.js_modules + '**/*.js',
 	js_lib: srcDir + dirs.js_lib + '**/*.js',
+	js_components: srcDir + dirs.js_modules + 'editor/components/**/*.js',
 	sass: srcDir + dirs.sass + '**/*.{sass,scss}',
 	html: srcDir + dirs.html + '**/*.html',
 	fonts: srcDir + dirs.fonts + '**/*.{woff,woff2}'
@@ -37,7 +40,16 @@ gulp.task('clean', function () {
 });
 
 gulp.task('js:modules', function () {
-	return gulp.src(paths.js_modules, { base: srcDir + dirs.js_modules })
+	const merged = mergeStream(
+		gulp.src(paths.js_modules, { base: srcDir + dirs.js_modules }),
+		gulp.src(paths.js_components, { base: srcDir + dirs.js_modules })
+			.pipe(filelist('generated/editorComponents.js', {
+				removeExtensions: true,
+				relative: true
+			}))
+			.pipe(wrap('define([], <%= contents %>);\n'))
+	);
+	return merged
 		.pipe(sourcemaps.init())
 		.pipe(amdOptimize({
 			baseUrl: srcDir + dirs.js_modules

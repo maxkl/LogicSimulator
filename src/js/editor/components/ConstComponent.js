@@ -33,5 +33,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	ConstComponent.sidebarEntry = {
+		name: 'Constant',
+		category: 'Basic',
+		drawPreview: function (svg) {
+			displayComponent(svg, [], ['Q'], '1');
+		}
+	};
+
 	return ConstComponent;
 });

@@ -37,5 +37,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	NotComponent.sidebarEntry = {
+		name: 'Not',
+		category: 'Gates',
+		drawPreview: function (svg) {
+			displayComponent(svg, ['A'], ['!Q'], '1');
+		}
+	};
+
 	return NotComponent;
 });

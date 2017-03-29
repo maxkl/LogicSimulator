@@ -30,6 +30,7 @@ define([
 		this.mouseStartY = 0;
 		this.startX = 0;
 		this.startY = 0;
+		this.showSidebarOnDrop = false;
 
 		this.connections = [];
 		this.currentConnection = null;
@@ -132,6 +133,11 @@ define([
 
 			if(self.mouseMode === MOUSE_DRAG_COMPONENT) {
 				self.currentComponent = null;
+
+				if(self.showSidebarOnDrop) {
+					self.showSidebarOnDrop = false;
+					self.sidebar.show();
+				}
 			} else if(self.mouseMode === MOUSE_CONNECT) {
 				if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
 					self.connections.push(self.currentConnection);
@@ -158,6 +164,31 @@ define([
 
 		this.tools.on('run', function () {
 			self.run();
+		});
+
+		this.sidebar.on('component-mousedown', function (evt, entry) {
+			self.sidebar.hide();
+
+			var rect = self.$svg.getBoundingClientRect();
+			var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
+			var y = self.viewport.viewportToWorldY(evt.clientY - rect.top);
+
+			var snappedX = Math.round(x / 10);
+			var snappedY = Math.round(y / 10);
+
+			var component = new entry.ctor();
+			self.addComponent(component, snappedX, snappedY);
+
+			self.mouseMode = MOUSE_DRAG_COMPONENT;
+			self.mouseStartX = evt.clientX;
+			self.mouseStartY = evt.clientY;
+			self.startX = component.x;
+			self.startY = component.y;
+			self.currentComponent = component;
+
+			self.$svg.style.cursor = 'move';
+
+			self.showSidebarOnDrop = true;
 		});
 	};
 

@@ -43,5 +43,13 @@ define([
 		$handle.addEventListener('mousedown', mousedown);
 	};
 
+	AndComponent.sidebarEntry = {
+		name: 'And',
+		category: 'Gates',
+		drawPreview: function (svg) {
+			displayComponent(svg, ['A', 'B'], ['Q'], '&');
+		}
+	};
+
 	return AndComponent;
 });

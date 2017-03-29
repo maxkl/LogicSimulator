@@ -6,6 +6,8 @@
 define(function () {
 	function Component(args) {
 		this.args = Array.prototype.slice.call(args);
+
+		this.userData = null;
 	}
 
 	Component.prototype.construct = function () {

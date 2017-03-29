@@ -9,6 +9,8 @@ define([
 	function Connection(inputs, outputs) {
 		this.inputs = inputs || [];
 		this.outputs = outputs || [];
+
+		this.userData = null;
 	}
 
 	Connection.prototype.addInput = function (component, pinName) {

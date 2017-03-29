@@ -64,18 +64,23 @@ define([
 			self.emit('pause');
 		});
 
-		function makeOnToolClick(tool) {
-			return function () {
-				if(self.currentTool !== tool) {
-					var prev = self.currentTool;
-					self.currentTool = tool;
-					self.emit('tool-changed', tool, prev);
-				}
-			};
-		}
+		document.getElementById('toolbar-tool-normal').addEventListener('click', function (evt) {
+			self.setTool(TOOL_NORMAL);
+		});
 
-		document.getElementById('toolbar-tool-normal').addEventListener('click', makeOnToolClick(TOOL_NORMAL));
-		document.getElementById('toolbar-tool-connect').addEventListener('click', makeOnToolClick(TOOL_CONNECT));
+		document.getElementById('toolbar-tool-connect').addEventListener('click', function (evt) {
+			if(!self.running) {
+				self.setTool(TOOL_CONNECT);
+			}
+		});
+	};
+
+	EditorTools.prototype.setTool = function (tool) {
+		if(this.currentTool !== tool) {
+			var prev = this.currentTool;
+			this.currentTool = tool;
+			this.emit('tool-changed', tool, prev);
+		}
 	};
 
 	EditorTools.TOOL_NORMAL = TOOL_NORMAL;

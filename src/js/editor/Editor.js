@@ -164,6 +164,7 @@ define([
 
 		this.tools.on('run', function () {
 			self.sidebar.hide(true);
+			self.tools.setTool(EditorTools.TOOL_NORMAL);
 			self.run();
 		});
 

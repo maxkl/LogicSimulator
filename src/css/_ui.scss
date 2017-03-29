@@ -50,6 +50,10 @@
 			&:active {
 				background-color: rgba(#000, .2);
 			}
+
+			&.hidden {
+				display: none;
+			}
 		}
 	}
 
@@ -80,6 +84,12 @@
 				}
 
 				.sidebar {
+					display: none;
+				}
+			}
+
+			&.hide-button {
+				.sidebar-min-max {
 					display: none;
 				}
 			}

@@ -163,7 +163,20 @@ define([
 		});
 
 		this.tools.on('run', function () {
+			self.sidebar.hide(true);
 			self.run();
+		});
+
+		this.tools.on('stop', function () {
+			self.sidebar.show();
+		});
+
+		this.tools.on('resume', function () {
+			console.log('resume');
+		});
+
+		this.tools.on('pause', function () {
+			console.log('pause');
 		});
 
 		this.sidebar.on('component-mousedown', function (evt, entry) {

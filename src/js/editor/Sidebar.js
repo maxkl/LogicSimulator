@@ -123,12 +123,16 @@ define([
 		});
 	};
 
-	Sidebar.prototype.hide = function () {
+	Sidebar.prototype.hide = function (hideButton) {
 		this.$wrapper.classList.add('hidden');
+		if(hideButton) {
+			this.$wrapper.classList.add('hide-button');
+		}
 	};
 
 	Sidebar.prototype.show = function () {
 		this.$wrapper.classList.remove('hidden');
+		this.$wrapper.classList.remove('hide-button');
 	};
 
 	return Sidebar;

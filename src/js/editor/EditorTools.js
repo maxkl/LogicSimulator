@@ -16,6 +16,11 @@ define([
 		this.app = app;
 
 		this.currentTool = TOOL_NORMAL;
+		this.running = false;
+
+		this.$run = document.getElementById('toolbar-run');
+		this.$stop = document.getElementById('toolbar-stop');
+		this.$pause = document.getElementById('toolbar-pause');
 
 		this.registerListeners();
 	}
@@ -25,8 +30,38 @@ define([
 	EditorTools.prototype.registerListeners = function () {
 		var self = this;
 
-		document.getElementById('toolbar-run').addEventListener('click', function () {
-			self.emit('run');
+		this.$run.addEventListener('click', function () {
+			if(self.running) {
+				self.$run.classList.add('hidden');
+				self.$pause.classList.remove('hidden');
+
+				self.emit('resume');
+			} else {
+				self.running = true;
+
+				self.$run.classList.add('hidden');
+				self.$stop.classList.remove('hidden');
+				self.$pause.classList.remove('hidden');
+
+				self.emit('run');
+			}
+		});
+
+		this.$stop.addEventListener('click', function () {
+			self.running = false;
+
+			self.$run.classList.remove('hidden');
+			self.$pause.classList.add('hidden');
+			self.$stop.classList.add('hidden');
+
+			self.emit('stop');
+		});
+
+		this.$pause.addEventListener('click', function () {
+			self.$run.classList.remove('hidden');
+			self.$pause.classList.add('hidden');
+
+			self.emit('pause');
 		});
 
 		function makeOnToolClick(tool) {

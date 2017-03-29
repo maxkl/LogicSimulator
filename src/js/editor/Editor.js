@@ -218,7 +218,7 @@ define([
 		function mousedown(evt) {
 			evt.preventDefault();
 
-			if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
+			if(!self.tools.running && self.tools.currentTool === EditorTools.TOOL_NORMAL) {
 				if(self.mouseMode == MOUSE_UP) {
 					self.mouseMode = MOUSE_DRAG_COMPONENT;
 					self.mouseStartX = evt.clientX;

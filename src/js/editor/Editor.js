@@ -358,6 +358,7 @@ define([
 			var pts = com.connectionPoints;
 
 			var component = com.constructSimComponent();
+			component.userData = com;
 			for(var j = 0; j < pts.length; j++) {
 				var pt = pts[j];
 				var x = com.x + pts[j].x;

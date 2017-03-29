@@ -432,6 +432,7 @@ define([
 
 		this.simulationCircuit = circuit;
 
+		circuit.init();
 		this.startSimulationInterval();
 
 		console.log('simulation started');

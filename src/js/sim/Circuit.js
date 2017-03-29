@@ -9,20 +9,27 @@ define(function () {
 		this.connections = connections || [];
 	}
 
-	Circuit.prototype.cycle = function () {
-		// Pass 1: calculate input values
+	Circuit.prototype.init = function () {
+		this.doConnections();
+	};
+
+	Circuit.prototype.doConnections = function () {
 		var n = this.connections.length;
 		while(n--) {
 			var connection = this.connections[n];
 			connection.exec();
 		}
+	};
 
-		// Pass 2: calculate output values
+	Circuit.prototype.cycle = function () {
+		// calculate output values
 		var n = this.components.length;
 		while(n--) {
 			var component = this.components[n];
 			component.exec();
 		}
+
+		this.doConnections();
 	};
 
 	return Circuit;

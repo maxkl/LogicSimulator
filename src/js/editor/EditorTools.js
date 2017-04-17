@@ -8,7 +8,8 @@ define([
 	'lib/extend'
 ], function (EventEmitter, extend) {
 	var TOOL_NORMAL = 0;
-	var TOOL_CONNECT = 1;
+	var TOOL_SELECT = 1;
+	var TOOL_CONNECT = 2;
 
 	function EditorTools(app) {
 		EventEmitter.call(this);
@@ -68,6 +69,12 @@ define([
 			self.setTool(TOOL_NORMAL);
 		});
 
+		document.getElementById('toolbar-tool-select').addEventListener('click', function (evt) {
+			if(!self.running) {
+				self.setTool(TOOL_SELECT);
+			}
+		});
+
 		document.getElementById('toolbar-tool-connect').addEventListener('click', function (evt) {
 			if(!self.running) {
 				self.setTool(TOOL_CONNECT);
@@ -84,6 +91,7 @@ define([
 	};
 
 	EditorTools.TOOL_NORMAL = TOOL_NORMAL;
+	EditorTools.TOOL_SELECT = TOOL_SELECT;
 	EditorTools.TOOL_CONNECT = TOOL_CONNECT;
 
 	return EditorTools;

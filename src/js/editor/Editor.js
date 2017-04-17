@@ -15,7 +15,9 @@ define([
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG_COMPONENT = 2;
-	var MOUSE_CONNECT = 3;
+	var MOUSE_SELECT = 3;
+	var MOUSE_DESELECT = 4;
+	var MOUSE_CONNECT = 5;
 
 	function Editor(app) {
 		this.app = app;
@@ -24,6 +26,7 @@ define([
 		this.sidebar = new Sidebar(app);
 		this.$svg = document.getElementById('editor-svg');
 		this.viewport = new Viewport(app, this.$svg);
+		this.$propertyOverlay = document.getElementById('property-overlay');
 
 		this.mouseMode = MOUSE_UP;
 		this.mouseStartX = 0;
@@ -31,6 +34,10 @@ define([
 		this.startX = 0;
 		this.startY = 0;
 		this.showSidebarOnDrop = false;
+
+		this.selectedComponents = [];
+
+		this.propertyOverlayVisible = false;
 
 		this.connections = [];
 		this.currentConnection = null;
@@ -66,6 +73,14 @@ define([
 					self.startY = self.viewport.y;
 
 					self.$svg.style.cursor = 'move';
+				}
+			} else if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
+				if(self.mouseMode === MOUSE_UP) {
+					self.mouseMode = MOUSE_DESELECT;
+
+					if(!evt.ctrlKey) {
+						self.deselectAll();
+					}
 				}
 			} else if(self.tools.currentTool === EditorTools.TOOL_CONNECT) {
 				if(self.mouseMode === MOUSE_UP) {
@@ -138,48 +153,60 @@ define([
 		window.addEventListener('mouseup', function (evt) {
 			evt.preventDefault();
 
-			if(self.mouseMode === MOUSE_DRAG_COMPONENT) {
-				self.currentComponent = null;
+			if(self.mouseMode !== MOUSE_UP) {
+				if(self.mouseMode === MOUSE_DRAG_COMPONENT) {
+					self.currentComponent = null;
 
-				if(self.showSidebarOnDrop) {
-					self.showSidebarOnDrop = false;
-					self.sidebar.show();
+					if(self.showSidebarOnDrop) {
+						self.showSidebarOnDrop = false;
+						self.sidebar.show();
+					}
+				} else if(self.mouseMode === MOUSE_CONNECT) {
+					if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
+						self.connections.push(self.currentConnection);
+					} else {
+						self.currentConnection.remove();
+					}
+					self.currentConnection = null;
 				}
-			} else if(self.mouseMode === MOUSE_CONNECT) {
-				if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
-					self.connections.push(self.currentConnection);
+
+				if(self.tools.currentTool === EditorTools.TOOL_CONNECT) {
+					self.$svg.style.cursor = 'crosshair';
 				} else {
-					self.currentConnection.remove();
+					self.$svg.style.removeProperty('cursor');
 				}
-				self.currentConnection = null;
-			}
 
-			if(self.tools.currentTool === EditorTools.TOOL_CONNECT) {
-				self.$svg.style.cursor = 'crosshair';
-			} else {
-				self.$svg.style.removeProperty('cursor');
+				self.mouseMode = MOUSE_UP;
 			}
-
-			self.mouseMode = MOUSE_UP;
 		});
 
-		this.tools.on('tool-changed', function (tool) {
+		this.tools.on('tool-changed', function (tool, previousTool) {
 			if(tool === EditorTools.TOOL_CONNECT) {
 				self.$svg.style.cursor = 'crosshair';
 			} else {
 				self.$svg.style.removeProperty('cursor');
 			}
+
+			if(previousTool === EditorTools.TOOL_SELECT) {
+				self.deselectAll();
+			}
 		});
 
 		this.tools.on('run', function () {
 			self.sidebar.hide(true);
+			self.$propertyOverlay.classList.remove('visible');
+
 			self.tools.setTool(EditorTools.TOOL_NORMAL);
 			self.startSimulation();
 		});
 
 		this.tools.on('stop', function () {
-			self.sidebar.show();
 			self.stopSimulation();
+
+			self.sidebar.show();
+			if(self.propertyOverlayVisible) {
+				self.$propertyOverlay.classList.add('visible');
+			}
 		});
 
 		this.tools.on('resume', function () {
@@ -216,6 +243,54 @@ define([
 		});
 	};
 
+	Editor.prototype.updatePropertyOverlay = function () {
+		var found = false;
+		if(this.selectedComponents.length === 1) {
+			var component = this.selectedComponents[0];
+			if(component.properties) {
+				found = true;
+
+				this.propertyOverlayVisible = true;
+				this.$propertyOverlay.classList.add('visible');
+
+				component.properties.display(this.$propertyOverlay);
+			}
+		}
+
+		if(!found) {
+			this.propertyOverlayVisible = false;
+			this.$propertyOverlay.classList.remove('visible');
+		}
+	};
+
+	Editor.prototype.select = function (component) {
+		component.select();
+		this.selectedComponents.push(component);
+
+		this.updatePropertyOverlay();
+	};
+
+	Editor.prototype.deselect = function (component) {
+		var index = this.selectedComponents.indexOf(component);
+		if(index !== -1) {
+			this.selectedComponents.splice(index, 1);
+			component.deselect();
+
+			this.updatePropertyOverlay();
+		}
+	};
+
+	Editor.prototype.deselectAll = function () {
+		for(var i = 0; i < this.selectedComponents.length; i++) {
+			var component = this.selectedComponents[i];
+			component.deselect();
+		}
+
+		this.selectedComponents.length = 0;
+
+		this.updatePropertyOverlay();
+	};
+
 	Editor.prototype.addComponent = function (component, x, y) {
 		this.components.push(component);
 
@@ -226,16 +301,35 @@ define([
 		function mousedown(evt) {
 			evt.preventDefault();
 
-			if(!self.tools.running && self.tools.currentTool === EditorTools.TOOL_NORMAL) {
-				if(self.mouseMode == MOUSE_UP) {
-					self.mouseMode = MOUSE_DRAG_COMPONENT;
-					self.mouseStartX = evt.clientX;
-					self.mouseStartY = evt.clientY;
-					self.startX = component.x;
-					self.startY = component.y;
-					self.currentComponent = component;
+			if(self.tools.running) {
+				//
+			} else {
+				if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
+					if(self.mouseMode == MOUSE_UP) {
+						self.mouseMode = MOUSE_DRAG_COMPONENT;
+						self.mouseStartX = evt.clientX;
+						self.mouseStartY = evt.clientY;
+						self.startX = component.x;
+						self.startY = component.y;
+						self.currentComponent = component;
 
-					self.$svg.style.cursor = 'move';
+						self.$svg.style.cursor = 'move';
+					}
+				} else if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
+					if(self.mouseMode === MOUSE_UP) {
+						self.mouseMode = MOUSE_SELECT;
+
+						if(evt.ctrlKey) {
+							if(component.selected) {
+								self.deselect(component);
+							} else {
+								self.select(component);
+							}
+						} else {
+							self.deselectAll();
+							self.select(component);
+						}
+					}
 				}
 			}
 		}

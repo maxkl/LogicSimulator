@@ -5,14 +5,13 @@
 
 define([
 	'editor/Component',
+	'editor/ComponentProperties',
 	'editor/displayComponent',
 	'sim/components/NotComponent',
 	'lib/extend'
-], function (Component, displayComponent, SimNotComponent, extend) {
+], function (Component, ComponentProperties, displayComponent, SimNotComponent, extend) {
 	function NotComponent() {
 		Component.call(this);
-
-		this.component = new SimNotComponent();
 
 		this.connectionPoints = [
 			{
@@ -28,13 +27,42 @@ define([
 				name: 'Q'
 			}
 		];
+
+		this.$container = null;
+		this.$rect = null;
+		this.mousedownCallback = null;
+
+		this.properties = new ComponentProperties([]);
 	}
 
 	extend(NotComponent, Component);
 
 	NotComponent.prototype._display = function ($c, mousedown) {
-		var $handle = displayComponent($c, ['A'], ['!Q'], '1');
-		$handle.addEventListener('mousedown', mousedown);
+		this.$container = $c;
+		this.mousedownCallback = mousedown;
+		this._updateDisplay();
+	};
+
+	NotComponent.prototype._updateDisplay = function () {
+		this.$container.innerHTML = '';
+		this.$rect = displayComponent(this.$container, ['A'], ['!Q'], '1');
+		this.$rect.addEventListener('mousedown', this.mousedownCallback);
+
+		if(this.selected) {
+			this._select();
+		}
+	};
+
+	NotComponent.prototype._select = function () {
+		this.$rect.setAttribute('stroke', '#0288d1');
+	};
+
+	NotComponent.prototype._deselect = function () {
+		this.$rect.setAttribute('stroke', '#000');
+	};
+
+	NotComponent.prototype.constructSimComponent = function () {
+		return new SimNotComponent();
 	};
 
 	NotComponent.sidebarEntry = {

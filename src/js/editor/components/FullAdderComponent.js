@@ -5,14 +5,13 @@
 
 define([
 	'editor/Component',
+	'editor/ComponentProperties',
 	'editor/displayComponent',
 	'sim/components/FullAdderComponent',
 	'lib/extend'
-], function (Component, displayComponent, SimFullAdderComponent, extend) {
+], function (Component, ComponentProperties, displayComponent, SimFullAdderComponent, extend) {
 	function FullAdderComponent() {
 		Component.call(this);
-
-		this.component = new SimFullAdderComponent();
 
 		this.connectionPoints = [
 			{
@@ -46,13 +45,42 @@ define([
 				name: 'C'
 			}
 		];
+
+		this.$container = null;
+		this.$rect = null;
+		this.mousedownCallback = null;
+
+		this.properties = new ComponentProperties([]);
 	}
 
 	extend(FullAdderComponent, Component);
 
 	FullAdderComponent.prototype._display = function ($c, mousedown) {
-		var $handle = displayComponent($c, ['A', 'B', 'C'], ['S', 'C'], 'FA');
-		$handle.addEventListener('mousedown', mousedown);
+		this.$container = $c;
+		this.mousedownCallback = mousedown;
+		this._updateDisplay();
+	};
+
+	FullAdderComponent.prototype._updateDisplay = function () {
+		this.$container.innerHTML = '';
+		this.$rect = displayComponent(this.$container, ['A', 'B', 'C'], ['S', 'C'], 'FA');
+		this.$rect.addEventListener('mousedown', this.mousedownCallback);
+
+		if(this.selected) {
+			this._select();
+		}
+	};
+
+	FullAdderComponent.prototype._select = function () {
+		this.$rect.setAttribute('stroke', '#0288d1');
+	};
+
+	FullAdderComponent.prototype._deselect = function () {
+		this.$rect.setAttribute('stroke', '#000');
+	};
+
+	FullAdderComponent.prototype.constructSimComponent = function () {
+		return new SimFullAdderComponent();
 	};
 
 	FullAdderComponent.sidebarEntry = {

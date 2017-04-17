@@ -13,10 +13,18 @@ define([
 
 		this.$group = null;
 		this.transform = null;
+
+		this.selected = false;
 	}
 
-	Component.prototype.constructSimComponent = function () {
-		return this.component.construct();
+	Component.prototype.select = function () {
+		this.selected = true;
+		this._select();
+	};
+
+	Component.prototype.deselect = function () {
+		this.selected = false;
+		this._deselect();
 	};
 
 	Component.prototype.display = function ($container, mousedown) {

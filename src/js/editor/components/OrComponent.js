@@ -5,14 +5,13 @@
 
 define([
 	'editor/Component',
+	'editor/ComponentProperties',
 	'editor/displayComponent',
 	'sim/components/OrComponent',
 	'lib/extend'
-], function (Component, displayComponent, SimOrComponent, extend) {
+], function (Component, ComponentProperties, displayComponent, SimOrComponent, extend) {
 	function OrComponent() {
 		Component.call(this);
-
-		this.component = new SimOrComponent();
 
 		this.connectionPoints = [
 			{
@@ -34,13 +33,42 @@ define([
 				name: 'Q'
 			}
 		];
+
+		this.$container = null;
+		this.$rect = null;
+		this.mousedownCallback = null;
+
+		this.properties = new ComponentProperties([]);
 	}
 
 	extend(OrComponent, Component);
 
 	OrComponent.prototype._display = function ($c, mousedown) {
-		var $handle = displayComponent($c, ['A', 'B'], ['Q'], '≥1');
-		$handle.addEventListener('mousedown', mousedown);
+		this.$container = $c;
+		this.mousedownCallback = mousedown;
+		this._updateDisplay();
+	};
+
+	OrComponent.prototype._updateDisplay = function () {
+		this.$container.innerHTML = '';
+		this.$rect = displayComponent(this.$container, ['A', 'B'], ['Q'], '≥1');
+		this.$rect.addEventListener('mousedown', this.mousedownCallback);
+
+		if(this.selected) {
+			this._select();
+		}
+	};
+
+	OrComponent.prototype._select = function () {
+		this.$rect.setAttribute('stroke', '#0288d1');
+	};
+
+	OrComponent.prototype._deselect = function () {
+		this.$rect.setAttribute('stroke', '#000');
+	};
+
+	OrComponent.prototype.constructSimComponent = function () {
+		return new SimOrComponent();
 	};
 
 	OrComponent.sidebarEntry = {

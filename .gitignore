@@ -8,3 +8,6 @@
 
 # Project specific
 /build/
+
+*.sublime-workspace
+*.sublime-project

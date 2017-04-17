@@ -64,7 +64,7 @@ define([
 			evt.preventDefault();
 
 			if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
-				if(self.mouseMode == MOUSE_UP) {
+				if(self.mouseMode === MOUSE_UP) {
 					self.mouseMode = MOUSE_PAN;
 
 					self.mouseStartX = evt.clientX;
@@ -117,9 +117,9 @@ define([
 				var diffX = evt.clientX - self.mouseStartX;
 				var diffY = evt.clientY - self.mouseStartY;
 
-				if(self.mouseMode == MOUSE_PAN) {
+				if(self.mouseMode === MOUSE_PAN) {
 					self.viewport.setPosition(self.startX + diffX, self.startY + diffY);
-				} else if(self.mouseMode == MOUSE_DRAG_COMPONENT) {
+				} else if(self.mouseMode === MOUSE_DRAG_COMPONENT) {
 					var scaledDiffX = diffX / self.viewport.scale;
 					var scaledDiffY = diffY / self.viewport.scale;
 
@@ -305,7 +305,7 @@ define([
 				//
 			} else {
 				if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
-					if(self.mouseMode == MOUSE_UP) {
+					if(self.mouseMode === MOUSE_UP) {
 						self.mouseMode = MOUSE_DRAG_COMPONENT;
 						self.mouseStartX = evt.clientX;
 						self.mouseStartY = evt.clientY;

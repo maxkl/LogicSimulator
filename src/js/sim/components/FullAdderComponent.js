@@ -10,23 +10,16 @@ define([
 	function FullAdderComponent() {
 		Component.call(this, arguments);
 
-		this.in = {
-			A: false,
-			B: false,
-			C: false
-		};
-		this.out = {
-			S: false,
-			C: false
-		};
+		this.in = [false, false, false];
+		this.out = [false, false];
 	}
 
 	extend(FullAdderComponent, Component);
 
 	FullAdderComponent.prototype.exec = function () {
-		var sum = this.in.A + this.in.B + this.in.C;
-		this.out.S = !!(sum & 1);
-		this.out.C = !!(sum & 2);
+		var sum = this.in[0] + this.in[1] + this.in[2];
+		this.out[0] = !!(sum & 1);
+		this.out[1] = !!(sum & 2);
 	};
 
 	return FullAdderComponent;

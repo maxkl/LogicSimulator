@@ -15,12 +15,12 @@ define([
 		this.userData = null;
 	}
 
-	Connection.prototype.addInput = function (component, pinName) {
-		this.inputs.push(new ComponentPin(component, pinName));
+	Connection.prototype.addInput = function (component, pinIndex) {
+		this.inputs.push(new ComponentPin(component, pinIndex));
 	};
 
-	Connection.prototype.addOutput = function (component, pinName) {
-		this.outputs.push(new ComponentPin(component, pinName));
+	Connection.prototype.addOutput = function (component, pinIndex) {
+		this.outputs.push(new ComponentPin(component, pinIndex));
 	};
 
 	Connection.prototype.exec = function () {
@@ -28,14 +28,14 @@ define([
 		var n = this.inputs.length;
 		while(n--) {
 			var input = this.inputs[n];
-			if(input.component.out[input.name]) {
+			if(input.component.out[input.index]) {
 				value = true;
 			}
 		}
 		var n = this.outputs.length;
 		while(n--) {
 			var output = this.outputs[n];
-			output.component.in[output.name] = value;
+			output.component.in[output.index] = value;
 		}
 
 		this.value = value;

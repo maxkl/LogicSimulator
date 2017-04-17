@@ -480,9 +480,9 @@ define([
 				var con = coords[x + '|' + y];
 
 				if(pts[j].out) {
-					con.addInput(component, pts[j].name);
+					con.addInput(component, pts[j].index);
 				} else {
-					con.addOutput(component, pts[j].name);
+					con.addOutput(component, pts[j].index);
 				}
 			}
 			components.push(component);

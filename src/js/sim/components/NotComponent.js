@@ -10,18 +10,14 @@ define([
 	function NotComponent() {
 		Component.call(this, arguments);
 
-		this.in = {
-			A: false
-		};
-		this.out = {
-			Q: true
-		};
+		this.in = [false];
+		this.out = [false];
 	}
 
 	extend(NotComponent, Component);
 
 	NotComponent.prototype.exec = function () {
-		this.out.Q = !this.in.A;
+		this.out[0] = !this.in[0];
 	};
 
 	return NotComponent;

@@ -4,9 +4,9 @@
  */
 
 define(function () {
-	function ComponentPin(component, pinName) {
+	function ComponentPin(component, pinIndex) {
 		this.component = component;
-		this.name = pinName;
+		this.index = pinIndex;
 	}
 
 	return ComponentPin;

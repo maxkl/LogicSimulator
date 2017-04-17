@@ -10,22 +10,16 @@ define([
 	function HalfAdderComponent() {
 		Component.call(this, arguments);
 
-		this.in = {
-			A: false,
-			B: false
-		};
-		this.out = {
-			S: false,
-			C: false
-		};
+		this.in = [false, false];
+		this.out = [false, false];
 	}
 
 	extend(HalfAdderComponent, Component);
 
 	HalfAdderComponent.prototype.exec = function () {
-		var sum = this.in.A + this.in.B;
-		this.out.S = !!(sum & 1);
-		this.out.C = !!(sum & 2);
+		var sum = this.in[0] + this.in[1];
+		this.out[0] = !!(sum & 1);
+		this.out[1] = !!(sum & 2);
 	};
 
 	return HalfAdderComponent;

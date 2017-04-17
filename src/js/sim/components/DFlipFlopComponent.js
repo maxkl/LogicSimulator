@@ -10,23 +10,18 @@ define([
 	function DFlipFlopComponent() {
 		Component.call(this, arguments);
 
-		this.in = {
-			D: false,
-			CLK: false
-		};
-		this.out = {
-			Q: false
-		};
+		this.in = [false, false];
+		this.out = [false];
 		this.lastClk = false;
 	}
 
 	extend(DFlipFlopComponent, Component);
 
 	DFlipFlopComponent.prototype.exec = function () {
-		if(!this.lastClk && this.in.CLK) {
-			this.out.Q = this.in.D;
+		if(!this.lastClk && this.in[1]) {
+			this.out[0] = this.in[0];
 		}
-		this.lastClk = this.in.CLK;
+		this.lastClk = this.in[1];
 	};
 
 	return DFlipFlopComponent;

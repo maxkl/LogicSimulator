@@ -18,7 +18,8 @@ define([
 				out: true,
 				x: 6,
 				y: 3,
-				name: 'Q'
+				name: 'Q',
+				index: 0
 			}
 		];
 

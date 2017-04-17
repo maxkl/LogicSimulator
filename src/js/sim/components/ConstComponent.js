@@ -11,9 +11,7 @@ define([
 		Component.call(this, arguments);
 
 		this.in = {};
-		this.out = {
-			Q: value
-		};
+		this.out = [value];
 	}
 
 	extend(ConstComponent, Component);

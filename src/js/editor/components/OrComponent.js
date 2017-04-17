@@ -18,19 +18,22 @@ define([
 				out: false,
 				x: -1,
 				y: 3,
-				name: 'A'
+				name: 'A',
+				index: 0
 			},
 			{
 				out: false,
 				x: -1,
 				y: 7,
-				name: 'B'
+				name: 'B',
+				index: 1
 			},
 			{
 				out: true,
 				x: 6,
 				y: 5,
-				name: 'Q'
+				name: 'Q',
+				index: 0
 			}
 		];
 

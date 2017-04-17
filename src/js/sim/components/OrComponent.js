@@ -10,19 +10,20 @@ define([
 	function OrComponent() {
 		Component.call(this, arguments);
 
-		this.in = {
-			A: false,
-			B: false
-		};
-		this.out = {
-			Q: false
-		};
+		this.in = [false, false];
+		this.out = [false];
 	}
 
 	extend(OrComponent, Component);
 
 	OrComponent.prototype.exec = function () {
-		this.out.Q = this.in.A || this.in.B;
+		for(var i = 0; i < this.in.length; i++) {
+			if(this.in[i]) {
+				this.out[0] = true;
+				return;
+			}
+		}
+		this.out[0] = false;
 	};
 
 	return OrComponent;

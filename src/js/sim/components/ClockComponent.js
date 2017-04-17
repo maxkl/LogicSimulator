@@ -13,9 +13,7 @@ define([
 		this.period = period;
 		this.halfPeriod = period / 2;
 		this.in = {};
-		this.out = {
-			Q: false
-		};
+		this.out = [false];
 
 		this.ticks = 0;
 	}
@@ -28,7 +26,7 @@ define([
 			this.ticks = 0;
 		}
 
-		this.out.Q = this.ticks >= this.halfPeriod;
+		this.out[0] = this.ticks >= this.halfPeriod;
 	};
 
 	return ClockComponent;

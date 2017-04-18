@@ -505,6 +505,19 @@ define([
 		}
 	};
 
+	Editor.prototype.resetSimulationDisplay = function () {
+		var simConnections = this.simulationCircuit.connections;
+		for(var i = 0; i < simConnections.length; i++) {
+			var simConnection = simConnections[i];
+
+			var connections = simConnection.userData;
+			for(var j = 0; j < connections.length; j++) {
+				var connection = connections[j];
+				connection.setState(false);
+			}
+		}
+	};
+
 	Editor.prototype.simulationCycle = function () {
 		this.simulationCircuit.cycle();
 		this.updateSimulationDisplay();
@@ -535,6 +548,8 @@ define([
 
 	Editor.prototype.stopSimulation = function () {
 		this.stopSimulationInterval();
+
+		this.resetSimulationDisplay();
 
 		this.simulationCircuit = null;
 

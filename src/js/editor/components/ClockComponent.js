@@ -13,15 +13,7 @@ define([
 	function ClockComponent(period) {
 		Component.call(this);
 
-		this.pins = [
-			{
-				out: true,
-				x: 6,
-				y: 3,
-				name: 'Q',
-				index: 0
-			}
-		];
+		this.pins = null;
 
 		this.$container = null;
 		this.$rect = null;
@@ -35,9 +27,18 @@ define([
 		this.properties = new ComponentProperties([
 			[ 'period', 'Period', 'int', 20, updateDisplay ]
 		]);
+
+		this.layout();
 	}
 
 	extend(ClockComponent, Component);
+
+	ClockComponent.prototype.layout = function () {
+		var layout = displayComponent.layout([], ['']);
+		this.width = layout.width;
+		this.height = layout.height;
+		this.pins = layout.pins;
+	};
 
 	ClockComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
@@ -47,7 +48,7 @@ define([
 
 	ClockComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, [], ['Q'], 'CLK');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, 'CLK');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -71,7 +72,8 @@ define([
 		name: 'Clock',
 		category: 'Basic',
 		drawPreview: function (svg) {
-			displayComponent(svg, [], ['Q'], 'CLK');
+			var layout = displayComponent.layout([], ['']);
+			displayComponent(svg, layout.width, layout.height, layout.pins, 'CLK');
 		}
 	};
 

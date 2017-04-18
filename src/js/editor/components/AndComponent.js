@@ -13,38 +13,42 @@ define([
 	function AndComponent() {
 		Component.call(this);
 
-		this.pins = [
-			{
-				out: false,
-				x: -1,
-				y: 3,
-				name: 'A',
-				index: 0
-			},
-			{
-				out: false,
-				x: -1,
-				y: 7,
-				name: 'B',
-				index: 1
-			},
-			{
-				out: true,
-				x: 6,
-				y: 5,
-				name: 'Q',
-				index: 0
-			}
-		];
+		this.pins = null;
+
+		this.width = 0;
+		this.height = 0;
+		this.pins = null;
 
 		this.$container = null;
 		this.$rect = null;
 		this.mousedownCallback = null;
 
-		this.properties = new ComponentProperties([]);
+		var self = this;
+		function updateLayout() {
+			self.layout();
+			self._updateDisplay();
+		}
+
+		this.properties = new ComponentProperties([
+			[ 'inputs', 'Input count', 'int', 2, updateLayout ]
+		]);
+
+		this.layout();
 	}
 
 	extend(AndComponent, Component);
+
+	AndComponent.prototype.layout = function () {
+		var inputCount = Math.max(2, this.properties.get('inputs'));
+		var inputs = [];
+		for(var i = 0; i < inputCount; i++) {
+			inputs.push('');
+		}
+		var layout = displayComponent.layout(inputs, ['']);
+		this.width = layout.width;
+		this.height = layout.height;
+		this.pins = layout.pins;
+	};
 
 	AndComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
@@ -54,7 +58,7 @@ define([
 
 	AndComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, ['A', 'B'], ['Q'], '&');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, '&');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -78,7 +82,8 @@ define([
 		name: 'And',
 		category: 'Gates',
 		drawPreview: function (svg) {
-			displayComponent(svg, ['A', 'B'], ['Q'], '&');
+			var layout = displayComponent.layout(['', ''], ['']);
+			displayComponent(svg, layout.width, layout.height, layout.pins, '&');
 		}
 	};
 

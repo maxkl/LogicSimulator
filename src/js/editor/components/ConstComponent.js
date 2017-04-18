@@ -13,15 +13,7 @@ define([
 	function ConstComponent() {
 		Component.call(this);
 
-		this.pins = [
-			{
-				out: true,
-				x: 6,
-				y: 3,
-				name: 'Q',
-				index: 0
-			}
-		];
+		this.pins = null;
 
 		this.$container = null;
 		this.$rect = null;
@@ -35,9 +27,18 @@ define([
 		this.properties = new ComponentProperties([
 			[ 'value', 'Value', 'bool', true, updateDisplay ]
 		]);
+
+		this.layout();
 	}
 
 	extend(ConstComponent, Component);
+
+	ConstComponent.prototype.layout = function () {
+		var layout = displayComponent.layout([], ['']);
+		this.width = layout.width;
+		this.height = layout.height;
+		this.pins = layout.pins;
+	};
 
 	ConstComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
@@ -47,7 +48,7 @@ define([
 
 	ConstComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, [], ['Q'], this.properties.get('value') ? '1' : '0');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, this.properties.get('value') ? '1' : '0');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -71,7 +72,8 @@ define([
 		name: 'Constant',
 		category: 'Basic',
 		drawPreview: function (svg) {
-			displayComponent(svg, [], ['Q'], '1');
+			var layout = displayComponent.layout([], ['']);
+			displayComponent(svg, layout.width, layout.height, layout.pins, '1');
 		}
 	};
 

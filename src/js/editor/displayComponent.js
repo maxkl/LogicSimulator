@@ -6,8 +6,58 @@
 define([
 	'lib/SvgUtil'
 ], function (SvgUtil) {
-	var PINS_PADDING = 30;
-	var PINS_SPACING = 40;
+	var PINS_PADDING = 1;
+	var PINS_SPACING = 2;
+	var MIN_HEIGHT = 4;
+
+	function layout(inputs, outputs) {
+		var inputCount = inputs.length;
+		var outputCount = outputs.length;
+
+		var maxPins = Math.max(inputCount, outputCount);
+
+		var width = 5;
+		var height = (maxPins - 1) * PINS_SPACING + 2 * PINS_PADDING;
+		if(height < MIN_HEIGHT) height = MIN_HEIGHT;
+
+		var inputsStartY = height / 2 - ((inputCount - 1) * PINS_SPACING) / 2;
+		var outputsStartY = height / 2 - ((outputCount - 1) * PINS_SPACING) / 2;
+
+		var pins = [];
+
+		for(var i = 0; i < inputCount; i++) {
+			var label = inputs[i];
+			var inverted = label[0] === '!';
+			pins.push({
+				out: false,
+				x: -1,
+				y: inputsStartY + i * PINS_SPACING,
+				inverted: inverted,
+				label: inverted ? label.substr(1) : label,
+				index: i
+			});
+		}
+
+		for(var i = 0; i < outputCount; i++) {
+			var label = outputs[i];
+			var inverted = label[0] === '!';
+			pins.push({
+				out: true,
+				x: width + 1,
+				y: outputsStartY + i * PINS_SPACING,
+				inverted: inverted,
+				label: inverted ? label.substr(1) : label,
+				index: i
+			});
+		}
+
+		return {
+			pins: pins,
+			width: width,
+			height: height
+		};
+	}
+
 	var INV_RADIUS = 3;
 	var INV_STROKE_WIDTH = 2;
 
@@ -39,13 +89,7 @@ define([
 		return $inv;
 	}
 
-	function createPinLabel(x1, y1, x2, y2, label) {
-		var inverted = false;
-		if(label[0] === '!') {
-			inverted = true;
-			label = label.substr(1);
-		}
-
+	function createPinLabel(x1, y1, x2, y2, label, inverted) {
 		var pinLenX = x2 - x1;
 		var pinLenY = y2 - y1;
 		var pinLen = Math.sqrt(pinLenX * pinLenX + pinLenY * pinLenY);
@@ -53,9 +97,9 @@ define([
 		var y = y1 - 12 * (pinLenY / pinLen);
 		var $label = SvgUtil.createElement('text');
 		$label.setAttribute('x', x);
-		$label.setAttribute('y', y + 6);
+		$label.setAttribute('y', y + 4);
 		$label.setAttribute('text-anchor', 'middle');
-		$label.setAttribute('font-size', '16');
+		$label.setAttribute('font-size', '14');
 		$label.setAttribute('font-family', 'Source Code Pro');
 		if(inverted) {
 			$label.setAttribute('text-decoration', 'overline');
@@ -65,54 +109,37 @@ define([
 		return $label;
 	}
 
-	function displayComponent($container, inputs, outputs, label) {
-		var inputCount = inputs.length;
-		var outputCount = outputs.length;
-
-		var maxPins = Math.max(inputCount, outputCount);
-
-		var width = 50;
-		var height = (maxPins - 1) * PINS_SPACING + 2 * PINS_PADDING;
-
-		var inputsStartY = height / 2 - ((inputCount - 1) * PINS_SPACING) / 2;
-		var outputsStartY = height / 2 - ((outputCount - 1) * PINS_SPACING) / 2;
-
+	function displayComponent($container, width, height, pins, label) {
 		var $rect = SvgUtil.createElement('rect');
-		$rect.setAttribute('width', width);
-		$rect.setAttribute('height', height);
+		$rect.setAttribute('width', width * 10);
+		$rect.setAttribute('height', height * 10);
 		$rect.setAttribute('fill', 'white');
 		$rect.setAttribute('stroke', 'black');
 		$rect.setAttribute('stroke-width', '2');
 		$container.appendChild($rect);
 
-		var i, y, $pin, $pinLabel;
-		for(i = 0; i < inputCount; i++) {
-			y = inputsStartY + i * PINS_SPACING;
-			$pin = createPin(0, y, -10, y);
+		for(var i = 0; i < pins.length; i++) {
+			var pin = pins[i];
+
+			var y = pin.y * 1;
+			var x2 = pin.x;
+			var x1 = pin.out ? x2 - 1 : x2 + 1;
+
+			var $pin = createPin(x1 * 10, y * 10, x2 * 10, y * 10);
 			$container.appendChild($pin);
 
-			if(inputs[i][0] === '!') {
-				$container.appendChild(createInvCircle(0, y, -10, y));
+			if(pin.inverted) {
+				$container.appendChild(createInvCircle(x1 * 10, y * 10, x2 * 10, y * 10));
 			}
 
-			$pinLabel = createPinLabel(0, y, -10, y, inputs[i]);
-			$container.appendChild($pinLabel);
-		}
-		for(i = 0; i < outputCount; i++) {
-			y = outputsStartY + i * PINS_SPACING;
-			$pin = createPin(width, y, width + 10, y);
-			$container.appendChild($pin);
-
-			if(outputs[i][0] === '!') {
-				$container.appendChild(createInvCircle(width, y, width + 10, y));
+			if(pin.label) {
+				var $pinLabel = createPinLabel(x1 * 10, y * 10, x2 * 10, y * 10, pin.label, pin.inverted);
+				$container.appendChild($pinLabel);
 			}
-
-			$pinLabel = createPinLabel(width, y, width + 10, y, outputs[i]);
-			$container.appendChild($pinLabel);
 		}
 
 		var $label = SvgUtil.createElement('text');
-		$label.setAttribute('x', width / 2);
+		$label.setAttribute('x', (width * 10) / 2);
 		$label.setAttribute('y', '30');
 		$label.setAttribute('text-anchor', 'middle');
 		$label.setAttribute('font-size', '25');
@@ -123,6 +150,8 @@ define([
 
 		return $rect;
 	}
+
+	displayComponent.layout = layout;
 
 	return displayComponent;
 });

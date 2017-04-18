@@ -13,52 +13,25 @@ define([
 	function FullAdderComponent() {
 		Component.call(this);
 
-		this.pins = [
-			{
-				out: false,
-				x: -1,
-				y: 3,
-				name: 'A',
-				index: 0
-			},
-			{
-				out: false,
-				x: -1,
-				y: 7,
-				name: 'B',
-				index: 1
-			},
-			{
-				out: false,
-				x: -1,
-				y: 11,
-				name: 'C',
-				index: 2
-			},
-			{
-				out: true,
-				x: 6,
-				y: 5,
-				name: 'S',
-				index: 0
-			},
-			{
-				out: true,
-				x: 6,
-				y: 9,
-				name: 'C',
-				index: 1
-			}
-		];
+		this.pins = null;
 
 		this.$container = null;
 		this.$rect = null;
 		this.mousedownCallback = null;
 
 		this.properties = new ComponentProperties([]);
+
+		this.layout();
 	}
 
 	extend(FullAdderComponent, Component);
+
+	FullAdderComponent.prototype.layout = function () {
+		var layout = displayComponent.layout(['A', 'B', 'C'], ['S', 'C']);
+		this.width = layout.width;
+		this.height = layout.height;
+		this.pins = layout.pins;
+	};
 
 	FullAdderComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
@@ -68,7 +41,7 @@ define([
 
 	FullAdderComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, ['A', 'B', 'C'], ['S', 'C'], 'FA');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, 'FA');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -92,7 +65,8 @@ define([
 		name: 'Full Adder',
 		category: 'Adder',
 		drawPreview: function (svg) {
-			displayComponent(svg, ['A', 'B', 'C'], ['S', 'C'], 'FA');
+			var layout = displayComponent.layout(['A', 'B', 'C'], ['S', 'C']);
+			displayComponent(svg, layout.width, layout.height, layout.pins, 'FA');
 		}
 	};
 

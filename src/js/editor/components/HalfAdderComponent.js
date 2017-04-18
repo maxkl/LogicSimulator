@@ -13,45 +13,25 @@ define([
 	function HalfAdderComponent() {
 		Component.call(this);
 
-		this.pins = [
-			{
-				out: false,
-				x: -1,
-				y: 3,
-				name: 'A',
-				index: 0
-			},
-			{
-				out: false,
-				x: -1,
-				y: 7,
-				name: 'B',
-				index: 1
-			},
-			{
-				out: true,
-				x: 6,
-				y: 3,
-				name: 'S',
-				index: 0
-			},
-			{
-				out: true,
-				x: 6,
-				y: 7,
-				name: 'C',
-				index: 1
-			}
-		];
+		this.pins = null;
 
 		this.$container = null;
 		this.$rect = null;
 		this.mousedownCallback = null;
 
 		this.properties = new ComponentProperties([]);
+
+		this.layout();
 	}
 
 	extend(HalfAdderComponent, Component);
+
+	HalfAdderComponent.prototype.layout = function () {
+		var layout = displayComponent.layout(['A', 'B'], ['S', 'C']);
+		this.width = layout.width;
+		this.height = layout.height;
+		this.pins = layout.pins;
+	};
 
 	HalfAdderComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
@@ -61,7 +41,7 @@ define([
 
 	HalfAdderComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, ['A', 'B'], ['S', 'C'], 'HA');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, 'HA');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -85,7 +65,8 @@ define([
 		name: 'Half Adder',
 		category: 'Adder',
 		drawPreview: function (svg) {
-			displayComponent(svg, ['A', 'B'], ['S', 'C'], 'HA');
+			var layout = displayComponent.layout(['A', 'B'], ['S', 'C']);
+			displayComponent(svg, layout.width, layout.height, layout.pins, 'HA');
 		}
 	};
 

@@ -13,31 +13,25 @@ define([
 	function NotComponent() {
 		Component.call(this);
 
-		this.pins = [
-			{
-				out: false,
-				x: -1,
-				y: 3,
-				name: 'A',
-				index: 0
-			},
-			{
-				out: true,
-				x: 6,
-				y: 3,
-				name: 'Q',
-				index: 0
-			}
-		];
+		this.pins = null;
 
 		this.$container = null;
 		this.$rect = null;
 		this.mousedownCallback = null;
 
 		this.properties = new ComponentProperties([]);
+
+		this.layout();
 	}
 
 	extend(NotComponent, Component);
+
+	NotComponent.prototype.layout = function () {
+		var layout = displayComponent.layout([''], ['!']);
+		this.width = layout.width;
+		this.height = layout.height;
+		this.pins = layout.pins;
+	};
 
 	NotComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
@@ -47,7 +41,7 @@ define([
 
 	NotComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, ['A'], ['!Q'], '1');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, '1');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -71,7 +65,8 @@ define([
 		name: 'Not',
 		category: 'Gates',
 		drawPreview: function (svg) {
-			displayComponent(svg, ['A'], ['!Q'], '1');
+			var layout = displayComponent.layout([''], ['!']);
+			displayComponent(svg, layout.width, layout.height, layout.pins, '1');
 		}
 	};
 

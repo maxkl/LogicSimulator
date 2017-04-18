@@ -13,38 +13,25 @@ define([
 	function DFlipFlopComponent() {
 		Component.call(this);
 
-		this.pins = [
-			{
-				out: false,
-				x: -1,
-				y: 3,
-				name: 'D',
-				index: 0
-			},
-			{
-				out: false,
-				x: -1,
-				y: 7,
-				name: 'CLK',
-				index: 1
-			},
-			{
-				out: true,
-				x: 6,
-				y: 5,
-				name: 'Q',
-				index: 0
-			}
-		];
+		this.pins = null;
 
 		this.$container = null;
 		this.$rect = null;
 		this.mousedownCallback = null;
 
 		this.properties = new ComponentProperties([]);
+
+		this.layout();
 	}
 
 	extend(DFlipFlopComponent, Component);
+
+	DFlipFlopComponent.prototype.layout = function () {
+		var layout = displayComponent.layout(['D', 'C'], ['Q']);
+		this.width = layout.width;
+		this.height = layout.height;
+		this.pins = layout.pins;
+	};
 
 	DFlipFlopComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
@@ -54,7 +41,7 @@ define([
 
 	DFlipFlopComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, ['D', 'CLK'], ['Q'], 'D');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, 'D');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -78,7 +65,8 @@ define([
 		name: 'D FF',
 		category: 'Memory',
 		drawPreview: function (svg) {
-			displayComponent(svg, ['D', 'CLK'], ['Q'], 'D');
+			var layout = displayComponent.layout(['D', 'C'], ['Q']);
+			displayComponent(svg, layout.width, layout.height, layout.pins, 'D');
 		}
 	};
 

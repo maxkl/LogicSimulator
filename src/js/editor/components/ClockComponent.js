@@ -13,7 +13,7 @@ define([
 	function ClockComponent(period) {
 		Component.call(this);
 
-		this.connectionPoints = [
+		this.pins = [
 			{
 				out: true,
 				x: 6,

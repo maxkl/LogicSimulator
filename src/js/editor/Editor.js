@@ -373,11 +373,12 @@ define([
 
 		for(var i = 0; i < this.components.length; i++) {
 			var com = this.components[i];
-			var pts = com.connectionPoints;
+			var pins = com.pins;
 
-			for(var j = 0; j < pts.length; j++) {
-				var x = com.x + pts[j].x;
-				var y = com.y + pts[j].y;
+			for(var j = 0; j < pins.length; j++) {
+				var pin = pins[j];
+				var x = com.x + pin.x;
+				var y = com.y + pin.y;
 				var pt = x + '|' + y;
 
 				if(!coords[pt]) {
@@ -469,20 +470,20 @@ define([
 
 		for(var i = 0; i < this.components.length; i++) {
 			var com = this.components[i];
-			var pts = com.connectionPoints;
+			var pins = com.pins;
 
 			var component = com.constructSimComponent();
 			component.userData = com;
-			for(var j = 0; j < pts.length; j++) {
-				var pt = pts[j];
-				var x = com.x + pts[j].x;
-				var y = com.y + pts[j].y;
+			for(var j = 0; j < pins.length; j++) {
+				var pin = pins[j];
+				var x = com.x + pin.x;
+				var y = com.y + pin.y;
 				var con = coords[x + '|' + y];
 
-				if(pts[j].out) {
-					con.addInput(component, pts[j].index);
+				if(pin.out) {
+					con.addInput(component, pin.index);
 				} else {
-					con.addOutput(component, pts[j].index);
+					con.addOutput(component, pin.index);
 				}
 			}
 			components.push(component);

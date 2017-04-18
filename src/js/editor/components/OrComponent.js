@@ -13,7 +13,7 @@ define([
 	function OrComponent() {
 		Component.call(this);
 
-		this.connectionPoints = [
+		this.pins = [
 			{
 				out: false,
 				x: -1,

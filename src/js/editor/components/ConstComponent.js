@@ -13,7 +13,7 @@ define([
 	function ConstComponent() {
 		Component.call(this);
 
-		this.connectionPoints = [
+		this.pins = [
 			{
 				out: true,
 				x: 6,

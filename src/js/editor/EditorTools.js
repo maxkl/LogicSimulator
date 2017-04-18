@@ -80,6 +80,10 @@ define([
 				self.setTool(TOOL_CONNECT);
 			}
 		});
+
+		document.getElementById('toolbar-action-delete').addEventListener('click', function () {
+			self.emit('action-delete');
+		});
 	};
 
 	EditorTools.prototype.setTool = function (tool) {

@@ -192,6 +192,10 @@ define([
 			}
 		});
 
+		this.tools.on('action-delete', function () {
+			self.deleteSelected();
+		});
+
 		this.tools.on('run', function () {
 			self.sidebar.hide(true);
 			self.$propertyOverlay.classList.remove('visible');
@@ -289,6 +293,23 @@ define([
 		this.selectedComponents.length = 0;
 
 		this.updatePropertyOverlay();
+	};
+
+	Editor.prototype.deleteSelected = function () {
+		for(var i = 0; i < this.selectedComponents.length; i++) {
+			var component = this.selectedComponents[i];
+			this.deleteComponent(component);
+		}
+
+		this.deselectAll();
+	};
+
+	Editor.prototype.deleteComponent = function (component) {
+		var index = this.components.indexOf(component);
+		if(index !== -1) {
+			this.components.splice(index, 1);
+			component.remove();
+		}
 	};
 
 	Editor.prototype.addComponent = function (component, x, y) {

@@ -140,9 +140,9 @@ define([
 
 		var $label = SvgUtil.createElement('text');
 		$label.setAttribute('x', (width * 10) / 2);
-		$label.setAttribute('y', '30');
+		$label.setAttribute('y', '27');
 		$label.setAttribute('text-anchor', 'middle');
-		$label.setAttribute('font-size', '25');
+		$label.setAttribute('font-size', '20');
 		$label.setAttribute('font-family', 'Source Code Pro');
 		$label.setAttribute('pointer-events', 'none');
 		$label.appendChild(document.createTextNode(label));

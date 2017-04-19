@@ -25,6 +25,7 @@ define([
 		this.sidebar = new Sidebar(app);
 		this.$svg = document.getElementById('editor-svg');
 		this.viewport = new Viewport(app, this.$svg);
+		this.$selection = document.getElementById('editor-selection');
 		this.$componentsGroup = document.getElementById('editor-components');
 		this.$connectionsGroup = document.getElementById('editor-connections');
 		this.$propertyOverlay = document.getElementById('property-overlay');
@@ -84,7 +85,15 @@ define([
 						self.deselectAll();
 					}
 
-					// TODO: select rect
+					var rect = self.$svg.getBoundingClientRect();
+					self.startX = self.viewport.viewportToWorldX(evt.clientX - rect.left);
+					self.startY = self.viewport.viewportToWorldY(evt.clientY - rect.top);
+
+					self.$selection.setAttribute('visibility', 'visible');
+					self.$selection.setAttribute('x', self.startX);
+					self.$selection.setAttribute('y', self.startY);
+					self.$selection.setAttribute('width', 0);
+					self.$selection.setAttribute('height', 0);
 				}
 			} else if(self.tools.currentTool === EditorTools.TOOL_CONNECT) {
 				if(self.mouseMode === MOUSE_UP) {
@@ -137,7 +146,25 @@ define([
 						component.updateDisplay();
 					}
 				} else if(self.mouseMode === MOUSE_SELECT) {
-					// TODO: select rect
+					var rect = self.$svg.getBoundingClientRect();
+					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
+					var y = self.viewport.viewportToWorldY(evt.clientY - rect.top);
+
+					if(x < self.startX) {
+						self.$selection.setAttribute('x', x);
+						self.$selection.setAttribute('width', self.startX - x);
+					} else {
+						self.$selection.setAttribute('x', self.startX);
+						self.$selection.setAttribute('width', x - self.startX);
+					}
+
+					if(y < self.startY) {
+						self.$selection.setAttribute('y', y);
+						self.$selection.setAttribute('height', self.startY - y);
+					} else {
+						self.$selection.setAttribute('y', self.startY);
+						self.$selection.setAttribute('height', y - self.startY);
+					}
 				} else if(self.mouseMode === MOUSE_CONNECT) {
 					var rect = self.$svg.getBoundingClientRect();
 					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
@@ -169,7 +196,31 @@ define([
 						self.sidebar.show();
 					}
 				} else if(self.mouseMode === MOUSE_SELECT) {
-					// TODO: select rect
+					var rect = self.$svg.getBoundingClientRect();
+					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
+					var y = self.viewport.viewportToWorldY(evt.clientY - rect.top);
+
+					var x1, x2;
+					if(x < self.startX) {
+						x1 = x;
+						x2 = self.startX;
+					} else {
+						x1 = self.startX;
+						x2 = x;
+					}
+
+					var y1, y2;
+					if(y < self.startY) {
+						y1 = y;
+						y2 = self.startY;
+					} else {
+						y1 = self.startY;
+						y2 = y;
+					}
+
+					self.selectRect(x1 / 10, y1 / 10, x2 / 10, y2 / 10);
+
+					self.$selection.setAttribute('visibility', 'hidden');
 				} else if(self.mouseMode === MOUSE_CONNECT) {
 					if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
 						self.connections.push(self.currentConnection);
@@ -289,6 +340,20 @@ define([
 	Editor.prototype.select = function (component) {
 		component.select();
 		this.selectedComponents.push(component);
+
+		this.updatePropertyOverlay();
+	};
+
+	Editor.prototype.selectRect = function (x1, y1, x2, y2) {
+		for(var i = 0; i < this.components.length; i++) {
+			var component = this.components[i];
+			if(!component.selected) {
+				if(component.x < x2 && component.y < y2 && component.x + component.width > x1 && component.y + component.height > y1) {
+					component.select();
+					this.selectedComponents.push(component);
+				}
+			}
+		}
 
 		this.updatePropertyOverlay();
 	};

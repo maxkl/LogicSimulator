@@ -658,6 +658,16 @@ define([
 				connection.setState(simConnection.value ? Connection.ACTIVE : Connection.DEFAULT);
 			}
 		}
+
+		var simComponents = this.simulationCircuit.components;
+		for(var i = 0; i < simComponents.length; i++) {
+			var simComponent = simComponents[i];
+
+			var component = simComponent.userData;
+			if(component.updateSimulationDisplay) {
+				component.updateSimulationDisplay(simComponent);
+			}
+		}
 	};
 
 	Editor.prototype.resetSimulationDisplay = function () {
@@ -669,6 +679,16 @@ define([
 			for(var j = 0; j < connections.length; j++) {
 				var connection = connections[j];
 				connection.setState(Connection.DEFAULT);
+			}
+		}
+
+		var simComponents = this.simulationCircuit.components;
+		for(var i = 0; i < simComponents.length; i++) {
+			var simComponent = simComponents[i];
+
+			var component = simComponent.userData;
+			if(component.resetSimulationDisplay) {
+				component.resetSimulationDisplay();
 			}
 		}
 	};

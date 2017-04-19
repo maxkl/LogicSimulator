@@ -22,6 +22,10 @@ define([
 		this.$run = document.getElementById('toolbar-run');
 		this.$stop = document.getElementById('toolbar-stop');
 		this.$pause = document.getElementById('toolbar-pause');
+		this.$toolSelect = document.getElementById('toolbar-tool-select');
+		this.$toolConnect = document.getElementById('toolbar-tool-connect');
+		this.$toolPan = document.getElementById('toolbar-tool-pan');
+		this.$actionDelete = document.getElementById('toolbar-action-delete');
 
 		this.registerListeners();
 	}
@@ -44,6 +48,11 @@ define([
 				self.$stop.disabled = false;
 				self.$pause.disabled = false;
 
+				self.$toolSelect.disabled = true;
+				self.$toolConnect.disabled = true;
+				self.$toolPan.disabled = true;
+				self.$actionDelete.disabled = true;
+
 				self.emit('run');
 			}
 		});
@@ -55,6 +64,11 @@ define([
 			self.$pause.disabled = true;
 			self.$stop.disabled = true;
 
+			self.$toolSelect.disabled = false;
+			self.$toolConnect.disabled = false;
+			self.$toolPan.disabled = false;
+			self.$actionDelete.disabled = false;
+
 			self.emit('stop');
 		});
 
@@ -65,23 +79,19 @@ define([
 			self.emit('pause');
 		});
 
-		document.getElementById('toolbar-tool-select').addEventListener('click', function (evt) {
+		this.$toolSelect.addEventListener('click', function (evt) {
 			self.setTool(TOOL_SELECT);
 		});
 
-		document.getElementById('toolbar-tool-connect').addEventListener('click', function (evt) {
-			if(!self.running) {
-				self.setTool(TOOL_CONNECT);
-			}
+		this.$toolConnect.addEventListener('click', function (evt) {
+			self.setTool(TOOL_CONNECT);
 		});
 
-		document.getElementById('toolbar-tool-pan').addEventListener('click', function (evt) {
-			if(!self.running) {
-				self.setTool(TOOL_PAN);
-			}
+		this.$toolPan.addEventListener('click', function (evt) {
+			self.setTool(TOOL_PAN);
 		});
 
-		document.getElementById('toolbar-action-delete').addEventListener('click', function () {
+		this.$actionDelete.addEventListener('click', function () {
 			self.emit('action-delete');
 		});
 	};

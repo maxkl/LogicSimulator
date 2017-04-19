@@ -268,7 +268,7 @@ define([
 		var found = false;
 		if(this.selectedComponents.length === 1) {
 			var component = this.selectedComponents[0];
-			if(component.properties) {
+			if(component.properties && component.properties.length > 0) {
 				found = true;
 
 				this.propertyOverlayVisible = true;

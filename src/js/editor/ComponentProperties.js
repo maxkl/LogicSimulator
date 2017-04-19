@@ -56,6 +56,7 @@ define(function () {
 		}
 		this._propsMap = propsMap;
 		this._props = props;
+		this.length = this._props.length;
 	}
 
 	ComponentProperties.prototype.get = function (key) {

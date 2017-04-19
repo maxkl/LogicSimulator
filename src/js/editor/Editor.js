@@ -38,6 +38,8 @@ define([
 
 		this.propertyOverlayVisible = false;
 
+		this.previousTool = null;
+
 		this.connections = [];
 		this.currentConnection = null;
 
@@ -201,6 +203,7 @@ define([
 			self.sidebar.hide(true);
 			self.$propertyOverlay.classList.remove('visible');
 
+			self.previousTool = self.tools.currentTool;
 			self.tools.setTool(EditorTools.TOOL_PAN);
 			self.deselectAll();
 			self.startSimulation();
@@ -209,6 +212,7 @@ define([
 		this.tools.on('stop', function () {
 			self.stopSimulation();
 
+			self.tools.setTool(self.previousTool);
 			self.sidebar.show();
 			if(self.propertyOverlayVisible) {
 				self.$propertyOverlay.classList.add('visible');

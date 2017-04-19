@@ -78,7 +78,7 @@ define([
 				if(self.mouseMode === MOUSE_UP) {
 					self.mouseMode = MOUSE_SELECT;
 
-					if(!evt.ctrlKey) {
+					if(!evt.shiftKey) {
 						self.deselectAll();
 					}
 
@@ -344,7 +344,7 @@ define([
 			} else {
 				if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
 					if(self.mouseMode === MOUSE_UP) {
-						if(evt.ctrlKey) {
+						if(evt.shiftKey) {
 							if(component.selected) {
 								self.deselect(component);
 								// TODO: dont't drag anything

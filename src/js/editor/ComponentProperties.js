@@ -39,6 +39,16 @@ define(function () {
 				});
 				$label.appendChild($num);
 				break;
+			case 'string':
+				var $str = document.createElement('input');
+				$str.type = 'text';
+				$str.value = this.value;
+				$str.addEventListener('input', function () {
+					self.value = $str.value;
+					if(self.onchange) self.onchange();
+				});
+				$label.appendChild($str);
+				break;
 		}
 
 		return $label;

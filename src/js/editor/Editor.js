@@ -700,7 +700,7 @@ define([
 
 			var component = simComponent.userData;
 			if(component.resetSimulationDisplay) {
-				component.resetSimulationDisplay();
+				component.resetSimulationDisplay(simComponent);
 			}
 		}
 	};

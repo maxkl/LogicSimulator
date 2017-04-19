@@ -647,6 +647,18 @@ define([
 		return new SimCircuit(components, connections);
 	};
 
+	Editor.prototype.initSimulationDisplay = function () {
+		var simComponents = this.simulationCircuit.components;
+		for(var i = 0; i < simComponents.length; i++) {
+			var simComponent = simComponents[i];
+
+			var component = simComponent.userData;
+			if(component.initSimulationDisplay) {
+				component.initSimulationDisplay(simComponent);
+			}
+		}
+	};
+
 	Editor.prototype.updateSimulationDisplay = function () {
 		var simConnections = this.simulationCircuit.connections;
 		for(var i = 0; i < simConnections.length; i++) {
@@ -716,6 +728,10 @@ define([
 		this.simulationCircuit = circuit;
 
 		circuit.init();
+
+		this.initSimulationDisplay();
+		this.updateSimulationDisplay();
+
 		this.startSimulationInterval();
 
 		console.log('simulation started');

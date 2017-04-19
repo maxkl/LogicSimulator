@@ -12,7 +12,7 @@ define([
 
 		this.period = period;
 		this.halfPeriod = period / 2;
-		this.in = {};
+		this.in = [];
 		this.out = [false];
 
 		this.ticks = 0;

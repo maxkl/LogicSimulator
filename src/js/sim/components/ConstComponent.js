@@ -10,7 +10,7 @@ define([
 	function ConstComponent(value) {
 		Component.call(this, arguments);
 
-		this.in = {};
+		this.in = [];
 		this.out = [value];
 	}
 

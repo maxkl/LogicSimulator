@@ -191,10 +191,6 @@ define([
 			} else {
 				self.$svg.style.removeProperty('cursor');
 			}
-
-			if(previousTool === EditorTools.TOOL_SELECT) {
-				self.deselectAll();
-			}
 		});
 
 		this.tools.on('action-delete', function () {
@@ -206,6 +202,7 @@ define([
 			self.$propertyOverlay.classList.remove('visible');
 
 			self.tools.setTool(EditorTools.TOOL_PAN);
+			self.deselectAll();
 			self.startSimulation();
 		});
 

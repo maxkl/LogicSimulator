@@ -38,6 +38,7 @@ define([
 		this.showSidebarOnDrop = false;
 
 		this.selectedComponents = [];
+		this.selectedConnections = [];
 
 		this.propertyOverlayVisible = false;
 
@@ -107,6 +108,9 @@ define([
 
 					self.currentConnection = new Connection(snappedX, snappedY, snappedX, snappedY);
 					self.currentConnection.display(self.$connectionsGroup);
+
+					self.deselectAll();
+					self.selectConnection(self.currentConnection);
 				}
 			}
 		});
@@ -144,6 +148,15 @@ define([
 						component.x = component.startX + offsetX;
 						component.y = component.startY + offsetY;
 						component.updateDisplay();
+					}
+
+					for(var i = 0; i < self.selectedConnections.length; i++) {
+						var connection = self.selectedConnections[i];
+						connection.x1 = connection.startX1 + offsetX;
+						connection.y1 = connection.startY1 + offsetY;
+						connection.x2 = connection.startX2 + offsetX;
+						connection.y2 = connection.startY2 + offsetY;
+						connection.updateDisplay();
 					}
 				} else if(self.mouseMode === MOUSE_SELECT) {
 					var rect = self.$svg.getBoundingClientRect();
@@ -294,7 +307,7 @@ define([
 			self.addComponent(component, snappedX, snappedY);
 
 			self.deselectAll()
-			self.select(component);
+			self.selectComponent(component);
 
 			self.startDragging(evt.clientX, evt.clientY);
 
@@ -312,6 +325,14 @@ define([
 			var component = this.selectedComponents[i];
 			component.startX = component.x;
 			component.startY = component.y;
+		}
+
+		for(var i = 0; i < this.selectedConnections.length; i++) {
+			var connection = this.selectedConnections[i];
+			connection.startX1 = connection.x1;
+			connection.startY1 = connection.y1;
+			connection.startX2 = connection.x2;
+			connection.startY2 = connection.y2;
 		}
 
 		this.$svg.style.cursor = 'move';
@@ -337,9 +358,16 @@ define([
 		}
 	};
 
-	Editor.prototype.select = function (component) {
+	Editor.prototype.selectComponent = function (component) {
 		component.select();
 		this.selectedComponents.push(component);
+
+		this.updatePropertyOverlay();
+	};
+
+	Editor.prototype.selectConnection = function (connection) {
+		connection.select();
+		this.selectedConnections.push(connection);
 
 		this.updatePropertyOverlay();
 	};
@@ -355,10 +383,18 @@ define([
 			}
 		}
 
-		this.updatePropertyOverlay();
+		for(var i = 0; i < this.connections.length; i++) {
+			var connection = this.connections[i];
+			if(!connection.selected) {
+				if(connection.x1 < x2 && connection.y1 < y2 && connection.x2 > x1 && connection.y2 > y1) {
+					connection.select();
+					this.selectedConnections.push(connection);
+				}
+			}
+		}
 	};
 
-	Editor.prototype.deselect = function (component) {
+	Editor.prototype.deselectComponent = function (component) {
 		var index = this.selectedComponents.indexOf(component);
 		if(index !== -1) {
 			this.selectedComponents.splice(index, 1);
@@ -373,8 +409,13 @@ define([
 			var component = this.selectedComponents[i];
 			component.deselect();
 		}
-
 		this.selectedComponents.length = 0;
+
+		for(var i = 0; i < this.selectedConnections.length; i++) {
+			var connection = this.selectedConnections[i];
+			connection.deselect();
+		}
+		this.selectedConnections.length = 0;
 
 		this.updatePropertyOverlay();
 	};
@@ -385,6 +426,11 @@ define([
 			this.deleteComponent(component);
 		}
 
+		for(var i = 0; i < this.selectedConnections.length; i++) {
+			var connection = this.selectedConnections[i];
+			this.deleteConnection(connection);
+		}
+
 		this.deselectAll();
 	};
 
@@ -393,6 +439,14 @@ define([
 		if(index !== -1) {
 			this.components.splice(index, 1);
 			component.remove();
+		}
+	};
+
+	Editor.prototype.deleteConnection = function (connection) {
+		var index = this.connections.indexOf(connection);
+		if(index !== -1) {
+			this.connections.splice(index, 1);
+			connection.remove();
 		}
 	};
 
@@ -413,17 +467,17 @@ define([
 					if(self.mouseMode === MOUSE_UP) {
 						if(evt.shiftKey) {
 							if(component.selected) {
-								self.deselect(component);
+								self.deselectComponent(component);
 								// TODO: dont't drag anything
 							} else {
-								self.select(component);
+								self.selectComponent(component);
 							}
 						} else {
 							if(component.selected) {
 
 							} else {
 								self.deselectAll();
-								self.select(component);
+								self.selectComponent(component);
 							}
 						}
 
@@ -599,7 +653,7 @@ define([
 			var connections = simConnection.userData;
 			for(var j = 0; j < connections.length; j++) {
 				var connection = connections[j];
-				connection.setState(simConnection.value);
+				connection.setState(simConnection.value ? Connection.ACTIVE : Connection.DEFAULT);
 			}
 		}
 	};
@@ -612,7 +666,7 @@ define([
 			var connections = simConnection.userData;
 			for(var j = 0; j < connections.length; j++) {
 				var connection = connections[j];
-				connection.setState(false);
+				connection.setState(Connection.DEFAULT);
 			}
 		}
 	};

@@ -6,14 +6,40 @@
 define([
 	'lib/SvgUtil'
 ], function (SvgUtil) {
+	var DEFAULT = 0;
+	var SELECTED = 1;
+	var ACTIVE = 2;
+
+	var STATE_COLORS = [
+		'#000',
+		'#0288d1',
+		'#f00'
+	];
+
 	function Connection(x1, y1, x2, y2) {
 		this.x1 = x1;
 		this.y1 = y1;
 		this.x2 = x2;
 		this.y2 = y2;
+		this.startX1 = 0;
+		this.startY1 = 0;
+		this.startX2 = 0;
+		this.startY2 = 0;
+
+		this.selected = false;
 
 		this.$line = null;
 	}
+
+	Connection.prototype.select = function () {
+		this.selected = true;
+		this.setState(SELECTED);
+	};
+
+	Connection.prototype.deselect = function () {
+		this.selected = false;
+		this.setState(DEFAULT);
+	};
 
 	Connection.prototype.display = function ($container) {
 		this.$line = SvgUtil.createElement('line');
@@ -39,8 +65,12 @@ define([
 
 	Connection.prototype.setState = function (state) {
 		if(!this.$line) return;
-		this.$line.setAttribute('stroke', state ? 'red' : 'black');
+		this.$line.setAttribute('stroke', STATE_COLORS[state]);
 	};
+
+	Connection.DEFAULT = DEFAULT;
+	Connection.SELECTED = SELECTED;
+	Connection.ACTIVE = ACTIVE;
 
 	return Connection;
 });

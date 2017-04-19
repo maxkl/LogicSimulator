@@ -4,7 +4,7 @@
  */
 
 define([
-	'Viewport',
+	'editor/Viewport',
 	'editor/EditorTools',
 	'editor/Sidebar',
 	'editor/Connection',

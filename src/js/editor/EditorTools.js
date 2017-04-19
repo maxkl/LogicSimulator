@@ -7,16 +7,16 @@ define([
 	'lib/EventEmitter',
 	'lib/extend'
 ], function (EventEmitter, extend) {
-	var TOOL_NORMAL = 0;
-	var TOOL_SELECT = 1;
-	var TOOL_CONNECT = 2;
+	var TOOL_SELECT = 0;
+	var TOOL_CONNECT = 1;
+	var TOOL_PAN = 2;
 
 	function EditorTools(app) {
 		EventEmitter.call(this);
 
 		this.app = app;
 
-		this.currentTool = TOOL_NORMAL;
+		this.currentTool = TOOL_SELECT;
 		this.running = false;
 
 		this.$run = document.getElementById('toolbar-run');
@@ -65,19 +65,19 @@ define([
 			self.emit('pause');
 		});
 
-		document.getElementById('toolbar-tool-normal').addEventListener('click', function (evt) {
-			self.setTool(TOOL_NORMAL);
-		});
-
 		document.getElementById('toolbar-tool-select').addEventListener('click', function (evt) {
-			if(!self.running) {
-				self.setTool(TOOL_SELECT);
-			}
+			self.setTool(TOOL_SELECT);
 		});
 
 		document.getElementById('toolbar-tool-connect').addEventListener('click', function (evt) {
 			if(!self.running) {
 				self.setTool(TOOL_CONNECT);
+			}
+		});
+
+		document.getElementById('toolbar-tool-pan').addEventListener('click', function (evt) {
+			if(!self.running) {
+				self.setTool(TOOL_PAN);
 			}
 		});
 
@@ -94,9 +94,9 @@ define([
 		}
 	};
 
-	EditorTools.TOOL_NORMAL = TOOL_NORMAL;
 	EditorTools.TOOL_SELECT = TOOL_SELECT;
 	EditorTools.TOOL_CONNECT = TOOL_CONNECT;
+	EditorTools.TOOL_PAN = TOOL_PAN;
 
 	return EditorTools;
 });

@@ -14,10 +14,9 @@ define([
 ], function (Viewport, EditorTools, Sidebar, Connection, SimConnection, SimCircuit, SvgUtil) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
-	var MOUSE_DRAG_COMPONENT = 2;
+	var MOUSE_DRAG = 2;
 	var MOUSE_SELECT = 3;
-	var MOUSE_DESELECT = 4;
-	var MOUSE_CONNECT = 5;
+	var MOUSE_CONNECT = 4;
 
 	function Editor(app) {
 		this.app = app;
@@ -63,7 +62,7 @@ define([
 		this.$svg.addEventListener('mousedown', function (evt) {
 			evt.preventDefault();
 
-			if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
+			if(self.tools.currentTool === EditorTools.TOOL_PAN) {
 				if(self.mouseMode === MOUSE_UP) {
 					self.mouseMode = MOUSE_PAN;
 
@@ -76,11 +75,13 @@ define([
 				}
 			} else if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
 				if(self.mouseMode === MOUSE_UP) {
-					self.mouseMode = MOUSE_DESELECT;
+					self.mouseMode = MOUSE_SELECT;
 
 					if(!evt.ctrlKey) {
 						self.deselectAll();
 					}
+
+					// TODO: select rect
 				}
 			} else if(self.tools.currentTool === EditorTools.TOOL_CONNECT) {
 				if(self.mouseMode === MOUSE_UP) {
@@ -119,7 +120,7 @@ define([
 
 				if(self.mouseMode === MOUSE_PAN) {
 					self.viewport.setPosition(self.startX + diffX, self.startY + diffY);
-				} else if(self.mouseMode === MOUSE_DRAG_COMPONENT) {
+				} else if(self.mouseMode === MOUSE_DRAG) {
 					var scaledDiffX = diffX / self.viewport.scale;
 					var scaledDiffY = diffY / self.viewport.scale;
 
@@ -129,6 +130,8 @@ define([
 					self.currentComponent.x = snappedX;
 					self.currentComponent.y = snappedY;
 					self.currentComponent.updateDisplay();
+				} else if(self.mouseMode === MOUSE_SELECT) {
+					// TODO: select rect
 				} else if(self.mouseMode === MOUSE_CONNECT) {
 					var rect = self.$svg.getBoundingClientRect();
 					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
@@ -154,13 +157,15 @@ define([
 			evt.preventDefault();
 
 			if(self.mouseMode !== MOUSE_UP) {
-				if(self.mouseMode === MOUSE_DRAG_COMPONENT) {
+				if(self.mouseMode === MOUSE_DRAG) {
 					self.currentComponent = null;
 
 					if(self.showSidebarOnDrop) {
 						self.showSidebarOnDrop = false;
 						self.sidebar.show();
 					}
+				} else if(self.mouseMode === MOUSE_SELECT) {
+					// TODO: select rect
 				} else if(self.mouseMode === MOUSE_CONNECT) {
 					if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
 						self.connections.push(self.currentConnection);
@@ -200,7 +205,7 @@ define([
 			self.sidebar.hide(true);
 			self.$propertyOverlay.classList.remove('visible');
 
-			self.tools.setTool(EditorTools.TOOL_NORMAL);
+			self.tools.setTool(EditorTools.TOOL_PAN);
 			self.startSimulation();
 		});
 
@@ -234,7 +239,7 @@ define([
 			var component = new entry.ctor();
 			self.addComponent(component, snappedX, snappedY);
 
-			self.mouseMode = MOUSE_DRAG_COMPONENT;
+			self.mouseMode = MOUSE_DRAG;
 			self.mouseStartX = evt.clientX;
 			self.mouseStartY = evt.clientY;
 			self.startX = component.x;
@@ -325,9 +330,26 @@ define([
 			if(self.tools.running) {
 				//
 			} else {
-				if(self.tools.currentTool === EditorTools.TOOL_NORMAL) {
+				if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
 					if(self.mouseMode === MOUSE_UP) {
-						self.mouseMode = MOUSE_DRAG_COMPONENT;
+						self.mouseMode = MOUSE_DRAG;
+
+						if(evt.ctrlKey) {
+							if(component.selected) {
+								self.deselect(component);
+								// TODO: dont't drag anything
+							} else {
+								self.select(component);
+							}
+						} else {
+							if(component.selected) {
+
+							} else {
+								self.deselectAll();
+								self.select(component);
+							}
+						}
+
 						self.mouseStartX = evt.clientX;
 						self.mouseStartY = evt.clientY;
 						self.startX = component.x;
@@ -335,21 +357,6 @@ define([
 						self.currentComponent = component;
 
 						self.$svg.style.cursor = 'move';
-					}
-				} else if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
-					if(self.mouseMode === MOUSE_UP) {
-						self.mouseMode = MOUSE_SELECT;
-
-						if(evt.ctrlKey) {
-							if(component.selected) {
-								self.deselect(component);
-							} else {
-								self.select(component);
-							}
-						} else {
-							self.deselectAll();
-							self.select(component);
-						}
 					}
 				}
 			}

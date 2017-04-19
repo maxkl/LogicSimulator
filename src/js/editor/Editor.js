@@ -25,6 +25,8 @@ define([
 		this.sidebar = new Sidebar(app);
 		this.$svg = document.getElementById('editor-svg');
 		this.viewport = new Viewport(app, this.$svg);
+		this.$componentsGroup = document.getElementById('editor-components');
+		this.$connectionsGroup = document.getElementById('editor-connections');
 		this.$propertyOverlay = document.getElementById('property-overlay');
 
 		this.mouseMode = MOUSE_UP;
@@ -95,7 +97,7 @@ define([
 					var snappedY = Math.round(y / 10);
 
 					self.currentConnection = new Connection(snappedX, snappedY, snappedX, snappedY);
-					self.currentConnection.display(self.viewport.$viewportGroup);
+					self.currentConnection.display(self.$connectionsGroup);
 				}
 			}
 		});
@@ -366,7 +368,7 @@ define([
 			}
 		}
 
-		component.display(this.viewport.$viewportGroup, mousedown);
+		component.display(this.$componentsGroup, mousedown);
 	};
 
 	function ConstructionConnection(points, editorConnections) {

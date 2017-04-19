@@ -33,16 +33,16 @@ define([
 
 		this.$run.addEventListener('click', function () {
 			if(self.running) {
-				self.$run.classList.add('hidden');
-				self.$pause.classList.remove('hidden');
+				self.$run.disabled = true;
+				self.$pause.disabled = false;
 
 				self.emit('resume');
 			} else {
 				self.running = true;
 
-				self.$run.classList.add('hidden');
-				self.$stop.classList.remove('hidden');
-				self.$pause.classList.remove('hidden');
+				self.$run.disabled = true;
+				self.$stop.disabled = false;
+				self.$pause.disabled = false;
 
 				self.emit('run');
 			}
@@ -51,16 +51,16 @@ define([
 		this.$stop.addEventListener('click', function () {
 			self.running = false;
 
-			self.$run.classList.remove('hidden');
-			self.$pause.classList.add('hidden');
-			self.$stop.classList.add('hidden');
+			self.$run.disabled = false;
+			self.$pause.disabled = true;
+			self.$stop.disabled = true;
 
 			self.emit('stop');
 		});
 
 		this.$pause.addEventListener('click', function () {
-			self.$run.classList.remove('hidden');
-			self.$pause.classList.add('hidden');
+			self.$run.disabled = false;
+			self.$pause.disabled = true;
 
 			self.emit('pause');
 		});

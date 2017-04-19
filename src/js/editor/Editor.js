@@ -733,8 +733,6 @@ define([
 		this.updateSimulationDisplay();
 
 		this.startSimulationInterval();
-
-		console.log('simulation started');
 	};
 
 	Editor.prototype.stopSimulation = function () {
@@ -743,20 +741,14 @@ define([
 		this.resetSimulationDisplay();
 
 		this.simulationCircuit = null;
-
-		console.log('simulation stopped');
 	};
 
 	Editor.prototype.resumeSimulation = function () {
 		this.startSimulationInterval();
-
-		console.log('simulation resumed');
 	};
 
 	Editor.prototype.pauseSimulation = function () {
 		this.stopSimulationInterval();
-
-		console.log('simulation paused');
 	};
 
 	return Editor;

@@ -392,6 +392,8 @@ define([
 				}
 			}
 		}
+
+		this.updatePropertyOverlay();
 	};
 
 	Editor.prototype.deselectComponent = function (component) {

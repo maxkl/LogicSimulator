@@ -10,6 +10,8 @@ define([
 	function Component() {
 		this.x = 0;
 		this.y = 0;
+		this.startX = 0;
+		this.startY = 0;
 
 		this.$group = null;
 		this.transform = null;

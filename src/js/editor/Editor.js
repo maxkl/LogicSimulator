@@ -42,7 +42,6 @@ define([
 		this.currentConnection = null;
 
 		this.components = [];
-		this.currentComponent = null;
 
 		this.simulationCircuit = null;
 		var self = this;
@@ -124,12 +123,15 @@ define([
 					var scaledDiffX = diffX / self.viewport.scale;
 					var scaledDiffY = diffY / self.viewport.scale;
 
-					var snappedX = self.startX + Math.round(scaledDiffX / 10);
-					var snappedY = self.startY + Math.round(scaledDiffY / 10);
+					var offsetX = Math.round(scaledDiffX / 10);
+					var offsetY = Math.round(scaledDiffY / 10);
 
-					self.currentComponent.x = snappedX;
-					self.currentComponent.y = snappedY;
-					self.currentComponent.updateDisplay();
+					for(var i = 0; i < self.selectedComponents.length; i++) {
+						var component = self.selectedComponents[i];
+						component.x = component.startX + offsetX;
+						component.y = component.startY + offsetY;
+						component.updateDisplay();
+					}
 				} else if(self.mouseMode === MOUSE_SELECT) {
 					// TODO: select rect
 				} else if(self.mouseMode === MOUSE_CONNECT) {
@@ -158,8 +160,6 @@ define([
 
 			if(self.mouseMode !== MOUSE_UP) {
 				if(self.mouseMode === MOUSE_DRAG) {
-					self.currentComponent = null;
-
 					if(self.showSidebarOnDrop) {
 						self.showSidebarOnDrop = false;
 						self.sidebar.show();
@@ -239,17 +239,28 @@ define([
 			var component = new entry.ctor();
 			self.addComponent(component, snappedX, snappedY);
 
-			self.mouseMode = MOUSE_DRAG;
-			self.mouseStartX = evt.clientX;
-			self.mouseStartY = evt.clientY;
-			self.startX = component.x;
-			self.startY = component.y;
-			self.currentComponent = component;
+			self.deselectAll()
+			self.select(component);
 
-			self.$svg.style.cursor = 'move';
+			self.startDragging(evt.clientX, evt.clientY);
 
 			self.showSidebarOnDrop = true;
 		});
+	};
+
+	Editor.prototype.startDragging = function (mouseX, mouseY) {
+		this.mouseMode = MOUSE_DRAG;
+
+		this.mouseStartX = mouseX;
+		this.mouseStartY = mouseY;
+
+		for(var i = 0; i < this.selectedComponents.length; i++) {
+			var component = this.selectedComponents[i];
+			component.startX = component.x;
+			component.startY = component.y;
+		}
+
+		this.$svg.style.cursor = 'move';
 	};
 
 	Editor.prototype.updatePropertyOverlay = function () {
@@ -332,8 +343,6 @@ define([
 			} else {
 				if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
 					if(self.mouseMode === MOUSE_UP) {
-						self.mouseMode = MOUSE_DRAG;
-
 						if(evt.ctrlKey) {
 							if(component.selected) {
 								self.deselect(component);
@@ -350,13 +359,7 @@ define([
 							}
 						}
 
-						self.mouseStartX = evt.clientX;
-						self.mouseStartY = evt.clientY;
-						self.startX = component.x;
-						self.startY = component.y;
-						self.currentComponent = component;
-
-						self.$svg.style.cursor = 'move';
+						self.startDragging(evt.clientX, evt.clientY);
 					}
 				}
 			}

@@ -50,11 +50,7 @@ define([
 		this.components = [];
 
 		this.simulationCircuit = null;
-		var self = this;
-		this.boundSimulationCycle = function () {
-			self.simulationCycle();
-		};
-		this.simulationInterval = null;
+		this.simulationAnimationFrame = null;
 
 		this.registerListeners();
 	}
@@ -715,11 +711,18 @@ define([
 	};
 
 	Editor.prototype.startSimulationInterval = function () {
-		this.simulationInterval = setInterval(this.boundSimulationCycle, 500);
+		var self = this;
+		function update() {
+			self.simulationAnimationFrame = requestAnimationFrame(update);
+
+			self.simulationCycle();
+		}
+
+		this.simulationAnimationFrame = requestAnimationFrame(update);
 	};
 
 	Editor.prototype.stopSimulationInterval = function () {
-		clearInterval(this.simulationInterval);
+		cancelAnimationFrame(this.simulationAnimationFrame);
 	};
 
 	Editor.prototype.startSimulation = function () {

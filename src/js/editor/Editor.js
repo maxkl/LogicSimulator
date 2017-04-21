@@ -386,7 +386,9 @@ define([
 		for(var i = 0; i < this.connections.length; i++) {
 			var connection = this.connections[i];
 			if(!connection.selected) {
-				if(connection.x1 < x2 && connection.y1 < y2 && connection.x2 > x1 && connection.y2 > y1) {
+				if(connection.x1 < x2 && connection.y1 < y2 && connection.x2 > x1 && connection.y2 > y1
+					// In case the connection has been draw in reverse
+					|| connection.x1 > x1 && connection.y1 > y1 && connection.x2 < x2 && connection.y2 < y2) {
 					connection.select();
 					this.selectedConnections.push(connection);
 				}

@@ -20,6 +20,7 @@ define([
 		this.running = false;
 
 		this.$run = document.getElementById('toolbar-run');
+		this.$step = document.getElementById('toolbar-step');
 		this.$stop = document.getElementById('toolbar-stop');
 		this.$pause = document.getElementById('toolbar-pause');
 		this.$toolSelect = document.getElementById('toolbar-tool-select');
@@ -38,6 +39,7 @@ define([
 		this.$run.addEventListener('click', function () {
 			if(self.running) {
 				self.$run.disabled = true;
+				self.$step.disabled = true;
 				self.$pause.disabled = false;
 
 				self.emit('resume');
@@ -45,6 +47,7 @@ define([
 				self.running = true;
 
 				self.$run.disabled = true;
+				self.$step.disabled = true;
 				self.$stop.disabled = false;
 				self.$pause.disabled = false;
 
@@ -61,6 +64,7 @@ define([
 			self.running = false;
 
 			self.$run.disabled = false;
+			self.$step.disabled = true;
 			self.$pause.disabled = true;
 			self.$stop.disabled = true;
 
@@ -72,8 +76,13 @@ define([
 			self.emit('stop');
 		});
 
+		this.$step.addEventListener('click', function () {
+			self.emit('step');
+		});
+
 		this.$pause.addEventListener('click', function () {
 			self.$run.disabled = false;
+			self.$step.disabled = false;
 			self.$pause.disabled = true;
 
 			self.emit('pause');

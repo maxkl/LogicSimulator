@@ -285,6 +285,10 @@ define([
 			}
 		});
 
+		this.tools.on('step', function () {
+			self.stepSimulation();
+		});
+
 		this.tools.on('resume', function () {
 			self.resumeSimulation();
 		});
@@ -741,6 +745,10 @@ define([
 		this.resetSimulationDisplay();
 
 		this.simulationCircuit = null;
+	};
+
+	Editor.prototype.stepSimulation = function () {
+		this.simulationCycle();
 	};
 
 	Editor.prototype.resumeSimulation = function () {

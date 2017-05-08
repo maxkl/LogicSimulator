@@ -25,7 +25,7 @@ define([
 		}
 
 		this.properties = new ComponentProperties([
-			[ 'period', 'Period', 'int', 20, updateDisplay ]
+			[ 'period', 'Period', 'int', 20, updateDisplay, { min: 2 } ]
 		]);
 
 		this.layout();

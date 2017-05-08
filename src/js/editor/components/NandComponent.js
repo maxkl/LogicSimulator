@@ -30,7 +30,7 @@ define([
 		}
 
 		this.properties = new ComponentProperties([
-			[ 'inputs', 'Input count', 'int', 2, updateLayout ]
+			[ 'inputs', 'Input count', 'int', 2, updateLayout, { min: 2 } ]
 		]);
 
 		this.layout();

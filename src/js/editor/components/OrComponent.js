@@ -71,7 +71,7 @@ define([
 	};
 
 	OrComponent.prototype.constructSimComponent = function () {
-		return new SimOrComponent();
+		return new SimOrComponent(this.properties.get('inputs'));
 	};
 
 	OrComponent.sidebarEntry = {

@@ -5,12 +5,13 @@
 
 define([
 	'sim/Component',
+	'lib/createArray',
 	'lib/extend'
-], function (Component, extend) {
-	function OrComponent() {
+], function (Component, createArray, extend) {
+	function OrComponent(size) {
 		Component.call(this, arguments);
 
-		this.in = [false, false];
+		this.in = createArray(size, false);
 		this.out = [false];
 	}
 

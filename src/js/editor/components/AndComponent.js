@@ -75,7 +75,7 @@ define([
 	};
 
 	AndComponent.prototype.constructSimComponent = function () {
-		return new SimAndComponent();
+		return new SimAndComponent(this.properties.get('inputs'));
 	};
 
 	AndComponent.sidebarEntry = {

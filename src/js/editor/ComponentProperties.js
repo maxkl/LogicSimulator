@@ -4,12 +4,13 @@
  */
 
 define(function () {
-	function ComponentProperty(key, name, type, value, onchange) {
+	function ComponentProperty(key, name, type, value, onchange, opts) {
 		this.key = key;
 		this.name = name;
 		this.type = type;
 		this.value = value;
 		this.onchange = onchange;
+		this.opts = opts || {};
 	}
 
 	ComponentProperty.prototype.createHtml = function () {
@@ -33,6 +34,8 @@ define(function () {
 				var $num = document.createElement('input');
 				$num.type = 'number';
 				$num.value = this.value;
+				if(this.opts.hasOwnProperty('min')) $num.min = this.opts.min;
+				if(this.opts.hasOwnProperty('max')) $num.max = this.opts.max;
 				$num.addEventListener('input', function () {
 					self.value = parseInt($num.value, 10);
 					if(self.onchange) self.onchange();
@@ -60,7 +63,7 @@ define(function () {
 		for(var i = 0; i < def.length; i++) {
 			var propDef = def[i];
 			var key = propDef[0];
-			var prop = new ComponentProperty(key, propDef[1], propDef[2], propDef[3], propDef[4]);
+			var prop = new (Function.prototype.bind.apply(ComponentProperty, [null].concat(propDef)));
 			props.push(prop);
 			propsMap[key] = prop;
 		}

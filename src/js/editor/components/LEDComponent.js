@@ -104,6 +104,8 @@ define([
 	};
 
 	LEDComponent.prototype._updateDisplay = function () {
+		if(!this.$container) return;
+
 		this.offColor = this.properties.get('off-color');
 		this.onColor = this.properties.get('on-color');
 

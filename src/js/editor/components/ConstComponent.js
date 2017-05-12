@@ -57,6 +57,8 @@ define([
 	};
 
 	ConstComponent.prototype._updateDisplay = function () {
+		if(!this.$container) return;
+
 		this.$container.innerHTML = '';
 		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, this.properties.get('value') ? '1' : '0');
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);

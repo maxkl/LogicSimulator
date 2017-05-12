@@ -19,10 +19,7 @@ define([
 
 		this.registerListeners();
 
-		var self = this;
-		require(editorComponents, function () {
-			self.loadComponents(Array.prototype.slice.call(arguments));
-		});
+		this.loadComponents(editorComponents);
 	}
 
 	extend(Sidebar, EventEmitter);

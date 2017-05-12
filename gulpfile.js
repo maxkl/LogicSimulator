@@ -47,7 +47,7 @@ gulp.task('js:modules', function () {
 				removeExtensions: true,
 				relative: true
 			}))
-			.pipe(wrap('define([], <%= contents %>);\n'))
+			.pipe(wrap('define(<%= contents %>, function () {\n\treturn Array.prototype.slice.call(arguments);\n});\n'))
 	);
 	return merged
 		.pipe(sourcemaps.init())

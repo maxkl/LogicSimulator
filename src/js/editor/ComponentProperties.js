@@ -80,6 +80,14 @@ define(function () {
 		return this._propsMap[key].value;
 	};
 
+	ComponentProperties.prototype.set = function (key, value) {
+		if(!this._propsMap.hasOwnProperty(key)) {
+			throw new Error('Unknown property ' + key);
+		}
+
+		this._propsMap[key].value = value;
+	};
+
 	ComponentProperties.prototype.display = function ($c) {
 		$c.innerHTML = '';
 

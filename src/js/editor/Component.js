@@ -19,6 +19,22 @@ define([
 		this.selected = false;
 	}
 
+	Component.prototype.save = function () {
+		var data = {
+			type: this.constructor.typeName,
+			x: this.x,
+			y: this.y
+		};
+
+		this._save(data);
+
+		return data;
+	};
+
+	Component.prototype.load = function (data) {
+		this._load(data);
+	};
+
 	Component.prototype.select = function () {
 		this.selected = true;
 		this._select();

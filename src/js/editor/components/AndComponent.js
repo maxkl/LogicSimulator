@@ -38,6 +38,16 @@ define([
 
 	extend(AndComponent, Component);
 
+	AndComponent.prototype._save = function (data) {
+		data.inputs = this.properties.get('inputs');
+	};
+
+	AndComponent.prototype._load = function (data) {
+		this.properties.set('inputs', data.inputs);
+
+		this.layout();
+	};
+
 	AndComponent.prototype.layout = function () {
 		var inputCount = Math.max(2, this.properties.get('inputs'));
 		var inputs = [];
@@ -78,6 +88,7 @@ define([
 		return new SimAndComponent(this.properties.get('inputs'));
 	};
 
+	AndComponent.typeName = 'and';
 	AndComponent.sidebarEntry = {
 		name: 'And',
 		category: 'Gates',

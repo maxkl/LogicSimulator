@@ -26,6 +26,10 @@ define([
 
 	extend(HalfAdderComponent, Component);
 
+	HalfAdderComponent.prototype._save = function (data) {};
+
+	HalfAdderComponent.prototype._load = function (data) {};
+
 	HalfAdderComponent.prototype.layout = function () {
 		var layout = displayComponent.layout(['A', 'B'], ['S', 'C']);
 		this.width = layout.width;
@@ -61,6 +65,7 @@ define([
 		return new SimHalfAdderComponent();
 	};
 
+	HalfAdderComponent.typeName = 'halfadder';
 	HalfAdderComponent.sidebarEntry = {
 		name: 'Half Adder',
 		category: 'Adder',

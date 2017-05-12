@@ -26,6 +26,10 @@ define([
 
 	extend(DFlipFlopComponent, Component);
 
+	DFlipFlopComponent.prototype._save = function (data) {};
+
+	DFlipFlopComponent.prototype._load = function (data) {};
+
 	DFlipFlopComponent.prototype.layout = function () {
 		var layout = displayComponent.layout(['D', 'C'], ['Q']);
 		this.width = layout.width;
@@ -61,6 +65,7 @@ define([
 		return new SimDFlipFlopComponent();
 	};
 
+	DFlipFlopComponent.typeName = 'dflipflop';
 	DFlipFlopComponent.sidebarEntry = {
 		name: 'D FF',
 		category: 'Memory',

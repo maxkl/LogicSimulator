@@ -77,6 +77,10 @@ define([
 
 	extend(ToggleButtonComponent, Component);
 
+	ToggleButtonComponent.prototype._save = function (data) {};
+
+	ToggleButtonComponent.prototype._load = function (data) {};
+
 	ToggleButtonComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
 		this.mousedownCallback = mousedown;
@@ -126,6 +130,7 @@ define([
 		this.$btn.setAttribute('fill', RELEASED_COLOR);
 	};
 
+	ToggleButtonComponent.typeName = 'togglebutton';
 	ToggleButtonComponent.sidebarEntry = {
 		name: 'Toggle button',
 		category: 'Input/Output',

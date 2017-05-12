@@ -85,6 +85,18 @@ define([
 
 	extend(LEDComponent, Component);
 
+	LEDComponent.prototype._save = function (data) {
+		data.offColor = this.properties.get('off-color');
+		data.onColor = this.properties.get('on-color');
+	};
+
+	LEDComponent.prototype._load = function (data) {
+		this.properties.set('off-color', data.offColor);
+		this.properties.set('on-color', data.onColor);
+
+		this._updateDisplay();
+	};
+
 	LEDComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
 		this.mousedownCallback = mousedown;
@@ -130,6 +142,7 @@ define([
 		this.$light.setAttribute('fill', this.offColor);
 	};
 
+	LEDComponent.typeName = 'led';
 	LEDComponent.sidebarEntry = {
 		name: 'LED',
 		category: 'Input/Output',

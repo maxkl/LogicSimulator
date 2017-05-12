@@ -31,6 +31,19 @@ define([
 		this.$line = null;
 	}
 
+	Connection.load = function (data) {
+		return new Connection(data.x1, data.y1, data.x2, data.y2);
+	};
+
+	Connection.prototype.save = function () {
+		return {
+			x1: this.x1,
+			y1: this.y1,
+			x2: this.x2,
+			y2: this.y2
+		};
+	};
+
 	Connection.prototype.select = function () {
 		this.selected = true;
 		this.setState(SELECTED);

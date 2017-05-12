@@ -38,6 +38,16 @@ define([
 
 	extend(NandComponent, Component);
 
+	NandComponent.prototype._save = function (data) {
+		data.inputs = this.properties.get('inputs');
+	};
+
+	NandComponent.prototype._load = function (data) {
+		this.properties.set('inputs', data.inputs);
+
+		this.layout();
+	};
+
 	NandComponent.prototype.layout = function () {
 		var inputCount = Math.max(2, this.properties.get('inputs'));
 		var inputs = [];
@@ -78,6 +88,7 @@ define([
 		return new SimNandComponent(this.properties.get('inputs'));
 	};
 
+	NandComponent.typeName = 'nand';
 	NandComponent.sidebarEntry = {
 		name: 'Nand',
 		category: 'Gates',

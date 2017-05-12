@@ -33,6 +33,16 @@ define([
 
 	extend(ConstComponent, Component);
 
+	ConstComponent.prototype._save = function (data) {
+		data.value = this.properties.get('value');
+	};
+
+	ConstComponent.prototype._load = function (data) {
+		this.properties.set('value', data.value);
+
+		this._updateDisplay();
+	};
+
 	ConstComponent.prototype.layout = function () {
 		var layout = displayComponent.layout([], ['']);
 		this.width = layout.width;
@@ -68,6 +78,7 @@ define([
 		return new SimConstComponent(this.properties.get('value'));
 	};
 
+	ConstComponent.typeName = 'const';
 	ConstComponent.sidebarEntry = {
 		name: 'Constant',
 		category: 'Basic',

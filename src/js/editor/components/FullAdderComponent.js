@@ -26,6 +26,10 @@ define([
 
 	extend(FullAdderComponent, Component);
 
+	FullAdderComponent.prototype._save = function (data) {};
+
+	FullAdderComponent.prototype._load = function (data) {};
+
 	FullAdderComponent.prototype.layout = function () {
 		var layout = displayComponent.layout(['A', 'B', 'C'], ['S', 'C']);
 		this.width = layout.width;
@@ -61,6 +65,7 @@ define([
 		return new SimFullAdderComponent();
 	};
 
+	FullAdderComponent.typeName = 'fulladder';
 	FullAdderComponent.sidebarEntry = {
 		name: 'Full Adder',
 		category: 'Adder',

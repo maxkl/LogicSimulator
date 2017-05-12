@@ -10,8 +10,9 @@ define([
 	'editor/Connection',
 	'sim/Connection',
 	'sim/Circuit',
-	'lib/SvgUtil'
-], function (Viewport, EditorTools, Sidebar, Connection, SimConnection, SimCircuit, SvgUtil) {
+	'lib/SvgUtil',
+	'generated/editorComponents'
+], function (Viewport, EditorTools, Sidebar, Connection, SimConnection, SimCircuit, SvgUtil, editorComponents) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG = 2;
@@ -293,6 +294,14 @@ define([
 			self.pauseSimulation();
 		});
 
+		this.tools.on('save-file', function () {
+			self.saveToFile();
+		});
+
+		this.tools.on('load-file', function () {
+			self.loadFromFile();
+		});
+
 		this.sidebar.on('component-mousedown', function (evt, entry) {
 			self.sidebar.hide();
 
@@ -313,6 +322,116 @@ define([
 
 			self.showSidebarOnDrop = true;
 		});
+	};
+
+	Editor.prototype.reset = function () {
+		this.tools.stopSimulation();
+		this.deselectAll();
+		this.deleteAll();
+	};
+
+	Editor.prototype.save = function () {
+		var components = [];
+		for(var i = 0; i < this.components.length; i++) {
+			components.push(this.components[i].save());
+		}
+
+		var connections = [];
+		for(var i = 0; i < this.connections.length; i++) {
+			connections.push(this.connections[i].save());
+		}
+
+		return {
+			components: components,
+			connections: connections
+		};
+	};
+
+	Editor.prototype.saveAsJson = function () {
+		return JSON.stringify(this.save());
+	};
+
+	Editor.prototype.saveToFile = function () {
+		var json = this.saveAsJson();
+		var blob = new Blob([json], { type: 'application/json' });
+		var blobUrl = URL.createObjectURL(blob);
+
+		var link = document.createElement('a');
+		link.download = 'circuit.json';
+		link.href = blobUrl;
+
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+
+		URL.revokeObjectURL(blobUrl);
+	};
+
+	var componentConstructorsByType = {};
+	for(var i = 0; i < editorComponents.length; i++) {
+		var componentConstructor = editorComponents[i];
+		var id = componentConstructor.typeName;
+		componentConstructorsByType[id] = componentConstructor;
+	}
+
+	Editor.prototype.load = function (data) {
+		this.reset();
+
+		for(var i = 0; i < data.components.length; i++) {
+			var componentData = data.components[i];
+			var type = componentData.type;
+			if(!componentConstructorsByType.hasOwnProperty(type)) {
+				throw new Error('Invalid component type: ' + type);
+			}
+			var component = new componentConstructorsByType[type]();
+			component.load(componentData);
+			this.addComponent(component, componentData.x, componentData.y);
+		}
+
+		for(var i = 0; i < data.connections.length; i++) {
+			var connection = Connection.load(data.connections[i]);
+			connection.display(this.$connectionsGroup);
+			this.connections.push(connection);
+		}
+
+		// TODO: reset viewport (show all?)
+	};
+
+	Editor.prototype.loadFromJson = function (json) {
+		try {
+			this.load(JSON.parse(json));
+		} catch(e) {
+			console.error(e);
+		}
+	};
+
+	Editor.prototype.loadFromFile = function () {
+		var input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json,application/json';
+
+		var self = this;
+		input.addEventListener('change', function () {
+			if(input.files.length === 0) {
+				console.log('no file selected');
+				return;
+			}
+
+			var file = input.files[0];
+
+			var reader = new FileReader();
+			reader.addEventListener('load', function () {
+				self.loadFromJson(reader.result);
+			});
+			reader.addEventListener('error', function () {
+				console.error(reader.error);
+			});
+			reader.readAsText(file);
+		});
+
+		document.body.appendChild(input);
+		input.click();
+		document.body.removeChild(input);
 	};
 
 	Editor.prototype.startDragging = function (mouseX, mouseY) {
@@ -422,6 +541,20 @@ define([
 		this.selectedConnections.length = 0;
 
 		this.updatePropertyOverlay();
+	};
+
+	Editor.prototype.deleteAll = function () {
+		var n = this.components.length;
+		while(n--) {
+			var component = this.components[n];
+			this.deleteComponent(component);
+		}
+
+		var n = this.connections.length;
+		while(n--) {
+			var connection = this.connections[n];
+			this.deleteConnection(connection);
+		}
 	};
 
 	Editor.prototype.deleteSelected = function () {

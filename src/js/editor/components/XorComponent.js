@@ -26,6 +26,10 @@ define([
 
 	extend(XorComponent, Component);
 
+	XorComponent.prototype._save = function (data) {};
+
+	XorComponent.prototype._load = function (data) {};
+
 	XorComponent.prototype.layout = function () {
 		var layout = displayComponent.layout(['', ''], ['']);
 		this.width = layout.width;
@@ -61,6 +65,7 @@ define([
 		return new SimXorComponent();
 	};
 
+	XorComponent.typeName = 'xor';
 	XorComponent.sidebarEntry = {
 		name: 'Xor',
 		category: 'Gates',

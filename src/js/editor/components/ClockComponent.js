@@ -33,6 +33,14 @@ define([
 
 	extend(ClockComponent, Component);
 
+	ClockComponent.prototype._save = function (data) {
+		data.period = this.properties.get('period');
+	};
+
+	ClockComponent.prototype._load = function (data) {
+		this.properties.set('period', data.period);
+	};
+
 	ClockComponent.prototype.layout = function () {
 		var layout = displayComponent.layout([], ['']);
 		this.width = layout.width;
@@ -68,6 +76,7 @@ define([
 		return new SimClockComponent(this.properties.get('period'));
 	};
 
+	ClockComponent.typeName = 'clock';
 	ClockComponent.sidebarEntry = {
 		name: 'Clock',
 		category: 'Basic',

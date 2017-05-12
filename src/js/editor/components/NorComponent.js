@@ -34,6 +34,16 @@ define([
 
 	extend(NorComponent, Component);
 
+	NorComponent.prototype._save = function (data) {
+		data.inputs = this.properties.get('inputs');
+	};
+
+	NorComponent.prototype._load = function (data) {
+		this.properties.set('inputs', data.inputs);
+
+		this.layout();
+	};
+
 	NorComponent.prototype.layout = function () {
 		var inputCount = Math.max(2, this.properties.get('inputs'));
 		var inputs = [];
@@ -74,6 +84,7 @@ define([
 		return new SimNorComponent(this.properties.get('inputs'));
 	};
 
+	NorComponent.typeName = 'nor';
 	NorComponent.sidebarEntry = {
 		name: 'Nor',
 		category: 'Gates',

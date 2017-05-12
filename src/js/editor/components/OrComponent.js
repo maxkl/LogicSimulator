@@ -34,6 +34,16 @@ define([
 
 	extend(OrComponent, Component);
 
+	OrComponent.prototype._save = function (data) {
+		data.inputs = this.properties.get('inputs');
+	};
+
+	OrComponent.prototype._load = function (data) {
+		this.properties.set('inputs', data.inputs);
+
+		this.layout();
+	};
+
 	OrComponent.prototype.layout = function () {
 		var inputCount = Math.max(2, this.properties.get('inputs'));
 		var inputs = [];
@@ -74,6 +84,7 @@ define([
 		return new SimOrComponent(this.properties.get('inputs'));
 	};
 
+	OrComponent.typeName = 'or';
 	OrComponent.sidebarEntry = {
 		name: 'Or',
 		category: 'Gates',

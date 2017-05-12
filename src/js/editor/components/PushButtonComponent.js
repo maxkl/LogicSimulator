@@ -77,6 +77,10 @@ define([
 
 	extend(PushButtonComponent, Component);
 
+	PushButtonComponent.prototype._save = function (data) {};
+
+	PushButtonComponent.prototype._load = function (data) {};
+
 	PushButtonComponent.prototype._display = function ($c, mousedown) {
 		this.$container = $c;
 		this.mousedownCallback = mousedown;
@@ -130,6 +134,7 @@ define([
 		this.$btn.setAttribute('fill', RELEASED_COLOR);
 	};
 
+	PushButtonComponent.typeName = 'pushbutton';
 	PushButtonComponent.sidebarEntry = {
 		name: 'Push button',
 		category: 'Input/Output',

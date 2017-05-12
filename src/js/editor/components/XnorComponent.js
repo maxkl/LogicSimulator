@@ -26,6 +26,10 @@ define([
 
 	extend(XnorComponent, Component);
 
+	XnorComponent.prototype._save = function (data) {};
+
+	XnorComponent.prototype._load = function (data) {};
+
 	XnorComponent.prototype.layout = function () {
 		var layout = displayComponent.layout(['', ''], ['!']);
 		this.width = layout.width;
@@ -61,6 +65,7 @@ define([
 		return new SimXnorComponent();
 	};
 
+	XnorComponent.typeName = 'xnor';
 	XnorComponent.sidebarEntry = {
 		name: 'Xnor',
 		category: 'Gates',

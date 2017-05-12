@@ -26,6 +26,10 @@ define([
 
 	extend(NotComponent, Component);
 
+	NotComponent.prototype._save = function (data) {};
+
+	NotComponent.prototype._load = function (data) {};
+
 	NotComponent.prototype.layout = function () {
 		var layout = displayComponent.layout([''], ['!']);
 		this.width = layout.width;
@@ -61,6 +65,7 @@ define([
 		return new SimNotComponent();
 	};
 
+	NotComponent.typeName = 'not';
 	NotComponent.sidebarEntry = {
 		name: 'Not',
 		category: 'Gates',

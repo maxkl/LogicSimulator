@@ -8,6 +8,7 @@
 
 # Project specific
 /build/
+/examples/
 
 *.sublime-workspace
 *.sublime-project

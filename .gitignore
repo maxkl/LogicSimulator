@@ -9,7 +9,7 @@
 # Project specific
 /build/
 /examples/
-/public/Ausarbeitung.pdf
+/build/Ausarbeitung.pdf
 
 *.sublime-workspace
 *.sublime-project

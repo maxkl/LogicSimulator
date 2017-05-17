@@ -11,7 +11,7 @@ define([
 		Component.call(this, arguments);
 
 		this.in = [false];
-		this.out = [false];
+		this.out = [true];
 	}
 
 	extend(NotComponent, Component);

@@ -4,7 +4,6 @@
  */
 
 const gulp = require('gulp');
-const runSequence = require('run-sequence');
 const watch = require('gulp-watch');
 const del = require('del');
 const amdOptimize = require('gulp-amd-optimizer');
@@ -87,14 +86,10 @@ gulp.task('fonts', function () {
 		.pipe(gulp.dest(destDir + dirs.fonts));
 });
 
-gulp.task('build', function (cb) {
-	runSequence('clean', ['js:modules', 'js:lib', 'html', 'sass', 'fonts'], cb);
-});
+gulp.task('build', gulp.series('clean', gulp.parallel('js:modules', 'js:lib', 'html', 'sass', 'fonts')));
 
-gulp.task('watch', [ 'build' ], function () {
-	watch(srcDir + '**/*', function () {
-		gulp.start('build');
-	});
-});
+gulp.task('watch', gulp.series('build', function () {
+	gulp.watch(srcDir + '**/*', gulp.series('build'));
+}));
 
-gulp.task('default', [ 'build' ]);
+gulp.task('default', gulp.series('build'));

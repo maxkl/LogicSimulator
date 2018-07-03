@@ -4,18 +4,17 @@
   "license": "MIT",
   "repository": "https://github.com/maxkl/LogicSimulator",
   "devDependencies": {
-    "del": "^2.2.0",
-    "gulp": "^3.9.1",
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
     "gulp-amd-optimizer": "^0.6.0",
-    "gulp-autoprefixer": "^3.1.0",
+    "gulp-autoprefixer": "^5.0.0",
     "gulp-concat": "^2.6.0",
-    "gulp-filelist": "^1.0.0",
-    "gulp-sass": "^3.1.0",
-    "gulp-sourcemaps": "^2.4.1",
-    "gulp-uglify": "^2.0.1",
-    "gulp-watch": "^4.3.5",
-    "gulp-wrap": "^0.13.0",
-    "merge-stream": "^1.0.1",
-    "run-sequence": "^1.1.5"
+    "gulp-filelist": "^1.0.2",
+    "gulp-sass": "^4.0.1",
+    "gulp-sourcemaps": "^2.6.4",
+    "gulp-uglify": "^3.0.0",
+    "gulp-watch": "^5.0.0",
+    "gulp-wrap": "^0.14.0",
+    "merge-stream": "^1.0.1"
   }
 }

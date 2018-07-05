@@ -31,6 +31,7 @@ define([
 		this.$newFile = document.getElementById('toolbar-file-new');
 		this.$saveFile = document.getElementById('toolbar-file-save');
 		this.$loadFile = document.getElementById('toolbar-file-load');
+		this.$showHelp = document.getElementById('toolbar-help');
 
 		this.registerListeners();
 	}
@@ -82,6 +83,10 @@ define([
 
 		this.$loadFile.addEventListener('click', function () {
 			self.emit('load-file');
+		});
+
+		this.$showHelp.addEventListener('click', function () {
+			self.emit('show-help');
 		});
 	};
 

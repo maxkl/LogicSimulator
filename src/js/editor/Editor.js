@@ -310,6 +310,11 @@ define([
 			self.dialogs.open('open');
 		});
 
+		this.tools.on('show-help', function () {
+			self.dialogs.setWelcomeShowAgain(!this.app.storage.get('Editor:welcome-displayed'));
+			self.dialogs.open('welcome');
+		});
+
 		this.dialogs.on('load-url', function (url) {
 			self.dialogs.displayOpenLoading(true);
 			self.loadFromUrl(url);

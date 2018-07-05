@@ -110,6 +110,10 @@ define([
 		this.displayOpenLoading(false);
 	};
 
+	EditorDialogs.prototype.setWelcomeShowAgain = function (showAgain) {
+		this.$dialogWelcomeShowAgain.checked = showAgain;
+	};
+
 	EditorDialogs.prototype.open = function (dialogName) {
 		for (var name in this.dialogs) {
 			if (this.dialogs.hasOwnProperty(name)) {

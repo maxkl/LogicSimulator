@@ -406,7 +406,7 @@ define([
 			this.connections.push(connection);
 		}
 
-		// TODO: reset viewport (show all?)
+		this.viewport.reset();
 	};
 
 	Editor.prototype.loadFromJson = function (json) {

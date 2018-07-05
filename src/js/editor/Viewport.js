@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2016-2017 Max Klein
+ * Copyright: (c) 2016-2018 Max Klein
  * License: MIT
  */
 
@@ -90,6 +90,11 @@ define(function () {
 		var zoomPointDistanceY = zoomPointY - newZoomPointY;
 
 		this.pan(zoomPointDistanceX, zoomPointDistanceY);
+	};
+
+	Viewport.prototype.reset = function () {
+		this.setPosition(0, 0);
+		this.setScale(1);
 	};
 
 	return Viewport;

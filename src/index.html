@@ -52,6 +52,31 @@
 				<div id="property-overlay" class="property-overlay"></div>
 			</div>
 		</div>
+		<div id="overlay" class="overlay">
+			<div id="dialog-open" class="dialog-open">
+				<div class="header">
+					Open circuit
+				</div>
+				<div class="body">
+					<div class="type-section">
+						<label><input type="radio" name="dialog-open-type" value="example" checked /> Example:</label>
+						<select id="dialog-open-example">
+							<option value="shift-register.json">Shift register</option>
+						</select>
+					</div>
+					<div class="type-section">
+						<label><input type="radio" name="dialog-open-type" value="file" /> From computer:</label>
+						<input type="file" id="dialog-open-file" accept=".json,application/json" />
+					</div>
+					<div id="dialog-open-error" class="red hidden"></div>
+				</div>
+				<div class="footer">
+					<span id="dialog-open-loading" class="hidden">Loading...</span>
+					<button id="dialog-open-cancel" title="Cancel" autocomplete="off">Cancel</button>
+					<button id="dialog-open-open" class="highlight" title="Open circuit" autocomplete="off">Open</button>
+				</div>
+			</div>
+		</div>
 
 		<script src="lib/require.js" data-main="js/main.js"></script>
 	</body>

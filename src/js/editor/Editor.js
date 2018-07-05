@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2016-2017 Max Klein
+ * Copyright: (c) 2016-2018 Max Klein
  * License: MIT
  */
 
@@ -7,12 +7,13 @@ define([
 	'editor/Viewport',
 	'editor/EditorTools',
 	'editor/Sidebar',
+	'editor/EditorDialogs',
 	'editor/Connection',
 	'sim/Connection',
 	'sim/Circuit',
 	'lib/SvgUtil',
 	'generated/editorComponents'
-], function (Viewport, EditorTools, Sidebar, Connection, SimConnection, SimCircuit, SvgUtil, editorComponents) {
+], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, SimConnection, SimCircuit, SvgUtil, editorComponents) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG = 2;
@@ -24,6 +25,7 @@ define([
 
 		this.tools = new EditorTools(app);
 		this.sidebar = new Sidebar(app);
+		this.dialogs = new EditorDialogs(app);
 		this.$svg = document.getElementById('editor-svg');
 		this.viewport = new Viewport(app, this.$svg);
 		this.$selection = document.getElementById('editor-selection');
@@ -299,7 +301,17 @@ define([
 		});
 
 		this.tools.on('load-file', function () {
-			self.loadFromFile();
+			self.dialogs.open('open');
+		});
+
+		this.dialogs.on('load-url', function (url) {
+			self.dialogs.displayOpenLoading(true);
+			self.loadFromUrl(url);
+		});
+
+		this.dialogs.on('load-file', function (file) {
+			self.dialogs.displayOpenLoading(true);
+			self.loadFromFile(file);
 		});
 
 		this.sidebar.on('component-mousedown', function (evt, entry) {
@@ -400,38 +412,45 @@ define([
 	Editor.prototype.loadFromJson = function (json) {
 		try {
 			this.load(JSON.parse(json));
-		} catch(e) {
-			console.error(e);
+			this.dialogs.close();
+		} catch (e) {
+			this.dialogs.displayOpenError(e);
 		}
 	};
 
-	Editor.prototype.loadFromFile = function () {
-		var input = document.createElement('input');
-		input.type = 'file';
-		input.accept = '.json,application/json';
+	Editor.prototype.loadFromFile = function (file) {
+		var reader = new FileReader();
 
 		var self = this;
-		input.addEventListener('change', function () {
-			if(input.files.length === 0) {
-				console.log('no file selected');
-				return;
-			}
-
-			var file = input.files[0];
-
-			var reader = new FileReader();
-			reader.addEventListener('load', function () {
-				self.loadFromJson(reader.result);
-			});
-			reader.addEventListener('error', function () {
-				console.error(reader.error);
-			});
-			reader.readAsText(file);
+		reader.addEventListener('load', function () {
+			self.loadFromJson(reader.result);
 		});
 
-		document.body.appendChild(input);
-		input.click();
-		document.body.removeChild(input);
+		reader.addEventListener('error', function () {
+			self.dialogs.displayOpenError(reader.error);
+		});
+
+		reader.readAsText(file);
+	};
+
+	Editor.prototype.loadFromUrl = function (url) {
+		var req = new XMLHttpRequest();
+
+		var self = this;
+		req.addEventListener('load', function () {
+			if (req.status === 200) {
+				self.loadFromJson(req.responseText);
+			} else {
+				self.dialogs.displayOpenError('Server error: ' + req.status);
+			}
+		});
+
+		req.addEventListener('error', function () {
+			self.dialogs.displayOpenError('Client/network error');
+		});
+
+		req.open('GET', url);
+		req.send();
 	};
 
 	Editor.prototype.startDragging = function (mouseX, mouseY) {

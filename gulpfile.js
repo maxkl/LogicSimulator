@@ -23,7 +23,8 @@ const dirs = {
 	js_lib: 'lib/',
 	sass: 'css/',
 	html: '',
-	fonts: 'fonts/'
+	fonts: 'fonts/',
+	examples: 'examples/'
 };
 const paths = {
 	js_modules: srcDir + dirs.js_modules + '**/*.js',
@@ -31,7 +32,8 @@ const paths = {
 	js_components: srcDir + dirs.js_modules + 'editor/components/**/*.js',
 	sass: srcDir + dirs.sass + '**/*.{sass,scss}',
 	html: srcDir + dirs.html + '**/*.html',
-	fonts: srcDir + dirs.fonts + '**/*.{woff,woff2}'
+	fonts: srcDir + dirs.fonts + '**/*.{woff,woff2}',
+	examples: srcDir + dirs.examples + '**/*.json'
 };
 
 gulp.task('clean', function () {
@@ -65,7 +67,7 @@ gulp.task('js:lib', function () {
 		.pipe(uglify())
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(destDir + dirs.js_lib));
-})
+});
 
 gulp.task('html', function () {
 	return gulp.src(paths.html, { base: srcDir + dirs.html })
@@ -86,7 +88,12 @@ gulp.task('fonts', function () {
 		.pipe(gulp.dest(destDir + dirs.fonts));
 });
 
-gulp.task('build', gulp.series('clean', gulp.parallel('js:modules', 'js:lib', 'html', 'sass', 'fonts')));
+gulp.task('examples', function () {
+	return gulp.src(paths.examples, { base: srcDir + dirs.examples })
+		.pipe(gulp.dest(destDir + dirs.examples));
+});
+
+gulp.task('build', gulp.series('clean', gulp.parallel('js:modules', 'js:lib', 'html', 'sass', 'fonts', 'examples')));
 
 gulp.task('watch', gulp.series('build', function () {
 	gulp.watch(srcDir + '**/*', gulp.series('build'));

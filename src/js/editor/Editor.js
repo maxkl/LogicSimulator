@@ -56,6 +56,8 @@ define([
 		this.simulationAnimationFrame = null;
 
 		this.registerListeners();
+
+		this.start();
 	}
 
 	Editor.prototype.registerListeners = function () {
@@ -324,6 +326,10 @@ define([
 			self.dialogs.close();
 		});
 
+		this.dialogs.on('welcome-closed', function (showAgain) {
+			self.app.storage.set('Editor:welcome-displayed', !showAgain);
+		});
+
 		this.sidebar.on('component-mousedown', function (evt, entry) {
 			self.sidebar.hide();
 
@@ -344,6 +350,12 @@ define([
 
 			self.showSidebarOnDrop = true;
 		});
+	};
+
+	Editor.prototype.start = function () {
+		if (!this.app.storage.get('Editor:welcome-displayed')) {
+			this.dialogs.open('welcome');
+		}
 	};
 
 	Editor.prototype.reset = function () {

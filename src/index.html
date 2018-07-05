@@ -9,9 +9,9 @@
 	<body>
 		<div class="ui">
 			<div class="toolbar">
-				<button id="toolbar-file-new" title="New circuit" autocomplete="off"><span class="mdi mdi-file-plus"></button>
-				<button id="toolbar-file-save" title="Save circuit" autocomplete="off"><span class="mdi mdi-content-save"></button>
-				<button id="toolbar-file-load" title="Open circuit" autocomplete="off"><span class="mdi mdi-folder-outline"></button>
+				<button id="toolbar-file-new" title="New circuit" autocomplete="off"><span class="mdi mdi-file-plus"></span></button>
+				<button id="toolbar-file-save" title="Save circuit" autocomplete="off"><span class="mdi mdi-content-save"></span></button>
+				<button id="toolbar-file-load" title="Open circuit" autocomplete="off"><span class="mdi mdi-folder-outline"></span></button>
 				<div class="sep"></div>
 				<button id="toolbar-tool-select" title="Tool: Select" autocomplete="off"><span class="mdi mdi-cursor-default-outline"></span></button>
 				<button id="toolbar-tool-connect" title="Tool: Connect" autocomplete="off"><span class="mdi mdi-vector-line"></span></button>
@@ -19,10 +19,10 @@
 				<div class="sep"></div>
 				<button id="toolbar-action-delete" title="Delete selected elements" autocomplete="off"><span class="mdi mdi-delete"></span></button>
 				<div class="sep"></div>
-				<button id="toolbar-run" title="Run simulation" autocomplete="off"><span class="mdi mdi-play"></button>
-				<button id="toolbar-step" disabled title="Single-step simulation" autocomplete="off"><span class="mdi mdi-step-forward"></button>
-				<button id="toolbar-pause" disabled title="Pause simulation" autocomplete="off"><span class="mdi mdi-pause"></button>
-				<button id="toolbar-stop" disabled title="Stop simulation" autocomplete="off"><span class="mdi mdi-stop"></button>
+				<button id="toolbar-run" title="Run simulation" autocomplete="off"><span class="mdi mdi-play"></span></button>
+				<button id="toolbar-step" disabled title="Single-step simulation" autocomplete="off"><span class="mdi mdi-step-forward"></span></button>
+				<button id="toolbar-pause" disabled title="Pause simulation" autocomplete="off"><span class="mdi mdi-pause"></span></button>
+				<button id="toolbar-stop" disabled title="Stop simulation" autocomplete="off"><span class="mdi mdi-stop"></span></button>
 			</div>
 			<div id="editor" class="editor">
 				<div id="sidebar-wrapper" class="sidebar-wrapper">
@@ -89,6 +89,36 @@
 				<div class="footer">
 					<button id="dialog-new-cancel" title="Cancel" autocomplete="off">Cancel</button>
 					<button id="dialog-new-new" class="highlight" title="Open circuit" autocomplete="off">Yes, I'm sure</button>
+				</div>
+			</div>
+
+			<div id="dialog-welcome" class="dialog">
+				<div class="header">
+					Welcome!
+				</div>
+				<div class="body">
+					This is an editor and simulator for digital circuits.<br />
+					<br />
+					You can use basic logic gates and some more advanced components to build any circuit you want!
+					Use buttons and LEDs for interacting with your circuits.<br />
+					Pressing the play icon (<span class="mdi mdi-play"></span>) starts the simulation mode.<br />
+					<br />
+					To get started, check out the examples by pressing the folder icon (<span class="mdi mdi-folder-outline"></span>) at the top.<br />
+					Save your own circuits to be able to edit them in the future (<span class="mdi mdi-content-save"></span>)!<br />
+					<br />
+					This project is still in development.<br />
+					If you have any suggestions for improvement,
+					<a href="https://gitlab.com/maxkl2/LogicSimulator/issues/new" target="_blank">tell me</a>!<br />
+					The full source code is available on GitLab:
+					<a href="https://gitlab.com/maxkl2/LogicSimulator" target="_blank">gitlab.com/maxkl2/LogicSimulator</a><br />
+					Contributions are welcome!<br />
+					<br />
+					<div>
+						<label><input type="checkbox" id="dialog-welcome-show-again" checked /> Show this message again</label>
+					</div>
+				</div>
+				<div class="footer">
+					<button id="dialog-welcome-close" class="highlight" title="Close" autocomplete="off">Close</button>
 				</div>
 			</div>
 		</div>

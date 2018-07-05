@@ -28,9 +28,14 @@ define([
 		this.$dialogNewNew = document.getElementById('dialog-new-new');
 		this.$dialogNewCancel = document.getElementById('dialog-new-cancel');
 
+		this.$dialogWelcome = document.getElementById('dialog-welcome');
+		this.$dialogWelcomeShowAgain = document.getElementById('dialog-welcome-show-again');
+		this.$dialogWelcomeClose = document.getElementById('dialog-welcome-close');
+
 		this.dialogs = {
 			'open': this.$dialogOpen,
-			'new': this.$dialogNew
+			'new': this.$dialogNew,
+			'welcome': this.$dialogWelcome
 		};
 
 		this.registerListeners();
@@ -82,6 +87,11 @@ define([
 
 		this.$dialogNewCancel.addEventListener('click', function () {
 			self.close();
+		});
+
+		this.$dialogWelcomeClose.addEventListener('click', function () {
+			self.close();
+			self.emit('welcome-closed', self.$dialogWelcomeShowAgain.checked);
 		});
 	};
 

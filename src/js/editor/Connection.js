@@ -58,6 +58,7 @@ define([
 		this.$line = SvgUtil.createElement('line');
 		this.$line.setAttribute('stroke', 'black');
 		this.$line.setAttribute('stroke-width', '2');
+		this.$line.setAttribute('stroke-linecap', 'square');
 		this.updateDisplay();
 
 		$container.appendChild(this.$line);

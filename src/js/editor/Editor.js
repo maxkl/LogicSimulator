@@ -296,6 +296,10 @@ define([
 			self.pauseSimulation();
 		});
 
+		this.tools.on('new-file', function () {
+			self.dialogs.open('new');
+		});
+
 		this.tools.on('save-file', function () {
 			self.saveToFile();
 		});
@@ -312,6 +316,12 @@ define([
 		this.dialogs.on('load-file', function (file) {
 			self.dialogs.displayOpenLoading(true);
 			self.loadFromFile(file);
+		});
+
+		this.dialogs.on('new', function () {
+			self.reset();
+			self.viewport.reset();
+			self.dialogs.close();
 		});
 
 		this.sidebar.on('component-mousedown', function (evt, entry) {

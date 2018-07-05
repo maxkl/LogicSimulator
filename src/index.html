@@ -9,6 +9,7 @@
 	<body>
 		<div class="ui">
 			<div class="toolbar">
+				<button id="toolbar-file-new" title="New circuit" autocomplete="off"><span class="mdi mdi-file-plus"></button>
 				<button id="toolbar-file-save" title="Save circuit" autocomplete="off"><span class="mdi mdi-content-save"></button>
 				<button id="toolbar-file-load" title="Open circuit" autocomplete="off"><span class="mdi mdi-folder-outline"></button>
 				<div class="sep"></div>
@@ -53,7 +54,7 @@
 			</div>
 		</div>
 		<div id="overlay" class="overlay">
-			<div id="dialog-open" class="dialog-open">
+			<div id="dialog-open" class="dialog dialog-open">
 				<div class="header">
 					Open circuit
 				</div>
@@ -74,6 +75,20 @@
 					<span id="dialog-open-loading" class="hidden">Loading...</span>
 					<button id="dialog-open-cancel" title="Cancel" autocomplete="off">Cancel</button>
 					<button id="dialog-open-open" class="highlight" title="Open circuit" autocomplete="off">Open</button>
+				</div>
+			</div>
+
+			<div id="dialog-new" class="dialog">
+				<div class="header">
+					New circuit?
+				</div>
+				<div class="body">
+					Are you sure you want to create a new circuit?<br />
+					<b>All unsaved changes will be lost!</b>
+				</div>
+				<div class="footer">
+					<button id="dialog-new-cancel" title="Cancel" autocomplete="off">Cancel</button>
+					<button id="dialog-new-new" class="highlight" title="Open circuit" autocomplete="off">Yes, I'm sure</button>
 				</div>
 			</div>
 		</div>

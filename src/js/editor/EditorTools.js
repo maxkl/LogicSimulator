@@ -28,6 +28,7 @@ define([
 		this.$toolConnect = document.getElementById('toolbar-tool-connect');
 		this.$toolPan = document.getElementById('toolbar-tool-pan');
 		this.$actionDelete = document.getElementById('toolbar-action-delete');
+		this.$newFile = document.getElementById('toolbar-file-new');
 		this.$saveFile = document.getElementById('toolbar-file-save');
 		this.$loadFile = document.getElementById('toolbar-file-load');
 
@@ -69,6 +70,10 @@ define([
 
 		this.$actionDelete.addEventListener('click', function () {
 			self.emit('action-delete');
+		});
+
+		this.$newFile.addEventListener('click', function () {
+			self.emit('new-file');
 		});
 
 		this.$saveFile.addEventListener('click', function () {

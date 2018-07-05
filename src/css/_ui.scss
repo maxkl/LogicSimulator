@@ -221,7 +221,7 @@
 		display: flex;
 	}
 
-	.dialog-open {
+	.dialog {
 		display: none;
 		margin: auto;
 		min-width: 300px;
@@ -268,10 +268,6 @@
 
 		.body {
 			padding: 10px;
-
-			.type-section:not(:last-child) {
-				margin-bottom: 15px;
-			}
 		}
 
 		.footer {
@@ -283,6 +279,12 @@
 			button {
 				margin-left: 10px;
 			}
+		}
+	}
+
+	.dialog-open {
+		.body .type-section:not(:last-child) {
+			margin-bottom: 15px;
 		}
 	}
 }

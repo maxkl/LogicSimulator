@@ -15,6 +15,7 @@ define([
 		this.app = app;
 
 		this.$overlay = document.getElementById('overlay');
+
 		this.$dialogOpen = document.getElementById('dialog-open');
 		this.$dialogOpenExample = document.getElementById('dialog-open-example');
 		this.$dialogOpenFile = document.getElementById('dialog-open-file');
@@ -23,8 +24,13 @@ define([
 		this.$dialogOpenOpen = document.getElementById('dialog-open-open');
 		this.$dialogOpenCancel = document.getElementById('dialog-open-cancel');
 
+		this.$dialogNew = document.getElementById('dialog-new');
+		this.$dialogNewNew = document.getElementById('dialog-new-new');
+		this.$dialogNewCancel = document.getElementById('dialog-new-cancel');
+
 		this.dialogs = {
-			'open': this.$dialogOpen
+			'open': this.$dialogOpen,
+			'new': this.$dialogNew
 		};
 
 		this.registerListeners();
@@ -67,6 +73,14 @@ define([
 		});
 
 		this.$dialogOpenCancel.addEventListener('click', function () {
+			self.close();
+		});
+
+		this.$dialogNewNew.addEventListener('click', function () {
+			self.emit('new');
+		});
+
+		this.$dialogNewCancel.addEventListener('click', function () {
 			self.close();
 		});
 	};

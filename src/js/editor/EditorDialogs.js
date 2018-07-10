@@ -48,7 +48,7 @@ define([
 
 		this.$dialogOpenFile.addEventListener('change', function () {
 			if (self.$dialogOpenFile.files.length > 0) {
-				self.$dialogOpenError.classList.add('hidden');
+				self.$dialogOpenError.classList.add('display-none');
 			}
 		});
 
@@ -97,15 +97,15 @@ define([
 
 	EditorDialogs.prototype.displayOpenLoading = function (loading) {
 		if (loading) {
-			this.$dialogOpenLoading.classList.remove('hidden');
+			this.$dialogOpenLoading.classList.remove('display-none');
 		} else {
-			this.$dialogOpenLoading.classList.add('hidden');
+			this.$dialogOpenLoading.classList.add('display-none');
 		}
 	};
 
 	EditorDialogs.prototype.displayOpenError = function (msg) {
 		this.$dialogOpenError.textContent = 'Error: ' + msg;
-		this.$dialogOpenError.classList.remove('hidden');
+		this.$dialogOpenError.classList.remove('display-none');
 
 		this.displayOpenLoading(false);
 	};
@@ -128,8 +128,8 @@ define([
 
 		switch (dialogName) {
 			case 'open':
-				this.$dialogOpenError.classList.add('hidden');
-				this.$dialogOpenLoading.classList.add('hidden');
+				this.$dialogOpenError.classList.add('display-none');
+				this.$dialogOpenLoading.classList.add('display-none');
 				break;
 		}
 

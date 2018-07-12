@@ -9,11 +9,12 @@ define([
 	'editor/Sidebar',
 	'editor/EditorDialogs',
 	'editor/Connection',
+	'editor/Joint',
 	'sim/Connection',
 	'sim/Circuit',
 	'lib/SvgUtil',
 	'generated/editorComponents'
-], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, SimConnection, SimCircuit, SvgUtil, editorComponents) {
+], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, Joint, SimConnection, SimCircuit, SvgUtil, editorComponents) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG = 2;
@@ -31,6 +32,7 @@ define([
 		this.$selection = document.getElementById('editor-selection');
 		this.$componentsGroup = document.getElementById('editor-components');
 		this.$connectionsGroup = document.getElementById('editor-connections');
+		this.$jointsGroup = document.getElementById('editor-joints');
 		this.$propertyOverlay = document.getElementById('property-overlay');
 
 		this.mouseMode = MOUSE_UP;
@@ -42,6 +44,7 @@ define([
 
 		this.selectedComponents = [];
 		this.selectedConnections = [];
+		this.selectedJoints = [];
 
 		this.propertyOverlayVisible = false;
 
@@ -51,6 +54,9 @@ define([
 		this.currentConnection = null;
 
 		this.components = [];
+
+		this.joints = [];
+		this.jointsByCoord = {};
 
 		this.simulationCircuit = null;
 		this.simulationAnimationFrame = null;
@@ -111,7 +117,6 @@ define([
 					self.currentConnection.display(self.$connectionsGroup);
 
 					self.deselectAll();
-					self.selectConnection(self.currentConnection);
 				}
 			}
 		});
@@ -158,6 +163,16 @@ define([
 						connection.x2 = connection.startX2 + offsetX;
 						connection.y2 = connection.startY2 + offsetY;
 						connection.updateDisplay();
+					}
+
+					for(var i = 0; i < self.selectedJoints.length; i++) {
+						var joint = self.selectedJoints[i];
+						// Moving a joint requires updating the hash in jointsByCoord
+						delete self.jointsByCoord[joint.x + '|' + joint.y];
+						joint.x = joint.startX + offsetX;
+						joint.y = joint.startY + offsetY;
+						self.jointsByCoord[joint.x + '|' + joint.y] = joint;
+						joint.updateDisplay();
 					}
 				} else if(self.mouseMode === MOUSE_SELECT) {
 					var rect = self.$svg.getBoundingClientRect();
@@ -209,6 +224,8 @@ define([
 						self.showSidebarOnDrop = false;
 						self.sidebar.show();
 					}
+
+					self.updateJoints();
 				} else if(self.mouseMode === MOUSE_SELECT) {
 					var rect = self.$svg.getBoundingClientRect();
 					var x = self.viewport.viewportToWorldX(evt.clientX - rect.left);
@@ -235,11 +252,31 @@ define([
 					self.selectRect(x1 / 10, y1 / 10, x2 / 10, y2 / 10);
 
 					self.$selection.setAttribute('visibility', 'hidden');
+
+					self.updateJoints();
 				} else if(self.mouseMode === MOUSE_CONNECT) {
 					if(self.currentConnection.x1 !== self.currentConnection.x2 || self.currentConnection.y1 !== self.currentConnection.y2) {
 						self.connections.push(self.currentConnection);
+
+						var x1 = self.currentConnection.x1;
+						var y1 = self.currentConnection.y1;
+						var x2 = self.currentConnection.x2;
+						var y2 = self.currentConnection.y2;
+
+						// Split existing connections at the endpoints
+						self.splitConnections(x1, y1);
+						self.splitConnections(x2, y2);
+						// Merge/split all connections connected to the new one
+						self.fixupConnections(x1, y1, x2, y2);
+
+						self.updateJoints();
 					} else {
+						var x = self.currentConnection.x1;
+						var y = self.currentConnection.y1;
+
 						self.currentConnection.remove();
+
+						self.toggleJoint(x, y);
 					}
 					self.currentConnection = null;
 				}
@@ -264,6 +301,8 @@ define([
 
 		this.tools.on('action-delete', function () {
 			self.deleteSelected();
+
+			self.updateJoints();
 		});
 
 		this.tools.on('run', function () {
@@ -433,6 +472,8 @@ define([
 			this.connections.push(connection);
 		}
 
+		this.updateJoints();
+
 		this.viewport.reset();
 	};
 
@@ -500,6 +541,12 @@ define([
 			connection.startY2 = connection.y2;
 		}
 
+		for(var i = 0; i < this.selectedJoints.length; i++) {
+			var joint = this.selectedJoints[i];
+			joint.startX = joint.x;
+			joint.startY = joint.y;
+		}
+
 		this.$svg.style.cursor = 'move';
 	};
 
@@ -520,6 +567,419 @@ define([
 		if(!found) {
 			this.propertyOverlayVisible = false;
 			this.$propertyOverlay.classList.remove('visible');
+		}
+	};
+
+	// For use in a bitfield
+	var CONNECTION_RIGHT = 1 << 0;
+	var CONNECTION_DOWN = 1 << 1;
+	var CONNECTION_LEFT = 1 << 2;
+	var CONNECTION_UP = 1 << 3;
+
+	// Determine whether a joint is needed if there are connections coming from specific directions
+	function needJoint(directionBits) {
+		var right = !!(directionBits & CONNECTION_RIGHT);
+		var down = !!(directionBits & CONNECTION_DOWN);
+		var left = !!(directionBits & CONNECTION_LEFT);
+		var up = !!(directionBits & CONNECTION_UP);
+		var count = right + down + left + up;
+		return count > 2;
+	}
+
+	// Add/remove joints appropriately for the whole circuit
+	Editor.prototype.updateJoints = function () {
+		var connectionDirections = {};
+
+		for (var i = 0; i < this.connections.length; i++) {
+			var connection = this.connections[i];
+			var p1 = connection.x1 + '|' + connection.y1;
+			var p2 = connection.x2 + '|' + connection.y2;
+
+			if (!connectionDirections.hasOwnProperty(p1)) {
+				connectionDirections[p1] = 0;
+			}
+
+			if (!connectionDirections.hasOwnProperty(p2)) {
+				connectionDirections[p2] = 0;
+			}
+			
+			if (connection.y1 === connection.y2) {
+				// Horizontal
+
+				if (connection.x1 < connection.x2) {
+					connectionDirections[p1] |= CONNECTION_RIGHT;
+					connectionDirections[p2] |= CONNECTION_LEFT;
+				} else {
+					connectionDirections[p1] |= CONNECTION_LEFT;
+					connectionDirections[p2] |= CONNECTION_RIGHT;
+				}
+			} else {
+				// Vertical
+
+				if (connection.y1 < connection.y2) {
+					connectionDirections[p1] |= CONNECTION_DOWN;
+					connectionDirections[p2] |= CONNECTION_UP;
+				} else {
+					connectionDirections[p1] |= CONNECTION_UP;
+					connectionDirections[p2] |= CONNECTION_DOWN;
+				}
+			}
+		}
+
+		for (var p in connectionDirections) {
+			if (connectionDirections.hasOwnProperty(p)) {
+				var directionBits = connectionDirections[p];
+				if (directionBits !== 0) {
+					var xy = p.split('|');
+					var x = parseInt(xy[0]);
+					var y = parseInt(xy[1]);
+
+					for (var i = 0; i < this.connections.length; i++) {
+						var connection = this.connections[i];
+						
+						if (connection.y1 === connection.y2) {
+							// Horizontal
+							if (connection.y1 === y
+								&& (connection.x1 < x && connection.x2 > x || connection.x2 < x && connection.x1 > x)) {
+								// Left & right
+								directionBits |= CONNECTION_LEFT | CONNECTION_RIGHT;
+							}
+						} else {
+							// Vertical
+							if (connection.x1 === x
+								&& (connection.y1 < y && connection.y2 > y || connection.y2 < y && connection.y1 > y)) {
+								// Up & down
+								directionBits |= CONNECTION_UP | CONNECTION_DOWN;
+							}
+						}
+					}
+
+					connectionDirections[p] = directionBits;
+				}
+			}
+		}
+
+		var usedJoints = {};
+
+		for (var p in connectionDirections) {
+			if (connectionDirections.hasOwnProperty(p)) {
+				var directionBits = connectionDirections[p];
+				if (needJoint(directionBits)) {
+					if (!this.jointsByCoord.hasOwnProperty(p)) {
+						var xy = p.split('|');
+						var x = parseInt(xy[0]);
+						var y = parseInt(xy[1]);
+
+						this.addJoint(x, y);
+					}
+
+					usedJoints[p] = true;
+				}
+			}
+		}
+
+		for (var p in this.jointsByCoord) {
+			if (this.jointsByCoord.hasOwnProperty(p)) {
+				if (!usedJoints.hasOwnProperty(p)) {
+					var xy = p.split('|');
+					var x = parseInt(xy[0]);
+					var y = parseInt(xy[1]);
+
+					this.deleteJoint(x, y);
+				}
+			}
+		}
+	};
+
+	// Split all connections that cross this point (at that point)
+	Editor.prototype.splitConnections = function (x, y) {
+		var n = this.connections.length;
+		while (n--) {
+			var connection = this.connections[n];
+
+			var x1 = connection.x1;
+			var y1 = connection.y1;
+			var x2 = connection.x2;
+			var y2 = connection.y2;
+
+			var horizontal = y1 === y2;
+
+			var minX = Math.min(x1, x2);
+			var maxX = Math.max(x1, x2);
+			var minY = Math.min(y1, y2);
+			var maxY = Math.max(y1, y2);
+
+			if (horizontal) {
+				if (y === minY) {
+					if (x > minX && x < maxX) {
+						this.deleteConnection(connection);
+						this.addConnection(minX, minY, x, minY);
+						this.addConnection(x, minY, maxX, minY);
+					}
+				}
+			} else {
+				if (x === minX) {
+					if (y > minY && y < maxY) {
+						this.deleteConnection(connection);
+						this.addConnection(minX, minY, minX, y);
+						this.addConnection(minX, y, minX, maxY);
+					}
+				}
+			}
+		}
+	};
+
+	// Merge same-orientation connections ending at a specific point
+	Editor.prototype.mergeConnections = function (x, y) {
+		var connectionsToMerge = [];
+
+		var minX = x;
+		var maxX = x;
+		var minY = y;
+		var maxY = y;
+
+		var horizontal = false, vertical = false;
+
+		for (var i = 0; i < this.connections.length; i++) {
+			var connection = this.connections[i];
+
+			if (connection.x1 === x && connection.y1 === y || connection.x2 === x && connection.y2 === y) {
+				if (connection.y1 === connection.y2) {
+					if (vertical) {
+						// If not all connections are the same orientation, we can't merge them
+						return;
+					}
+
+					horizontal = true;
+
+					minX = Math.min(minX, connection.x1, connection.x2);
+					maxX = Math.max(maxX, connection.x1, connection.x2);
+					connectionsToMerge.push(connection);
+				} else {
+					if (horizontal) {
+						// If not all connections are the same orientation, we can't merge them
+						return;
+					}
+
+					vertical = true;
+
+					minY = Math.min(minY, connection.y1, connection.y2);
+					maxY = Math.max(maxY, connection.y1, connection.y2);
+					connectionsToMerge.push(connection);
+				}
+			}
+		}
+
+		if (horizontal || vertical) {
+			for (var i = 0; i < connectionsToMerge.length; i++) {
+				this.deleteConnection(connectionsToMerge[i]);
+			}
+
+			this.addConnection(minX, minY, maxX, maxY);
+		}
+	};
+
+	// Merge connections adjacent to a new one, and split them into parts where a joint is needed
+	Editor.prototype.fixupConnections = function (x1, y1, x2, y2) {
+		// Merge
+		var connectionsToMerge = [];
+
+		var horizontal = y1 === y2;
+
+		var minX = Math.min(x1, x2);
+		var maxX = Math.max(x1, x2);
+		var minY = Math.min(y1, y2);
+		var maxY = Math.max(y1, y2);
+
+		var startX = minX;
+		var startY = minY;
+		var endX = maxX;
+		var endY = maxY;
+
+		for (var i = 0; i < this.connections.length; i++) {
+			var connection = this.connections[i];
+
+			if (horizontal) {
+				// On same line?
+				if (connection.y1 === y1 && connection.y2 === y1) {
+					var connectionMinX = Math.min(connection.x1, connection.x2);
+					var connectionMaxX = Math.max(connection.x1, connection.x2);
+
+					// Intersecting?
+					if (connectionMinX <= maxX && connectionMaxX >= minX) {
+						if (connectionMinX < startX) {
+							startX = connectionMinX;
+						}
+						if (connectionMaxX > endX) {
+							endX = connectionMaxX;
+						}
+						connectionsToMerge.push(connection);
+					}
+				}
+			} else {
+				// On same line?
+				if (connection.x1 === x1 && connection.x2 === x1) {
+					var connectionMinY = Math.min(connection.y1, connection.y2);
+					var connectionMaxY = Math.max(connection.y1, connection.y2);
+
+					// Intersecting?
+					if (connectionMinY <= maxY && connectionMaxY >= minY) {
+						if (connectionMinY < startY) {
+							startY = connectionMinY;
+						}
+						if (connectionMaxY > endY) {
+							endY = connectionMaxY;
+						}
+						connectionsToMerge.push(connection);
+					}
+				}
+			}
+		}
+
+		for (var i = 0; i < connectionsToMerge.length; i++) {
+			this.deleteConnection(connectionsToMerge[i]);
+		}
+
+		// Split
+		var splitPoints = {};
+
+		function checkSplitPoint(x, y) {
+			if (horizontal) {
+				if (y === startY && x > startX && x < endX) {
+					splitPoints[x + '|' + y] = { x: x, y: y };
+				}
+			} else {
+				if (x === startX && y > startY && y < endY) {
+					splitPoints[x + '|' + y] = { x: x, y: y };
+				}
+			}
+		}
+
+		for (var i = 0; i < this.connections.length; i++) {
+			var connection = this.connections[i];
+
+			if (horizontal && connection.x1 === connection.x2 || !horizontal && connection.y1 === connection.y2) {
+				checkSplitPoint(connection.x1, connection.y1);
+				checkSplitPoint(connection.x2, connection.y2);
+			}
+		}
+
+		var splitPointDistances = [];
+
+		for (var p in splitPoints) {
+			if (splitPoints.hasOwnProperty(p)) {
+				if (horizontal) {
+					splitPointDistances.push(splitPoints[p].x - startX);
+				} else {
+					splitPointDistances.push(splitPoints[p].y - startY);
+				}
+			}
+		}
+
+		if (horizontal) {
+			splitPointDistances.push(endX - startX);
+		} else {
+			splitPointDistances.push(endY - startY);
+		}
+
+		splitPointDistances.sort(function (a, b) {
+			return a - b;
+		});
+
+		var lastDistance = 0;
+		for (var i = 0; i < splitPointDistances.length; i++) {
+			var distance = splitPointDistances[i];
+
+			if (horizontal) {
+				this.addConnection(startX + lastDistance, startY, startX + distance, startY);
+			} else {
+				this.addConnection(startX, startY + lastDistance, startX, startY + distance);
+			}
+
+			lastDistance = distance;
+		}
+	};
+
+	// Toggle a joint at a "4-way crossing"
+	Editor.prototype.toggleJoint = function (x, y) {
+		var endingConnectionsHorizontal = [];
+		var endingConnectionsVertical = [];
+
+		var crossingHorizontal = false, crossingVertical = false;
+
+		var minX = x;
+		var maxX = x;
+		var minY = y;
+		var maxY = y;
+
+		for (var i = 0; i < this.connections.length; i++) {
+			var connection = this.connections[i];
+
+			if (connection.y1 === connection.y2) {
+				if (connection.y1 === y) {
+					if (connection.x1 === x) {
+						if (connection.x2 < x) {
+							minX = Math.min(minX, connection.x2);
+						} else {
+							maxX = Math.max(maxX, connection.x2);
+						}
+
+						endingConnectionsHorizontal.push(connection);
+					} else if (connection.x2 === x) {
+						if (connection.x1 < x) {
+							minX = Math.min(minX, connection.x1);
+						} else {
+							maxX = Math.max(maxX, connection.x1);
+						}
+
+						endingConnectionsHorizontal.push(connection);
+					} else if (connection.x1 < x && connection.x2 > x || connection.x2 < x && connection.x1 > x) {
+						crossingHorizontal = true;
+					}
+				}
+			} else {
+				if (connection.x1 === x) {
+					if (connection.y1 === y) {
+						if (connection.y2 < y) {
+							minY = Math.min(minY, connection.y2);
+						} else {
+							maxY = Math.max(maxY, connection.y2);
+						}
+
+						endingConnectionsVertical.push(connection);
+					} else if (connection.y2 === y) {
+						if (connection.y1 < y) {
+							minY = Math.min(minY, connection.y1);
+						} else {
+							maxY = Math.max(maxY, connection.y1);
+						}
+
+						endingConnectionsVertical.push(connection);
+					} else if (connection.y1 < y && connection.y2 > y || connection.y2 < y && connection.y1 > y) {
+						crossingVertical = true;
+					}
+				}
+			}
+		}
+
+		if (endingConnectionsHorizontal.length > 0 && endingConnectionsVertical.length > 0) {
+			if (minX < x && maxX > x && minY < y && maxY > y) {
+				for (var i = 0; i < endingConnectionsHorizontal.length; i++) {
+					this.deleteConnection(endingConnectionsHorizontal[i]);
+				}
+
+				for (var i = 0; i < endingConnectionsVertical.length; i++) {
+					this.deleteConnection(endingConnectionsVertical[i]);
+				}
+
+				this.addConnection(minX, y, maxX, y);
+				this.addConnection(x, minY, x, maxY);
+
+				this.deleteJoint(x, y);
+			}
+		} else if (crossingHorizontal && crossingVertical) {
+			this.splitConnections(x, y);
+			this.addJoint(x, y);
 		}
 	};
 
@@ -560,6 +1020,16 @@ define([
 			}
 		}
 
+		for (var i = 0; i < this.joints.length; i++) {
+			var joint = this.joints[i];
+			if(!joint.selected) {
+				if(joint.x > x1 && joint.x < x2 && joint.y > y1 && joint.y < y2) {
+					joint.select();
+					this.selectedJoints.push(joint);
+				}
+			}
+		}
+
 		this.updatePropertyOverlay();
 	};
 
@@ -586,6 +1056,12 @@ define([
 		}
 		this.selectedConnections.length = 0;
 
+		for(var i = 0; i < this.selectedJoints.length; i++) {
+			var joint = this.selectedJoints[i];
+			joint.deselect();
+		}
+		this.selectedJoints.length = 0;
+
 		this.updatePropertyOverlay();
 	};
 
@@ -601,6 +1077,12 @@ define([
 			var connection = this.connections[n];
 			this.deleteConnection(connection);
 		}
+
+		var n = this.joints.length;
+		while(n--) {
+			var joint = this.joints[n];
+			this.deleteJoint(joint.x, joint.y);
+		}
 	};
 
 	Editor.prototype.deleteSelected = function () {
@@ -609,12 +1091,24 @@ define([
 			this.deleteComponent(component);
 		}
 
+		// We need to merge connections where an ending point has been removed
+		var connectionMergePoints = [];
+
 		for(var i = 0; i < this.selectedConnections.length; i++) {
 			var connection = this.selectedConnections[i];
+			connectionMergePoints.push(
+				[ connection.x1, connection.y1 ],
+				[ connection.x2, connection.y2 ]
+			);
 			this.deleteConnection(connection);
 		}
 
 		this.deselectAll();
+
+		for (var i = 0; i < connectionMergePoints.length; i++) {
+			var p = connectionMergePoints[i];
+			this.mergeConnections(p[0], p[1]);
+		}
 	};
 
 	Editor.prototype.deleteComponent = function (component) {
@@ -630,6 +1124,22 @@ define([
 		if(index !== -1) {
 			this.connections.splice(index, 1);
 			connection.remove();
+		}
+	};
+
+	// Delete a joint both in joints and jointsByCoord
+	Editor.prototype.deleteJoint = function (x, y) {
+		var p = x + '|' + y;
+		if (this.jointsByCoord.hasOwnProperty(p)) {
+			var joint = this.jointsByCoord[p];
+
+			delete this.jointsByCoord[p];
+
+			var index = this.joints.indexOf(joint);
+			if(index !== -1) {
+				this.joints.splice(index, 1);
+				joint.remove();
+			}
 		}
 	};
 
@@ -671,6 +1181,21 @@ define([
 		}
 
 		component.display(this.$componentsGroup, mousedown);
+	};
+
+	Editor.prototype.addConnection = function (x1, y1, x2, y2) {
+		var connection = new Connection(x1, y1, x2, y2);
+		this.connections.push(connection);
+		connection.display(this.$connectionsGroup);
+	};
+
+	Editor.prototype.addJoint = function (x, y) {
+		var joint = new Joint(x, y);
+
+		this.joints.push(joint);
+		this.jointsByCoord[x + '|' + y] = joint;
+
+		joint.display(this.$jointsGroup);
 	};
 
 	function ConstructionConnection(points, editorConnections) {

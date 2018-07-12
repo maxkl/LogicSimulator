@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -9,6 +9,22 @@ define([
 	var PINS_PADDING = 1;
 	var PINS_SPACING = 2;
 	var MIN_HEIGHT = 4;
+
+	var rLabel = /^(>)?(!)?(.*)$/;
+
+	function parseLabel(label) {
+		var match = label.match(rLabel);
+
+		if (match === null) {
+			throw new Error('Invalid label format');
+		}
+
+		return {
+			clock: !!match[1],
+			inverted: !!match[2],
+			label: match[3]
+		};
+	}
 
 	function layout(inputs, outputs, width) {
 		var inputCount = inputs.length;
@@ -31,13 +47,14 @@ define([
 			if (label === null) {
 				indexOffset++;
 			} else {
-				var inverted = label[0] === '!';
+				var labelProperties = parseLabel(label);
 				pins.push({
 					out: false,
 					x: -1,
 					y: inputsStartY + i * PINS_SPACING,
-					inverted: inverted,
-					label: inverted ? label.substr(1) : label,
+					clock: labelProperties.clock,
+					inverted: labelProperties.inverted,
+					label: labelProperties.label,
 					index: i - indexOffset
 				});
 			}
@@ -49,13 +66,14 @@ define([
 			if (label === null) {
 				indexOffset++;
 			} else {
-				var inverted = label[0] === '!';
+				var labelProperties = parseLabel(label);
 				pins.push({
 					out: true,
 					x: width + 1,
 					y: outputsStartY + i * PINS_SPACING,
-					inverted: inverted,
-					label: inverted ? label.substr(1) : label,
+					clock: labelProperties.clock,
+					inverted: labelProperties.inverted,
+					label: labelProperties.label,
 					index: i - indexOffset
 				});
 			}
@@ -71,6 +89,11 @@ define([
 	var INV_RADIUS = 3;
 	var INV_STROKE_WIDTH = 2;
 
+	var CLOCK_TRIANGLE_HEIGHT = 4;
+	var CLOCK_TRIANGLE_WIDTH = 5;
+	var CLOCK_STROKE_WIDTH = 2;
+	var CLOCK_LABEL_OFFSET = 4;
+
 	function createPin(x1, y1, x2, y2) {
 		var $line = SvgUtil.createElement('line');
 		$line.setAttribute('x1', x1);
@@ -80,6 +103,15 @@ define([
 		$line.setAttribute('stroke', 'black');
 		$line.setAttribute('stroke-width', '2');
 		return $line;
+	}
+
+	function createClockSymbol(x1, y1, x2, y2) {
+		var $clock = SvgUtil.createElement('polyline');
+		$clock.setAttribute('points', [x1, y1 - CLOCK_TRIANGLE_HEIGHT, x1 + CLOCK_TRIANGLE_WIDTH, y1, x1, y1 + CLOCK_TRIANGLE_HEIGHT].join(' '));
+		$clock.setAttribute('fill', 'none');
+		$clock.setAttribute('stroke', 'black');
+		$clock.setAttribute('stroke-width', CLOCK_STROKE_WIDTH);
+		return $clock;
 	}
 
 	function createInvCircle(x1, y1, x2, y2) {
@@ -138,12 +170,19 @@ define([
 			var $pin = createPin(x1 * 10, y * 10, x2 * 10, y * 10);
 			$container.appendChild($pin);
 
+			var labelOffset = 0;
+
+			if(pin.clock) {
+				$container.appendChild(createClockSymbol(x1 * 10, y * 10, x2 * 10, y * 10));
+				labelOffset += CLOCK_LABEL_OFFSET;
+			}
+
 			if(pin.inverted) {
 				$container.appendChild(createInvCircle(x1 * 10, y * 10, x2 * 10, y * 10));
 			}
 
 			if(pin.label) {
-				var $pinLabel = createPinLabel(x1 * 10, y * 10, x2 * 10, y * 10, pin.label, pin.inverted);
+				var $pinLabel = createPinLabel(x1 * 10 + labelOffset, y * 10, x2 * 10, y * 10, pin.label, pin.inverted);
 				$container.appendChild($pinLabel);
 			}
 		}

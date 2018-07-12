@@ -10,6 +10,9 @@ define([
 	'sim/components/MUXComponent',
 	'lib/extend'
 ], function (Component, ComponentProperties, displayComponent, SimMUXComponent, extend) {
+	var COMPONENT_LABEL = 'MUX';
+	var COMPONENT_WIDTH = 9;
+
 	function MUXComponent() {
 		Component.call(this);
 
@@ -30,7 +33,7 @@ define([
 		}
 
 		this.properties = new ComponentProperties([
-			[ 'selectlines', 'Select lines', 'int', 1, updateLayout, { min: 1, max: 8 } ]
+			[ 'selectlines', 'Select lines', 'int', 2, updateLayout, { min: 1, max: 8 } ]
 		]);
 
 		this.layout();
@@ -55,10 +58,11 @@ define([
 		for(var i = 0; i < selectLines; i++) {
 			inputs.push('S' + i);
 		}
+		inputs.push(null);
 		for(var i = 0; i < dataLines; i++) {
 			inputs.push('D' + i);
 		}
-		var layout = displayComponent.layout(inputs, ['Q']);
+		var layout = displayComponent.layout(inputs, ['Q'], COMPONENT_WIDTH);
 		this.width = layout.width;
 		this.height = layout.height;
 		this.pins = layout.pins;
@@ -72,7 +76,7 @@ define([
 
 	MUXComponent.prototype._updateDisplay = function () {
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, 'MUX');
+		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, COMPONENT_LABEL);
 		this.$rect.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
@@ -97,8 +101,8 @@ define([
 		name: 'MUX',
 		category: 'Multiplexer',
 		drawPreview: function (svg) {
-			var layout = displayComponent.layout(['S0', 'D0', 'D1'], ['Q']);
-			displayComponent(svg, layout.width, layout.height, layout.pins, 'MUX');
+			var layout = displayComponent.layout(['S0', 'S1', null, 'D0', 'D1', 'D2', 'D3'], ['Q'], COMPONENT_WIDTH);
+			displayComponent(svg, layout.width, layout.height, layout.pins, COMPONENT_LABEL);
 		}
 	};
 

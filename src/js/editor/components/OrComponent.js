@@ -86,7 +86,7 @@ define([
 
 	OrComponent.typeName = 'or';
 	OrComponent.sidebarEntry = {
-		name: 'Or',
+		name: 'OR',
 		category: 'Gates',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(['', ''], ['']);

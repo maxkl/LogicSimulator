@@ -86,7 +86,7 @@ define([
 
 	NorComponent.typeName = 'nor';
 	NorComponent.sidebarEntry = {
-		name: 'Nor',
+		name: 'NOR',
 		category: 'Gates',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(['', ''], ['!']);

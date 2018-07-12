@@ -67,7 +67,7 @@ define([
 
 	SRLatchComponent.typeName = 'srlatch';
 	SRLatchComponent.sidebarEntry = {
-		name: 'SR latch',
+		name: 'SR Latch',
 		category: 'Memory',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(['S', null, 'R'], ['Q', null, '!Q']);

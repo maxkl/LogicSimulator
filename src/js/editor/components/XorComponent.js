@@ -67,7 +67,7 @@ define([
 
 	XorComponent.typeName = 'xor';
 	XorComponent.sidebarEntry = {
-		name: 'Xor',
+		name: 'XOR',
 		category: 'Gates',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(['', ''], ['']);

@@ -67,7 +67,7 @@ define([
 
 	XnorComponent.typeName = 'xnor';
 	XnorComponent.sidebarEntry = {
-		name: 'Xnor',
+		name: 'XNOR',
 		category: 'Gates',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(['', ''], ['!']);

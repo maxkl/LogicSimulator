@@ -90,7 +90,7 @@ define([
 
 	AndComponent.typeName = 'and';
 	AndComponent.sidebarEntry = {
-		name: 'And',
+		name: 'AND',
 		category: 'Gates',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(['', ''], ['']);

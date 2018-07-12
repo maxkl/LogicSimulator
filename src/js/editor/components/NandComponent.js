@@ -90,7 +90,7 @@ define([
 
 	NandComponent.typeName = 'nand';
 	NandComponent.sidebarEntry = {
-		name: 'Nand',
+		name: 'NAND',
 		category: 'Gates',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(['', ''], ['!']);

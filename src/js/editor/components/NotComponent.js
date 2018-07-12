@@ -67,7 +67,7 @@ define([
 
 	NotComponent.typeName = 'not';
 	NotComponent.sidebarEntry = {
-		name: 'Not',
+		name: 'NOT',
 		category: 'Gates',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout([''], ['!']);

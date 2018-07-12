@@ -10,13 +10,13 @@ define([
 	var PINS_SPACING = 2;
 	var MIN_HEIGHT = 4;
 
-	function layout(inputs, outputs) {
+	function layout(inputs, outputs, width) {
 		var inputCount = inputs.length;
 		var outputCount = outputs.length;
 
 		var maxPins = Math.max(inputCount, outputCount);
 
-		var width = 5;
+		var width = width || 5;
 		var height = (maxPins - 1) * PINS_SPACING + 2 * PINS_PADDING;
 		if(height < MIN_HEIGHT) height = MIN_HEIGHT;
 
@@ -25,30 +25,40 @@ define([
 
 		var pins = [];
 
+		var indexOffset = 0;
 		for(var i = 0; i < inputCount; i++) {
 			var label = inputs[i];
-			var inverted = label[0] === '!';
-			pins.push({
-				out: false,
-				x: -1,
-				y: inputsStartY + i * PINS_SPACING,
-				inverted: inverted,
-				label: inverted ? label.substr(1) : label,
-				index: i
-			});
+			if (label === null) {
+				indexOffset++;
+			} else {
+				var inverted = label[0] === '!';
+				pins.push({
+					out: false,
+					x: -1,
+					y: inputsStartY + i * PINS_SPACING,
+					inverted: inverted,
+					label: inverted ? label.substr(1) : label,
+					index: i - indexOffset
+				});
+			}
 		}
 
+		var indexOffset = 0;
 		for(var i = 0; i < outputCount; i++) {
 			var label = outputs[i];
-			var inverted = label[0] === '!';
-			pins.push({
-				out: true,
-				x: width + 1,
-				y: outputsStartY + i * PINS_SPACING,
-				inverted: inverted,
-				label: inverted ? label.substr(1) : label,
-				index: i
-			});
+			if (label === null) {
+				indexOffset++;
+			} else {
+				var inverted = label[0] === '!';
+				pins.push({
+					out: true,
+					x: width + 1,
+					y: outputsStartY + i * PINS_SPACING,
+					inverted: inverted,
+					label: inverted ? label.substr(1) : label,
+					index: i - indexOffset
+				});
+			}
 		}
 
 		return {

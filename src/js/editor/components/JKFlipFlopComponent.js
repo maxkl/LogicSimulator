@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -31,7 +31,7 @@ define([
 	JKFlipFlopComponent.prototype._load = function (data) {};
 
 	JKFlipFlopComponent.prototype.layout = function () {
-		var layout = displayComponent.layout(['J', 'C', 'K'], ['Q', '!Q']);
+		var layout = displayComponent.layout(['J', '>C', 'K'], ['Q', null, '!Q']);
 		this.width = layout.width;
 		this.height = layout.height;
 		this.pins = layout.pins;
@@ -70,7 +70,7 @@ define([
 		name: 'JK FF',
 		category: 'Memory',
 		drawPreview: function (svg) {
-			var layout = displayComponent.layout(['J', 'C', 'K'], ['Q', '!Q']);
+			var layout = displayComponent.layout(['J', '>C', 'K'], ['Q', null, '!Q']);
 			displayComponent(svg, layout.width, layout.height, layout.pins, 'JK');
 		}
 	};

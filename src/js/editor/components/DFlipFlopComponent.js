@@ -31,7 +31,7 @@ define([
 	DFlipFlopComponent.prototype._load = function (data) {};
 
 	DFlipFlopComponent.prototype.layout = function () {
-		var layout = displayComponent.layout(['D', 'C'], ['Q', '!Q']);
+		var layout = displayComponent.layout(['D', null, '>C'], ['Q', null, '!Q']);
 		this.width = layout.width;
 		this.height = layout.height;
 		this.pins = layout.pins;
@@ -70,7 +70,7 @@ define([
 		name: 'D FF',
 		category: 'Memory',
 		drawPreview: function (svg) {
-			var layout = displayComponent.layout(['D', 'C'], ['Q', '!Q']);
+			var layout = displayComponent.layout(['D', null, '>C'], ['Q', null, '!Q']);
 			displayComponent(svg, layout.width, layout.height, layout.pins, 'D');
 		}
 	};

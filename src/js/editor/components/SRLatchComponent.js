@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -31,7 +31,7 @@ define([
 	SRLatchComponent.prototype._load = function (data) {};
 
 	SRLatchComponent.prototype.layout = function () {
-		var layout = displayComponent.layout(['S', 'R'], ['Q', '!Q']);
+		var layout = displayComponent.layout(['S', null, 'R'], ['Q', null, '!Q']);
 		this.width = layout.width;
 		this.height = layout.height;
 		this.pins = layout.pins;
@@ -70,7 +70,7 @@ define([
 		name: 'SR latch',
 		category: 'Memory',
 		drawPreview: function (svg) {
-			var layout = displayComponent.layout(['S', 'R'], ['Q', '!Q']);
+			var layout = displayComponent.layout(['S', null, 'R'], ['Q', null, '!Q']);
 			displayComponent(svg, layout.width, layout.height, layout.pins, 'SR');
 		}
 	};

@@ -17,7 +17,7 @@ define([
 		this.size = Math.pow(2, addresswidth);
 		this.data = createArray(this.size, 0);
 
-		this.in = createArray(3 + addresswidth + datawidth, false);
+		this.in = createArray(2 + addresswidth + datawidth, false);
 		this.out = createArray(datawidth, false);
 
 		this.lastOutputData = 0;
@@ -26,16 +26,15 @@ define([
 	extend(SRAMComponent, Component);
 
 	SRAMComponent.prototype.exec = function () {
-		var cs = this.in[0];
-		var oe = this.in[1];
-		var we = this.in[2];
+		var oe = this.in[0];
+		var we = this.in[1];
 
 		var outputData = 0;
 
-		if (cs) {
+		if (oe || we) {
 			var address = 0;
 			for (var i = 0; i < this.addresswidth; i++) {
-				if (this.in[3 + i]) {
+				if (this.in[2 + i]) {
 					address |= 1 << i;
 				}
 			}
@@ -43,7 +42,7 @@ define([
 			if (we) {
 				var inputData = 0;
 				for (var i = 0; i < this.datawidth; i++) {
-					if (this.in[3 + this.addresswidth + i]) {
+					if (this.in[2 + this.addresswidth + i]) {
 						inputData |= 1 << i;
 					}
 				}

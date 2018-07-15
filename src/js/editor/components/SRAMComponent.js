@@ -61,7 +61,7 @@ define([
 		var inputCount = 3 + addresswidth + datawidth;
 		var outputCount = datawidth;
 
-		var inputs = ['CS', 'OE', 'WE', null];
+		var inputs = ['OE', 'WE', null];
 		for (var i = 0; i < addresswidth; i++) {
 			inputs.push('A' + i);
 		}
@@ -115,7 +115,7 @@ define([
 		category: 'Memory',
 		drawPreview: function (svg) {
 			var layout = displayComponent.layout(
-				['CS', 'OE', 'WE', null, 'A0', 'A1', 'A2', 'A3', null, 'D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'],
+				['OE', 'WE', null, 'A0', 'A1', 'A2', 'A3', null, 'D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7'],
 				['Q0', 'Q1', 'Q2', 'Q3', 'Q4', 'Q5', 'Q6', 'Q7'],
 				COMPONENT_WIDTH
 			);

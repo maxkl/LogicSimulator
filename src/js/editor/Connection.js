@@ -65,6 +65,7 @@ define([
 	};
 
 	Connection.prototype.remove = function () {
+		if(!this.$line) return;
 		this.$line.parentNode.removeChild(this.$line);
 		this.$line = null;
 	};

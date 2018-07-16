@@ -61,6 +61,7 @@ define([
 	};
 
 	Component.prototype.remove = function () {
+		if(!this.$group) return;
 		this.$group.parentNode.removeChild(this.$group);
 		this.$group = null;
 	};

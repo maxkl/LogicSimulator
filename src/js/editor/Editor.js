@@ -784,7 +784,9 @@ define([
 			if (connectionDirections.hasOwnProperty(p)) {
 				var directionBits = connectionDirections[p];
 				if (needJoint(directionBits)) {
-					if (!this.jointsByCoord.hasOwnProperty(p)) {
+					if (this.jointsByCoord.hasOwnProperty(p)) {
+						this.jointsByCoord[p].display(this.$jointsGroup);
+					} else {
 						var xy = p.split('|');
 						var x = parseInt(xy[0]);
 						var y = parseInt(xy[1]);

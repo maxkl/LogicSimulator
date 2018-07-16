@@ -38,6 +38,8 @@ define([
 	};
 
 	Joint.prototype.display = function ($container) {
+		if(this.$dot) return;
+
 		this.$dot = SvgUtil.createElement('circle');
 		this.$dot.setAttribute('fill', 'black');
 		this.$dot.setAttribute('r', '4');
@@ -47,6 +49,7 @@ define([
 	};
 
 	Joint.prototype.remove = function () {
+		if(!this.$dot) return;
 		this.$dot.parentNode.removeChild(this.$dot);
 		this.$dot = null;
 	};

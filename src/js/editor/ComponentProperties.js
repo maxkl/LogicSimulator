@@ -14,9 +14,8 @@ define(function () {
 	}
 
 	ComponentProperty.prototype.createHtml = function () {
-		var $label = document.createElement('label');
-		$label.className = 'property ' + this.type;
-		$label.innerHTML = this.name + ': ';
+		var createLabel = false;
+		var $element = null;
 
 		var self = this;
 		switch(this.type) {
@@ -28,7 +27,8 @@ define(function () {
 					self.value = $cb.checked;
 					if(self.onchange) self.onchange();
 				});
-				$label.appendChild($cb);
+				$element = $cb;
+				createLabel = true;
 				break;
 			case 'int':
 				var $num = document.createElement('input');
@@ -40,7 +40,8 @@ define(function () {
 					self.value = parseInt($num.value, 10);
 					if(self.onchange) self.onchange();
 				});
-				$label.appendChild($num);
+				$element = $num;
+				createLabel = true;
 				break;
 			case 'string':
 				var $str = document.createElement('input');
@@ -50,11 +51,30 @@ define(function () {
 					self.value = $str.value;
 					if(self.onchange) self.onchange();
 				});
-				$label.appendChild($str);
+				$element = $str;
+				createLabel = true;
+				break;
+			case 'button':
+				var $btn = document.createElement('button');
+				$btn.textContent = this.name;
+				$btn.addEventListener('click', function () {
+					if(self.onchange) self.onchange();
+				});
+				var $div = document.createElement('div');
+				$div.appendChild($btn);
+				$element = $div;
 				break;
 		}
 
-		return $label;
+		if (createLabel) {
+			var $label = document.createElement('label');
+			$label.className = 'property ' + this.type;
+			$label.innerHTML = this.name + ': ';
+			$label.appendChild($element);
+			$element = $label;
+		}
+
+		return $element;
 	};
 
 	function ComponentProperties(def) {

@@ -17,7 +17,6 @@ define([
 
 		this.$container = null;
 		this.$rect = null;
-		this.mousedownCallback = null;
 
 		var self = this;
 		function updateDisplay() {
@@ -48,9 +47,8 @@ define([
 		this.pins = layout.pins;
 	};
 
-	ClockComponent.prototype._display = function ($c, mousedown) {
+	ClockComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

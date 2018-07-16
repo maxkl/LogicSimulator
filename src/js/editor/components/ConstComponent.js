@@ -17,7 +17,6 @@ define([
 
 		this.$container = null;
 		this.$rect = null;
-		this.mousedownCallback = null;
 
 		var self = this;
 		function updateDisplay() {
@@ -50,9 +49,8 @@ define([
 		this.pins = layout.pins;
 	};
 
-	ConstComponent.prototype._display = function ($c, mousedown) {
+	ConstComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

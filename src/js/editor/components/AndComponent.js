@@ -21,7 +21,6 @@ define([
 
 		this.$container = null;
 		this.$rect = null;
-		this.mousedownCallback = null;
 
 		var self = this;
 		function updateLayout() {
@@ -60,9 +59,8 @@ define([
 		this.pins = layout.pins;
 	};
 
-	AndComponent.prototype._display = function ($c, mousedown) {
+	AndComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

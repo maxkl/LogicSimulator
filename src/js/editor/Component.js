@@ -16,6 +16,8 @@ define([
 		this.$group = null;
 		this.transform = null;
 
+		this.mousedownCallback = null;
+
 		this.selected = false;
 	}
 
@@ -32,6 +34,8 @@ define([
 	};
 
 	Component.prototype.load = function (data) {
+		this.x = data.x;
+		this.y = data.y;
 		this._load(data);
 	};
 
@@ -45,13 +49,13 @@ define([
 		this._deselect();
 	};
 
-	Component.prototype.display = function ($container, mousedown) {
+	Component.prototype.display = function ($container) {
 		this.$group = SvgUtil.createElement('g');
 		this.$group.setAttribute('transform', 'matrix(1 0 0 1 0 0)');
 		this.transform = this.$group.transform.baseVal[0];
 		this.updateDisplay();
 
-		this._display(this.$group, mousedown);
+		this._display(this.$group);
 
 		$container.appendChild(this.$group);
 	};

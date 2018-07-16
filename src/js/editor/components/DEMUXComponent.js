@@ -24,7 +24,6 @@ define([
 
 		this.$container = null;
 		this.$rect = null;
-		this.mousedownCallback = null;
 
 		var self = this;
 		function updateLayout() {
@@ -70,9 +69,8 @@ define([
 		this.pins = layout.pins;
 	};
 
-	DEMUXComponent.prototype._display = function ($c, mousedown) {
+	DEMUXComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

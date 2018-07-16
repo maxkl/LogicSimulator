@@ -17,7 +17,6 @@ define([
 
 		this.$container = null;
 		this.$rect = null;
-		this.mousedownCallback = null;
 
 		this.properties = new ComponentProperties([]);
 
@@ -37,9 +36,8 @@ define([
 		this.pins = layout.pins;
 	};
 
-	NotComponent.prototype._display = function ($c, mousedown) {
+	NotComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

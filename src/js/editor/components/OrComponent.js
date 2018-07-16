@@ -17,7 +17,6 @@ define([
 
 		this.$container = null;
 		this.$rect = null;
-		this.mousedownCallback = null;
 
 		var self = this;
 		function updateLayout() {
@@ -56,9 +55,8 @@ define([
 		this.pins = layout.pins;
 	};
 
-	OrComponent.prototype._display = function ($c, mousedown) {
+	OrComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

@@ -42,23 +42,23 @@ define([
 		this.startY = 0;
 		this.showSidebarOnDrop = false;
 
+		this.components = [];
 		this.selectedComponents = [];
+
+		this.connections = [];
 		this.selectedConnections = [];
+		this.currentConnection = null;
+
+		this.circuit = new Circuit(this.components, this.connections);
+		this.circuits = { 'main': this.circuit };
+
+		this.joints = [];
+		this.jointsByCoord = {};
 		this.selectedJoints = [];
 
 		this.propertyOverlayVisible = false;
 
 		this.previousTool = null;
-
-		this.connections = [];
-		this.currentConnection = null;
-
-		this.components = [];
-
-		this.circuit = new Circuit(this.components, this.connections);
-
-		this.joints = [];
-		this.jointsByCoord = {};
 
 		this.simulator = new Simulator();
 		var self = this;
@@ -412,23 +412,60 @@ define([
 		this.tools.stopSimulation();
 		this.deselectAll();
 		this.deleteAll();
+
+		this.components = [];
+		this.selectedComponents = [];
+
+		this.connections = [];
+		this.selectedConnections = [];
+		this.currentConnection = null;
+
+		this.joints = [];
+		this.jointsByCoord = {};
+		this.selectedJoints = [];
+
+		this.circuit = new Circuit(this.components, this.connections);
+		this.circuits = { 'main': this.circuit };
+	};
+
+	Editor.prototype.resetCircuit = function () {
+		this.tools.stopSimulation();
+		this.deselectAll();
+		this.undisplayAll();
 	};
 
 	Editor.prototype.save = function () {
-		var components = [];
-		for(var i = 0; i < this.components.length; i++) {
-			components.push(this.components[i].save());
+		var data = {};
+
+		data.version = 1;
+		
+		var circuits = [];
+
+		for (var name in this.circuits) {
+			if (this.circuits.hasOwnProperty(name)) {
+				var circuit = this.circuits[name];
+
+				var components = [];
+				for (var i = 0; i < circuit.components.length; i++) {
+					components.push(circuit.components[i].save());
+				}
+
+				var connections = [];
+				for (var i = 0; i < circuit.connections.length; i++) {
+					connections.push(circuit.connections[i].save());
+				}
+
+				circuits.push({
+					name: name,
+					components: components,
+					connections: connections
+				});
+			}
 		}
 
-		var connections = [];
-		for(var i = 0; i < this.connections.length; i++) {
-			connections.push(this.connections[i].save());
-		}
+		data.circuits = circuits;
 
-		return {
-			components: components,
-			connections: connections
-		};
+		return data;
 	};
 
 	Editor.prototype.saveAsJson = function () {
@@ -451,6 +488,48 @@ define([
 		URL.revokeObjectURL(blobUrl);
 	};
 
+	Editor.prototype.openCircuit = function (name) {
+		if (!this.circuits.hasOwnProperty(name)) {
+			console.error('Circuit \'' + name + '\' does not exist');
+			return;
+		}
+
+		this.resetCircuit();
+
+		var circuit = this.circuits[name];
+
+		this.circuit = circuit;
+		this.components = circuit.components;
+		this.connections = circuit.connections;
+
+		for (var i = 0; i < circuit.components.length; i++) {
+			var component = circuit.components[i];
+
+			this.displayComponent(component);
+		}
+
+		for (var i = 0; i < circuit.connections.length; i++) {
+			var connection = circuit.connections[i];
+
+			this.displayConnection(connection);
+		}
+
+		this.updateJoints();
+
+		this.viewport.reset();
+	};
+
+	Editor.prototype.openNewCircuit = function (name) {
+		if (this.circuits.hasOwnProperty(name)) {
+			console.error('Circuit \'' + name + '\' already exists');
+			return;
+		}
+
+		this.circuits[name] = new Circuit([], []);
+
+		this.openCircuit(name);
+	};
+
 	var componentConstructorsByType = {};
 	for(var i = 0; i < editorComponents.length; i++) {
 		var componentConstructor = editorComponents[i];
@@ -459,28 +538,62 @@ define([
 	}
 
 	Editor.prototype.load = function (data) {
+		function loadCircuit(componentsData, connectionsData) {
+			var components = [];
+			var connections = [];
+
+			for (var i = 0; i < componentsData.length; i++) {
+				var componentData = componentsData[i];
+
+				var type = componentData.type;
+				if(!componentConstructorsByType.hasOwnProperty(type)) {
+					throw new Error('Invalid component type: ' + type);
+				}
+
+				var component = new componentConstructorsByType[type]();
+				component.load(componentData);
+
+				components.push(component);
+			}
+
+			for (var i = 0; i < connectionsData.length; i++) {
+				var connection = Connection.load(connectionsData[i]);
+
+				connections.push(connection);
+			}
+
+			return new Circuit(components, connections);
+		}
+
+		var circuits = {};
+
+		if (data.hasOwnProperty('version')) {
+			var version = data.version;
+			if (version !== 1) {
+				throw new Error('Version ' + version + ' not supported');
+			}
+
+			var circuitsData = data.circuits;
+
+			for (var i = 0; i < circuitsData.length; i++) {
+				var circuitData = circuitsData[i];
+
+				var circuit = loadCircuit(circuitData.components, circuitData.connections);
+				circuits[circuitData.name] = circuit;
+			}
+
+			if (!circuits.hasOwnProperty('main')) {
+				throw new Error('File contains no main circuit');
+			}
+		} else {
+			circuits['main'] = loadCircuit(data.components, data.connections);
+		}
+
 		this.reset();
 
-		for(var i = 0; i < data.components.length; i++) {
-			var componentData = data.components[i];
-			var type = componentData.type;
-			if(!componentConstructorsByType.hasOwnProperty(type)) {
-				throw new Error('Invalid component type: ' + type);
-			}
-			var component = new componentConstructorsByType[type]();
-			component.load(componentData);
-			this.addComponent(component, componentData.x, componentData.y);
-		}
+		this.circuits = circuits;
 
-		for(var i = 0; i < data.connections.length; i++) {
-			var connection = Connection.load(data.connections[i]);
-			connection.display(this.$connectionsGroup);
-			this.connections.push(connection);
-		}
-
-		this.updateJoints();
-
-		this.viewport.reset();
+		this.openCircuit('main');
 	};
 
 	Editor.prototype.loadFromJson = function (json) {
@@ -1149,50 +1262,89 @@ define([
 		}
 	};
 
-	Editor.prototype.addComponent = function (component, x, y) {
-		this.components.push(component);
+	Editor.prototype.undisplayAll = function () {
+		var n = this.components.length;
+		while(n--) {
+			var component = this.components[n];
+			component.remove();
+		}
 
-		component.x = x;
-		component.y = y;
+		var n = this.connections.length;
+		while(n--) {
+			var connection = this.connections[n];
+			connection.remove();
+		}
 
-		var self = this;
-		function mousedown(evt) {
-			evt.preventDefault();
+		var n = this.joints.length;
+		while(n--) {
+			var joint = this.joints[n];
+			joint.remove();
+		}
+	};
 
-			if(self.tools.running) {
-				//
-			} else {
-				if(self.tools.currentTool === EditorTools.TOOL_SELECT) {
-					if(self.mouseMode === MOUSE_UP) {
-						if(evt.shiftKey) {
-							if(component.selected) {
-								self.deselectComponent(component);
-								// TODO: dont't drag anything
-							} else {
-								self.selectComponent(component);
-							}
+	Editor.prototype.onComponentMousedown = function (component, evt) {
+		evt.preventDefault();
+
+		if(this.tools.running) {
+			//
+		} else {
+			if(this.tools.currentTool === EditorTools.TOOL_SELECT) {
+				if(this.mouseMode === MOUSE_UP) {
+					if(evt.shiftKey) {
+						if(component.selected) {
+							this.deselectComponent(component);
+							// TODO: dont't drag anything
 						} else {
-							if(component.selected) {
-
-							} else {
-								self.deselectAll();
-								self.selectComponent(component);
-							}
+							this.selectComponent(component);
 						}
+					} else {
+						if(component.selected) {
 
-						self.startDragging(evt.clientX, evt.clientY);
+						} else {
+							this.deselectAll();
+							this.selectComponent(component);
+						}
 					}
+
+					this.startDragging(evt.clientX, evt.clientY);
 				}
 			}
 		}
+	};
 
-		component.display(this.$componentsGroup, mousedown);
+	Editor.prototype.insertComponent = function(component, x, y) {
+		this.components.push(component);
+		component.x = x;
+		component.y = y;
+	};
+
+	Editor.prototype.displayComponent = function (component) {
+		var self = this;
+		component.mousedownCallback = function (evt) {
+			self.onComponentMousedown(component, evt);
+		};
+
+		component.display(this.$componentsGroup);
+	};
+
+	Editor.prototype.addComponent = function (component, x, y) {
+		this.insertComponent(component, x, y);
+		this.displayComponent(component);
+	};
+
+	Editor.prototype.createConnection = function (x1, y1, x2, y2) {
+		var connection = new Connection(x1, y1, x2, y2);
+		this.connections.push(connection);
+		return connection;
+	};
+
+	Editor.prototype.displayConnection = function (connection) {
+		connection.display(this.$connectionsGroup);
 	};
 
 	Editor.prototype.addConnection = function (x1, y1, x2, y2) {
-		var connection = new Connection(x1, y1, x2, y2);
-		this.connections.push(connection);
-		connection.display(this.$connectionsGroup);
+		var connection = this.createConnection(x1, y1, x2, y2);
+		this.displayConnection(connection);
 	};
 
 	Editor.prototype.addJoint = function (x, y) {
@@ -1281,7 +1433,7 @@ define([
 		var dateObj = window.performance || Date;
 		var startTime = dateObj.now();
 
-		var simulationCircuit = this.circuit.constructSimulationCircuit();
+		var simulationCircuit = this.circuits['main'].constructSimulationCircuit();
 
 		var endTime = dateObj.now();
 		var time = endTime - startTime;

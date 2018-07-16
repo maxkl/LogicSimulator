@@ -64,7 +64,6 @@ define([
 		this.$container = null;
 		this.$rect = null;
 		this.$light = null;
-		this.mousedownCallback = null;
 
 		this.offColor = null;
 		this.onColor = null;
@@ -97,9 +96,8 @@ define([
 		this._updateDisplay();
 	};
 
-	LEDComponent.prototype._display = function ($c, mousedown) {
+	LEDComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

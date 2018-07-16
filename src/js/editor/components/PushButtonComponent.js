@@ -65,7 +65,6 @@ define([
 		this.$container = null;
 		this.$rect = null;
 		this.$btn = null;
-		this.mousedownCallback = null;
 
 		this.properties = new ComponentProperties([]);
 
@@ -81,9 +80,8 @@ define([
 
 	PushButtonComponent.prototype._load = function (data) {};
 
-	PushButtonComponent.prototype._display = function ($c, mousedown) {
+	PushButtonComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

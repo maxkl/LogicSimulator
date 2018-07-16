@@ -65,7 +65,6 @@ define([
 		this.$container = null;
 		this.$rect = null;
 		this.$btn = null;
-		this.mousedownCallback = null;
 
 		this.properties = new ComponentProperties([]);
 
@@ -81,9 +80,8 @@ define([
 
 	ToggleButtonComponent.prototype._load = function (data) {};
 
-	ToggleButtonComponent.prototype._display = function ($c, mousedown) {
+	ToggleButtonComponent.prototype._display = function ($c) {
 		this.$container = $c;
-		this.mousedownCallback = mousedown;
 		this._updateDisplay();
 	};
 

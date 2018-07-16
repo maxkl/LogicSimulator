@@ -10,11 +10,11 @@ define([
 	'editor/EditorDialogs',
 	'editor/Connection',
 	'editor/Joint',
-	'sim/Connection',
-	'sim/Circuit',
+	'editor/Circuit',
+	'sim/Simulator',
 	'lib/SvgUtil',
 	'generated/editorComponents'
-], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, Joint, SimConnection, SimCircuit, SvgUtil, editorComponents) {
+], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, Joint, Circuit, Simulator, SvgUtil, editorComponents) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG = 2;
@@ -55,10 +55,16 @@ define([
 
 		this.components = [];
 
+		this.circuit = new Circuit(this.components, this.connections);
+
 		this.joints = [];
 		this.jointsByCoord = {};
 
-		this.simulationCircuit = null;
+		this.simulator = new Simulator();
+		var self = this;
+		this.simulator.stepCallback = function () {
+			self.updateSimulationDisplay();
+		};
 		this.simulationAnimationFrame = null;
 
 		this.registerListeners();
@@ -1198,163 +1204,8 @@ define([
 		joint.display(this.$jointsGroup);
 	};
 
-	function ConstructionConnection(points, editorConnections) {
-		this.points = points;
-		this.editorConnections = editorConnections;
-	}
-
-	ConstructionConnection.prototype.merge = function (other, coords, connections) {
-		if(other === this) return;
-
-		// Copy points from `other` to `this`
-		for(var i = 0; i < other.points.length; i++) {
-			var point = other.points[i];
-			this.points.push(point);
-			coords[point] = this;
-		}
-
-		for(var i = 0; i < other.editorConnections.length; i++) {
-			this.editorConnections.push(other.editorConnections[i]);
-		}
-
-		// Remove `other` from connection list
-		var index = connections.indexOf(other);
-		if(index !== -1) {
-			connections.splice(index, 1);
-		} else {
-			console.warn('`other` not in connections list');
-		}
-	};
-
-	Editor.prototype.constructCircuit = function () {
-		var coords = {};
-
-		var connections = [];
-		var components = [];
-
-		for(var i = 0; i < this.components.length; i++) {
-			var com = this.components[i];
-			var pins = com.pins;
-
-			for(var j = 0; j < pins.length; j++) {
-				var pin = pins[j];
-				var x = com.x + pin.x;
-				var y = com.y + pin.y;
-				var pt = x + '|' + y;
-
-				if(!coords[pt]) {
-					var con = new ConstructionConnection([pt], []);
-					coords[pt] = con;
-					connections.push(con);
-				}
-			}
-		}
-
-		// Find connections on endpoints
-		for(var i = 0; i < this.connections.length; i++) {
-			var con = this.connections[i];
-			var pt1 = con.x1 + '|' + con.y1;
-			var pt2 = con.x2 + '|' + con.y2;
-			if(coords[pt1] && coords[pt2]) {
-				// There are connections at both endpoints
-				// -> merge them
-				coords[pt1].merge(coords[pt2], coords, connections);
-				coords[pt1].editorConnections.push(con);
-			} else if(coords[pt1]) {
-				// There is a connection at the first endpoint
-				// -> add pt2 to it
-				coords[pt1].points.push(pt2);
-				coords[pt1].editorConnections.push(con);
-				coords[pt2] = coords[pt1];
-			} else if(coords[pt2]) {
-				// There is a connection at the second endpoint
-				// -> add pt1 to it
-				coords[pt2].points.push(pt1);
-				coords[pt2].editorConnections.push(con);
-				coords[pt1] = coords[pt2];
-			} else {
-				// There is no connection at any endpoint
-				// -> create a new connection with both endpoints in it
-				var connection = new ConstructionConnection([pt1, pt2], [con]);
-				coords[pt1] = coords[pt2] = connection;
-				connections.push(connection);
-			}
-		}
-
-		// Find connections inbetween endpoints
-		for(var i = 0; i < this.connections.length; i++) {
-			var con = this.connections[i];
-
-			var pt1 = con.x1 + '|' + con.y1;
-			var con1 = coords[pt1];
-
-			if(con.x1 === con.x2) {
-				// Vertical line
-				var start = Math.min(con.y1, con.y2);
-				var end = Math.max(con.y1, con.y2);
-				for(var y = start + 1; y < end; y++) {
-					var pt2 = con.x1 + '|' + y;
-					// If there is an endpoint beneath this connection
-					// -> connect the current connection with it
-					if(coords[pt2]) {
-						con1.merge(coords[pt2], coords, connections);
-					}
-				}
-			} else {
-				// Horizontal line
-				var start = Math.min(con.x1, con.x2);
-				var end = Math.max(con.x1, con.x2);
-				for(var x = start + 1; x < end; x++) {
-					var pt2 = x + '|' + con.y1;
-					// If there is an endpoint beneath this connection
-					// -> connect the current connection with it
-					if(coords[pt2]) {
-						con1.merge(coords[pt2], coords, connections);
-					}
-				}
-			}
-		}
-
-		// Convert all the found connections to simulation connections
-		for(var i = 0; i < connections.length; i++) {
-			var con = connections[i];
-			var simCon = new SimConnection();
-			simCon.userData = con.editorConnections;
-
-			for(var j = 0; j < con.points.length; j++) {
-				var pt = con.points[j];
-				coords[pt] = simCon;
-			}
-
-			connections[i] = simCon;
-		}
-
-		for(var i = 0; i < this.components.length; i++) {
-			var com = this.components[i];
-			var pins = com.pins;
-
-			var component = com.constructSimComponent();
-			component.userData = com;
-			for(var j = 0; j < pins.length; j++) {
-				var pin = pins[j];
-				var x = com.x + pin.x;
-				var y = com.y + pin.y;
-				var con = coords[x + '|' + y];
-
-				if(pin.out) {
-					con.addInput(component, pin.index);
-				} else {
-					con.addOutput(component, pin.index);
-				}
-			}
-			components.push(component);
-		}
-
-		return new SimCircuit(components, connections);
-	};
-
 	Editor.prototype.initSimulationDisplay = function () {
-		var simComponents = this.simulationCircuit.components;
+		var simComponents = this.simulator.circuit.components;
 		for(var i = 0; i < simComponents.length; i++) {
 			var simComponent = simComponents[i];
 
@@ -1366,7 +1217,7 @@ define([
 	};
 
 	Editor.prototype.updateSimulationDisplay = function () {
-		var simConnections = this.simulationCircuit.connections;
+		var simConnections = this.simulator.circuit.connections;
 		for(var i = 0; i < simConnections.length; i++) {
 			var simConnection = simConnections[i];
 
@@ -1377,7 +1228,7 @@ define([
 			}
 		}
 
-		var simComponents = this.simulationCircuit.components;
+		var simComponents = this.simulator.circuit.components;
 		for(var i = 0; i < simComponents.length; i++) {
 			var simComponent = simComponents[i];
 
@@ -1389,7 +1240,7 @@ define([
 	};
 
 	Editor.prototype.resetSimulationDisplay = function () {
-		var simConnections = this.simulationCircuit.connections;
+		var simConnections = this.simulator.circuit.connections;
 		for(var i = 0; i < simConnections.length; i++) {
 			var simConnection = simConnections[i];
 
@@ -1400,7 +1251,7 @@ define([
 			}
 		}
 
-		var simComponents = this.simulationCircuit.components;
+		var simComponents = this.simulator.circuit.components;
 		for(var i = 0; i < simComponents.length; i++) {
 			var simComponent = simComponents[i];
 
@@ -1411,17 +1262,12 @@ define([
 		}
 	};
 
-	Editor.prototype.simulationCycle = function () {
-		this.simulationCircuit.cycle();
-		this.updateSimulationDisplay();
-	};
-
 	Editor.prototype.startSimulationInterval = function () {
 		var self = this;
 		function update() {
 			self.simulationAnimationFrame = requestAnimationFrame(update);
 
-			self.simulationCycle();
+			self.simulator.step();
 		}
 
 		this.simulationAnimationFrame = requestAnimationFrame(update);
@@ -1433,14 +1279,15 @@ define([
 
 	Editor.prototype.startSimulation = function () {
 		var dateObj = window.performance || Date;
-		var time = dateObj.now();
-		var circuit = this.constructCircuit();
-		time = dateObj.now() - time;
+		var startTime = dateObj.now();
+
+		var simulationCircuit = this.circuit.constructSimulationCircuit();
+
+		var endTime = dateObj.now();
+		var time = endTime - startTime;
 		console.log('Constructed circuit in ' + time + 'ms');
 
-		this.simulationCircuit = circuit;
-
-		circuit.init();
+		this.simulator.init(simulationCircuit);
 
 		this.initSimulationDisplay();
 		this.updateSimulationDisplay();
@@ -1453,11 +1300,11 @@ define([
 
 		this.resetSimulationDisplay();
 
-		this.simulationCircuit = null;
+		this.simulator.reset();
 	};
 
 	Editor.prototype.stepSimulation = function () {
-		this.simulationCycle();
+		this.simulator.step();
 	};
 
 	Editor.prototype.resumeSimulation = function () {

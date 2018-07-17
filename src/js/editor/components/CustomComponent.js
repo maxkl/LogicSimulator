@@ -57,7 +57,7 @@ define([
 		var inputs;
 		var outputs;
 
-		if (this.circuitName === null) {
+		if (this.circuitName === null || !this.app.editor.circuits.hasOwnProperty(this.circuitName)) {
 			inputs = ['', '', ''];
 			outputs = ['', ''];
 		} else {

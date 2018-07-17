@@ -70,6 +70,8 @@ define([
 
 		this.registerListeners();
 
+		this.updateCircuitsList();
+
 		this.start();
 	}
 
@@ -234,18 +236,8 @@ define([
 
 					if (self.newComponent !== null) {
 						if (self.newComponent.isCustom) {
-							var circuitNames = [];
-							for (var circuitName in self.circuits) {
-								if (self.circuits.hasOwnProperty(circuitName)) {
-									if (circuitName !== 'main') {
-										circuitNames.push(circuitName);
-									}
-								}
-							}
-							circuitNames.sort();
-
 							self.dialogs.open('choose-custom-component', {
-								circuitNames: circuitNames
+								circuitNames: self.getCircuitNames(true)
 							});
 						}
 					}
@@ -379,6 +371,22 @@ define([
 			self.dialogs.open('welcome');
 		});
 
+		this.tools.on('new-circuit', function () {
+			self.dialogs.open('new-circuit');
+		});
+
+		this.tools.on('select-circuit', function (circuitName) {
+			try {
+				self.openCircuit(circuitName);
+			} catch (e) {
+				console.error(e);
+			}
+		});
+
+		this.tools.on('edit-circuit', function () {
+			// TODO
+		});
+
 		this.dialogs.on('load-url', function (url) {
 			self.dialogs.displayOpenLoading(true);
 			self.loadFromUrl(url);
@@ -397,6 +405,18 @@ define([
 
 		this.dialogs.on('welcome-closed', function (showAgain) {
 			self.app.storage.set('Editor:welcome-displayed', !showAgain);
+		});
+
+		this.dialogs.on('new-circuit', function (name, label, moveSelection) {
+			// TODO: move selection
+			try {
+				self.createNewCircuit(name, label);
+			} catch (e) {
+				self.dialogs.displayNewCircuitError(e.toString());
+				return;
+			}
+			self.openCircuit(name);
+			self.dialogs.close();
 		});
 
 		this.dialogs.on('choose-custom-component-selected', function (circuitName) {
@@ -471,6 +491,34 @@ define([
 		this.undisplayAll();
 	};
 
+	Editor.prototype.getCircuitNames = function (excludeMain) {
+		var circuitNames = [];
+
+		for (var circuitName in this.circuits) {
+			if (this.circuits.hasOwnProperty(circuitName)) {
+				if (circuitName === 'main') {
+					if (!excludeMain) {
+						circuitNames.push({
+							key:'main',
+							pretty: 'Main'
+						});
+					}
+				} else {
+					circuitNames.push({
+						key: circuitName,
+						pretty: circuitName
+					});
+				}
+			}
+		}
+
+		circuitNames.sort(function (a, b) {
+			return (a.pretty < b.pretty) ? -1 : ((a.pretty > b.pretty) ? 1 : 0);
+		});
+
+		return circuitNames;
+	};
+
 	Editor.prototype.save = function () {
 		var data = {};
 
@@ -494,6 +542,7 @@ define([
 
 				circuits.push({
 					name: name,
+					label: circuit.label,
 					components: components,
 					connections: connections
 				});
@@ -525,10 +574,14 @@ define([
 		URL.revokeObjectURL(blobUrl);
 	};
 
+	Editor.prototype.updateCircuitsList = function () {
+		var circuitNames = this.getCircuitNames(false);
+		this.tools.updateCircuitsList(circuitNames);
+	};
+
 	Editor.prototype.openCircuit = function (name) {
 		if (!this.circuits.hasOwnProperty(name)) {
-			console.error('Circuit \'' + name + '\' does not exist');
-			return;
+			throw new Error('Circuit \'' + name + '\' does not exist');
 		}
 
 		this.resetCircuit();
@@ -554,15 +607,25 @@ define([
 		this.updateJoints();
 
 		this.viewport.reset();
+
+		this.tools.selectCircuit(name);
 	};
 
-	Editor.prototype.openNewCircuit = function (name) {
+	Editor.prototype.createNewCircuit = function (name, label) {
 		if (this.circuits.hasOwnProperty(name)) {
-			console.error('Circuit \'' + name + '\' already exists');
-			return;
+			throw new Error('A circuit with the name \'' + name + '\' already exists');
 		}
 
-		this.circuits[name] = new Circuit([], []);
+		var circuit = new Circuit([], []);
+		circuit.label = label;
+
+		this.circuits[name] = circuit;
+
+		this.updateCircuitsList();
+	};
+
+	Editor.prototype.openNewCircuit = function (name, label) {
+		this.createNewCircuit(name, label);
 
 		this.openCircuit(name);
 	};
@@ -576,7 +639,7 @@ define([
 
 	Editor.prototype.load = function (data) {
 		var self = this;
-		function loadCircuit(componentsData, connectionsData) {
+		function loadCircuit(componentsData, connectionsData, label) {
 			var components = [];
 			var connections = [];
 
@@ -600,7 +663,10 @@ define([
 				connections.push(connection);
 			}
 
-			return new Circuit(components, connections);
+			var circuit = new Circuit(components, connections);
+			circuit.label = label;
+
+			return circuit;
 		}
 
 		var circuits = {};
@@ -616,7 +682,7 @@ define([
 			for (var i = 0; i < circuitsData.length; i++) {
 				var circuitData = circuitsData[i];
 
-				var circuit = loadCircuit(circuitData.components, circuitData.connections);
+				var circuit = loadCircuit(circuitData.components, circuitData.connections, circuitData.label);
 				circuits[circuitData.name] = circuit;
 			}
 
@@ -630,6 +696,8 @@ define([
 		this.reset();
 
 		this.circuits = circuits;
+
+		this.updateCircuitsList();
 
 		this.openCircuit('main');
 	};

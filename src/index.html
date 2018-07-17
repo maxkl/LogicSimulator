@@ -20,11 +20,7 @@
 				<button id="toolbar-action-delete" title="Delete selected elements" autocomplete="off"><span class="mdi mdi-delete"></span></button>
 				<div class="sep"></div>
 				<button id="toolbar-circuit-new" title="New circuit" autocomplete="off"><span class="mdi mdi-library-plus"></span></button>
-				<select id="toolbar-circuit-select">
-					<option>Main</option>
-					<option>ALU</option>
-					<option>GPIO Port</option>
-				</select>
+				<select id="toolbar-circuit-select"></select>
 				<button id="toolbar-circuit-edit" title="Edit circuit properties" autocomplete="off"><span class="mdi mdi-pencil"></span></button>
 				<div class="sep"></div>
 				<button id="toolbar-run" title="Run simulation" autocomplete="off"><span class="mdi mdi-play"></span></button>
@@ -65,12 +61,12 @@
 			</div>
 		</div>
 		<div id="overlay" class="overlay">
-			<div id="dialog-open" class="dialog dialog-open">
+			<div id="dialog-open" class="dialog">
 				<div class="header">
 					Open project
 				</div>
 				<div class="body">
-					<div class="type-section">
+					<div class="input-row">
 						<label><input type="radio" name="dialog-open-type" value="example" checked /> Example:</label>
 						<select id="dialog-open-example">
 							<option value="4bit-adder.json">4-bit adder</option>
@@ -78,7 +74,7 @@
 							<option value="sync-counter.json">Synchronous 4-bit counter</option>
 						</select>
 					</div>
-					<div class="type-section">
+					<div class="input-row">
 						<label><input type="radio" name="dialog-open-type" value="file" /> From computer:</label>
 						<input type="file" id="dialog-open-file" accept=".json,application/json" />
 					</div>
@@ -134,6 +130,32 @@
 				</div>
 				<div class="footer">
 					<button id="dialog-welcome-close" class="highlight" title="Close" autocomplete="off">Close</button>
+				</div>
+			</div>
+
+			<div id="dialog-new-circuit" class="dialog">
+				<div class="header">
+					Create new circuit
+				</div>
+				<div class="body">
+					Circuits created here can later be used in your project as custom components.<br />
+					<br />
+					<div class="input-row">
+						<label>Name:</label>
+						<input type="text" id="dialog-new-circuit-name" />
+					</div>
+					<div class="input-row">
+						<label>Label:</label>
+						<input type="text" id="dialog-new-circuit-label" title="The label will be shown on the component in the editor. Try to make it short so it doesn't exceed the components width!" />
+					</div>
+					<div class="input-row">
+						<label><input type="checkbox" id="dialog-new-circuit-move-selection" checked /> Move the current selection into this circuit</label>
+					</div>
+					<div id="dialog-new-circuit-error" class="color-red display-none"></div>
+				</div>
+				<div class="footer">
+					<button id="dialog-new-circuit-cancel" title="Cancel" autocomplete="off">Cancel</button>
+					<button id="dialog-new-circuit-create" class="highlight" title="Create new circuit" autocomplete="off">Create</button>
 				</div>
 			</div>
 

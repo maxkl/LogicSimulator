@@ -32,6 +32,14 @@ define([
 		this.$dialogWelcomeShowAgain = document.getElementById('dialog-welcome-show-again');
 		this.$dialogWelcomeClose = document.getElementById('dialog-welcome-close');
 
+		this.$dialogNewCircuit = document.getElementById('dialog-new-circuit');
+		this.$dialogNewCircuitName = document.getElementById('dialog-new-circuit-name');
+		this.$dialogNewCircuitLabel = document.getElementById('dialog-new-circuit-label');
+		this.$dialogNewCircuitMoveSelection = document.getElementById('dialog-new-circuit-move-selection');
+		this.$dialogNewCircuitError = document.getElementById('dialog-new-circuit-error');
+		this.$dialogNewCircuitCreate = document.getElementById('dialog-new-circuit-create');
+		this.$dialogNewCircuitCancel = document.getElementById('dialog-new-circuit-cancel');
+
 		this.$dialogChooseCustomComponent = document.getElementById('dialog-choose-custom-component');
 		this.$dialogChooseCustomComponentName = document.getElementById('dialog-choose-custom-component-name');
 		this.$dialogChooseCustomComponentError = document.getElementById('dialog-choose-custom-component-error');
@@ -42,6 +50,7 @@ define([
 			'open': this.$dialogOpen,
 			'new': this.$dialogNew,
 			'welcome': this.$dialogWelcome,
+			'new-circuit': this.$dialogNewCircuit,
 			'choose-custom-component': this.$dialogChooseCustomComponent
 		};
 
@@ -101,6 +110,17 @@ define([
 			self.emit('welcome-closed', self.$dialogWelcomeShowAgain.checked);
 		});
 
+		this.$dialogNewCircuitCreate.addEventListener('click', function () {
+			var name = self.$dialogNewCircuitName.value;
+			var label = self.$dialogNewCircuitLabel.value;
+			var moveSelection = self.$dialogNewCircuitMoveSelection.checked;
+			self.emit('new-circuit', name, label, moveSelection);
+		});
+
+		this.$dialogNewCircuitCancel.addEventListener('click', function () {
+			self.close();
+		});
+
 		this.$dialogChooseCustomComponentName.addEventListener('change', function () {
 			self.$dialogChooseCustomComponentError.classList.add('display-none');
 		});
@@ -136,6 +156,11 @@ define([
 		this.$dialogWelcomeShowAgain.checked = showAgain;
 	};
 
+	EditorDialogs.prototype.displayNewCircuitError = function (msg) {
+		this.$dialogNewCircuitError.textContent = msg;
+		this.$dialogNewCircuitError.classList.remove('display-none');
+	};
+
 	EditorDialogs.prototype.displayChooseCustomComponentError = function (msg) {
 		this.$dialogChooseCustomComponentError.textContent = 'Error: ' + msg;
 		this.$dialogChooseCustomComponentError.classList.remove('display-none');
@@ -158,6 +183,12 @@ define([
 				this.$dialogOpenError.classList.add('display-none');
 				this.$dialogOpenLoading.classList.add('display-none');
 				break;
+			case 'new-circuit':
+				this.$dialogNewCircuitName.value = '';
+				this.$dialogNewCircuitLabel.value = '';
+				this.$dialogNewCircuitMoveSelection.checked = data;
+				this.$dialogNewCircuitError.classList.add('display-none');
+				break;
 			case 'choose-custom-component':
 				this.$dialogChooseCustomComponentError.classList.add('display-none');
 
@@ -171,13 +202,13 @@ define([
 				for (var i = 0; i < circuitNames.length; i++) {
 					var circuitName = circuitNames[i];
 
-					if (circuitName === selected) {
+					if (circuitName.key === selected) {
 						selectedStillExists = true;
 					}
 
 					var $opt = document.createElement('option');
-					$opt.value = circuitName;
-					$opt.textContent = circuitName;
+					$opt.value = circuitName.key;
+					$opt.textContent = circuitName.pretty;
 					this.$dialogChooseCustomComponentName.appendChild($opt);
 				}
 

@@ -32,6 +32,9 @@ define([
 		this.$saveFile = document.getElementById('toolbar-file-save');
 		this.$loadFile = document.getElementById('toolbar-file-load');
 		this.$showHelp = document.getElementById('toolbar-help');
+		this.$newCircuit = document.getElementById('toolbar-circuit-new');
+		this.$selectCircuit = document.getElementById('toolbar-circuit-select');
+		this.$editCircuit = document.getElementById('toolbar-circuit-edit');
 
 		this.registerListeners();
 	}
@@ -87,6 +90,18 @@ define([
 
 		this.$showHelp.addEventListener('click', function () {
 			self.emit('show-help');
+		});
+
+		this.$newCircuit.addEventListener('click', function () {
+			self.emit('new-circuit');
+		});
+
+		this.$selectCircuit.addEventListener('change', function () {
+			self.emit('select-circuit', self.$selectCircuit.value);
+		});
+
+		this.$editCircuit.addEventListener('click', function () {
+			self.emit('edit-circuit');
 		});
 	};
 
@@ -155,6 +170,23 @@ define([
 			this.currentTool = tool;
 			this.emit('tool-changed', tool, prev);
 		}
+	};
+
+	EditorTools.prototype.updateCircuitsList = function (circuitNames) {
+		this.$selectCircuit.innerHTML = '';
+
+		for (var i = 0; i < circuitNames.length; i++) {
+			var circuitName = circuitNames[i];
+
+			var $opt = document.createElement('option');
+			$opt.value = circuitName.key;
+			$opt.textContent = circuitName.pretty;
+			this.$selectCircuit.appendChild($opt);
+		}
+	};
+
+	EditorTools.prototype.selectCircuit = function (circuitName) {
+		this.$selectCircuit.value = circuitName;
 	};
 
 	EditorTools.TOOL_SELECT = TOOL_SELECT;

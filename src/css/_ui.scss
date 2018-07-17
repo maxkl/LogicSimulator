@@ -260,6 +260,7 @@
 		}
 
 		button,
+		input[type=text],
 		select {
 			padding: 1px 6px;
 
@@ -268,8 +269,12 @@
 			border-radius: 0;
 			font: inherit;
 			color: inherit;
-			cursor: pointer;
 			font-size: inherit;
+		}
+
+		button,
+		select {
+			cursor: pointer;
 		}
 
 		button {
@@ -295,6 +300,10 @@
 
 		.body {
 			padding: 10px;
+
+			.input-row:not(:last-child) {
+				margin-bottom: 15px;
+			}
 		}
 
 		.footer {
@@ -306,12 +315,6 @@
 			button {
 				margin-left: 10px;
 			}
-		}
-	}
-
-	.dialog-open {
-		.body .type-section:not(:last-child) {
-			margin-bottom: 15px;
 		}
 	}
 }

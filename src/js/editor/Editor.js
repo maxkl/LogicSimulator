@@ -472,7 +472,7 @@ define([
 					self.dialogs.close();
 				}
 			} else {
-				self.dialogs.displayChooseCustomComponentError('\'' + circuitName + '\' does not exist');
+				self.dialogs.displayChooseCustomComponentError('Circuit \'' + circuitName + '\' does not exist');
 			}
 		});
 

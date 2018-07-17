@@ -34,6 +34,7 @@ define([
 		}
 
 		this.properties = new ComponentProperties([
+			[ 'name', '', 'helptext', '?' ],
 			[ 'edit', 'Edit circuit', 'button', null, edit ]
 		]);
 		this.circuitName = null;
@@ -114,6 +115,7 @@ define([
 
 	CustomComponent.prototype.setCircuit = function (circuitName) {
 		this.circuitName = circuitName;
+		this.properties.set('name', circuitName);
 		this._updateDisplay();
 	};
 

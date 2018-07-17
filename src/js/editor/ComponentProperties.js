@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -11,6 +11,8 @@ define(function () {
 		this.value = value;
 		this.onchange = onchange;
 		this.opts = opts || {};
+
+		this.$elem = null;
 	}
 
 	ComponentProperty.prototype.createHtml = function () {
@@ -64,6 +66,12 @@ define(function () {
 				$div.appendChild($btn);
 				$element = $div;
 				break;
+			case 'helptext':
+				var $div = document.createElement('div');
+				$div.textContent = this.value;
+				$element = $div;
+				this.$elem = $div;
+				break;
 		}
 
 		if (createLabel) {
@@ -75,6 +83,27 @@ define(function () {
 		}
 
 		return $element;
+	};
+
+	ComponentProperty.prototype.updateHtml = function () {
+		if (!this.$elem) {
+			return;
+		}
+
+		switch (this.type) {
+			case 'helptext':
+				this.$elem.textContent = this.value;
+				break;
+		}
+	};
+
+	ComponentProperty.prototype.get = function () {
+		return this.value;
+	};
+
+	ComponentProperty.prototype.set = function (value) {
+		this.value = value;
+		this.updateHtml();
 	};
 
 	function ComponentProperties(def) {
@@ -97,7 +126,7 @@ define(function () {
 			throw new Error('Unknown property ' + key);
 		}
 
-		return this._propsMap[key].value;
+		return this._propsMap[key].get();
 	};
 
 	ComponentProperties.prototype.set = function (key, value) {
@@ -105,7 +134,7 @@ define(function () {
 			throw new Error('Unknown property ' + key);
 		}
 
-		this._propsMap[key].value = value;
+		this._propsMap[key].set(value);
 	};
 
 	ComponentProperties.prototype.display = function ($c) {

@@ -477,6 +477,7 @@ define([
 		});
 
 		this.dialogs.on('choose-custom-component-cancelled', function () {
+			self.deselectComponent(self.newComponent);
 			self.deleteComponent(self.newComponent);
 			self.newComponent = null;
 		});

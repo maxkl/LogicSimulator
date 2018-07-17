@@ -51,6 +51,7 @@ define([
 		this.currentConnection = null;
 
 		this.circuit = new Circuit(this.components, this.connections);
+		this.circuitName = 'main';
 		this.circuits = { 'main': this.circuit };
 
 		this.joints = [];
@@ -420,11 +421,56 @@ define([
 		});
 
 		this.dialogs.on('choose-custom-component-selected', function (circuitName) {
-			// TODO: check circular nesting
 			if (self.circuits.hasOwnProperty(circuitName)) {
-				self.newComponent.setCircuit(circuitName);
-				self.newComponent = null;
-				self.dialogs.close();
+				// findNestedCircuit performs a depth-first search for a circuit inside another one
+				function findNestedCircuit(circuitName, searchedName, chain) {
+					if (circuitName === searchedName) {
+						chain.push(searchedName);
+						return {
+							parentName: circuitName,
+							chain: chain
+						};
+					}
+
+					var circuit = self.circuits[circuitName];
+
+					chain.push(circuitName);
+
+					for (var i = 0; i < circuit.components.length; i++) {
+						var component = circuit.components[i];
+
+						if (component.isCustom && component.circuitName !== null) {
+							if (component.circuitName === searchedName) {
+								chain.push(searchedName);
+								return {
+									parentName: circuitName,
+									chain: chain
+								};
+							}
+
+							var result = findNestedCircuit(component.circuitName, searchedName, chain);
+							if (result !== null) {
+								return result;
+							}
+						}
+					}
+
+					chain.pop();
+
+					return null;
+				}
+
+				// Search for the current circuit inside the newly added components circuit
+				var result = findNestedCircuit(circuitName, self.circuitName, []);
+				if (result !== null) {
+					result.chain.push(circuitName);
+					var chainText = '\'' + result.chain.join('\' → \'') + '\'';
+					self.dialogs.displayChooseCustomComponentError('Component would be nested inside itself, via this chain: ' + chainText);
+				} else {
+					self.newComponent.setCircuit(circuitName);
+					self.newComponent = null;
+					self.dialogs.close();
+				}
 			} else {
 				self.dialogs.displayChooseCustomComponentError('\'' + circuitName + '\' does not exist');
 			}
@@ -482,6 +528,7 @@ define([
 		this.selectedJoints = [];
 
 		this.circuit = new Circuit(this.components, this.connections);
+		this.circuitName = 'main';
 		this.circuits = { 'main': this.circuit };
 	};
 
@@ -589,6 +636,7 @@ define([
 		var circuit = this.circuits[name];
 
 		this.circuit = circuit;
+		this.circuitName = name;
 		this.components = circuit.components;
 		this.connections = circuit.connections;
 

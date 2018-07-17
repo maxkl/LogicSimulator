@@ -13,7 +13,7 @@
 		flex: none;
 		display: flex;
 		flex-direction: row;
-		height: $toolbar-height;
+		height: $toolbar-height + 1;
 		padding: $toolbar-padding;
 
 		border-bottom: 1px solid #bdbdbd;
@@ -29,10 +29,18 @@
 			background-color: #bdbdbd;
 		}
 
-		> button {
+		> button,
+		> select {
 			flex: none;
 			display: block;
 			line-height: $toolbar-height - 2 * $toolbar-padding;
+
+			&.right {
+				margin-left: auto;
+			}
+		}
+
+		> button {
 			padding: 0 5px;
 
 			background: none;
@@ -57,9 +65,23 @@
 					background-color: rgba(#000, .2);
 				}
 			}
+		}
 
-			&.right {
-				margin-left: auto;
+		> select {
+			padding: 1px 6px;
+
+			background: none;
+			border: none;
+			border-radius: 0;
+			font: inherit;
+			color: inherit;
+			outline: inherit;
+			cursor: pointer;
+			font-size: 16px;
+
+			&:disabled {
+				color: #bfbfbf;
+				cursor: default;
 			}
 		}
 	}

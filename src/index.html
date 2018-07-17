@@ -19,6 +19,14 @@
 				<div class="sep"></div>
 				<button id="toolbar-action-delete" title="Delete selected elements" autocomplete="off"><span class="mdi mdi-delete"></span></button>
 				<div class="sep"></div>
+				<button id="toolbar-circuit-new" title="New circuit" autocomplete="off"><span class="mdi mdi-library-plus"></span></button>
+				<select id="toolbar-circuit-select">
+					<option>Main</option>
+					<option>ALU</option>
+					<option>GPIO Port</option>
+				</select>
+				<button id="toolbar-circuit-edit" title="Edit circuit properties" autocomplete="off"><span class="mdi mdi-pencil"></span></button>
+				<div class="sep"></div>
 				<button id="toolbar-run" title="Run simulation" autocomplete="off"><span class="mdi mdi-play"></span></button>
 				<button id="toolbar-step" disabled title="Single-step simulation" autocomplete="off"><span class="mdi mdi-step-forward"></span></button>
 				<button id="toolbar-pause" disabled title="Pause simulation" autocomplete="off"><span class="mdi mdi-pause"></span></button>
@@ -126,6 +134,25 @@
 				</div>
 				<div class="footer">
 					<button id="dialog-welcome-close" class="highlight" title="Close" autocomplete="off">Close</button>
+				</div>
+			</div>
+
+			<div id="dialog-choose-custom-component" class="dialog">
+				<div class="header">
+					Choose Custom Component
+				</div>
+				<div class="body">
+					You can create new components in the toolbar, either from scratch or from a selection.<br />
+					<br />
+					<div>
+						<label>Component:</label>
+						<select id="dialog-choose-custom-component-name"></select>
+					</div>
+					<div id="dialog-choose-custom-component-error" class="color-red display-none"></div>
+				</div>
+				<div class="footer">
+					<button id="dialog-choose-custom-component-cancel" title="Cancel" autocomplete="off">Cancel</button>
+					<button id="dialog-choose-custom-component-ok" class="highlight" title="OK" autocomplete="off">OK</button>
 				</div>
 			</div>
 		</div>

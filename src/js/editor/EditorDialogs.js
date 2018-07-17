@@ -32,10 +32,17 @@ define([
 		this.$dialogWelcomeShowAgain = document.getElementById('dialog-welcome-show-again');
 		this.$dialogWelcomeClose = document.getElementById('dialog-welcome-close');
 
+		this.$dialogChooseCustomComponent = document.getElementById('dialog-choose-custom-component');
+		this.$dialogChooseCustomComponentName = document.getElementById('dialog-choose-custom-component-name');
+		this.$dialogChooseCustomComponentError = document.getElementById('dialog-choose-custom-component-error');
+		this.$dialogChooseCustomComponentOK = document.getElementById('dialog-choose-custom-component-ok');
+		this.$dialogChooseCustomComponentCancel = document.getElementById('dialog-choose-custom-component-cancel');
+
 		this.dialogs = {
 			'open': this.$dialogOpen,
 			'new': this.$dialogNew,
-			'welcome': this.$dialogWelcome
+			'welcome': this.$dialogWelcome,
+			'choose-custom-component': this.$dialogChooseCustomComponent
 		};
 
 		this.registerListeners();
@@ -93,6 +100,21 @@ define([
 			self.close();
 			self.emit('welcome-closed', self.$dialogWelcomeShowAgain.checked);
 		});
+
+		this.$dialogChooseCustomComponentName.addEventListener('change', function () {
+			self.$dialogChooseCustomComponentError.classList.add('display-none');
+		});
+
+		this.$dialogChooseCustomComponentOK.addEventListener('click', function () {
+			var selectedName = self.$dialogChooseCustomComponentName.value;
+
+			self.emit('choose-custom-component-selected', selectedName);
+		});
+
+		this.$dialogChooseCustomComponentCancel.addEventListener('click', function () {
+			self.close();
+			self.emit('choose-custom-component-cancelled');
+		});
 	};
 
 	EditorDialogs.prototype.displayOpenLoading = function (loading) {
@@ -114,7 +136,12 @@ define([
 		this.$dialogWelcomeShowAgain.checked = showAgain;
 	};
 
-	EditorDialogs.prototype.open = function (dialogName) {
+	EditorDialogs.prototype.displayChooseCustomComponentError = function (msg) {
+		this.$dialogChooseCustomComponentError.textContent = 'Error: ' + msg;
+		this.$dialogChooseCustomComponentError.classList.remove('display-none');
+	};
+
+	EditorDialogs.prototype.open = function (dialogName, data) {
 		for (var name in this.dialogs) {
 			if (this.dialogs.hasOwnProperty(name)) {
 				var $dialog = this.dialogs[name];
@@ -130,6 +157,34 @@ define([
 			case 'open':
 				this.$dialogOpenError.classList.add('display-none');
 				this.$dialogOpenLoading.classList.add('display-none');
+				break;
+			case 'choose-custom-component':
+				this.$dialogChooseCustomComponentError.classList.add('display-none');
+
+				var circuitNames = data.circuitNames;
+
+				var selected = this.$dialogChooseCustomComponentName.value;
+				this.$dialogChooseCustomComponentName.innerHTML = '';
+
+				var selectedStillExists = false;
+
+				for (var i = 0; i < circuitNames.length; i++) {
+					var circuitName = circuitNames[i];
+
+					if (circuitName === selected) {
+						selectedStillExists = true;
+					}
+
+					var $opt = document.createElement('option');
+					$opt.value = circuitName;
+					$opt.textContent = circuitName;
+					this.$dialogChooseCustomComponentName.appendChild($opt);
+				}
+
+				if (selectedStillExists) {
+					this.$dialogChooseCustomComponentName.value = selected;
+				}
+
 				break;
 		}
 

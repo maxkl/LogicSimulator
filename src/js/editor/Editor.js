@@ -44,6 +44,7 @@ define([
 
 		this.components = [];
 		this.selectedComponents = [];
+		this.newComponent = null;
 
 		this.connections = [];
 		this.selectedConnections = [];
@@ -226,9 +227,27 @@ define([
 
 			if(self.mouseMode !== MOUSE_UP) {
 				if(self.mouseMode === MOUSE_DRAG) {
-					if(self.showSidebarOnDrop) {
+					if (self.showSidebarOnDrop) {
 						self.showSidebarOnDrop = false;
 						self.sidebar.show();
+					}
+
+					if (self.newComponent !== null) {
+						if (self.newComponent.isCustom) {
+							var circuitNames = [];
+							for (var circuitName in self.circuits) {
+								if (self.circuits.hasOwnProperty(circuitName)) {
+									if (circuitName !== 'main') {
+										circuitNames.push(circuitName);
+									}
+								}
+							}
+							circuitNames.sort();
+
+							self.dialogs.open('choose-custom-component', {
+								circuitNames: circuitNames
+							});
+						}
 					}
 
 					self.updateJoints();
@@ -380,6 +399,22 @@ define([
 			self.app.storage.set('Editor:welcome-displayed', !showAgain);
 		});
 
+		this.dialogs.on('choose-custom-component-selected', function (circuitName) {
+			// TODO: check circular nesting
+			if (self.circuits.hasOwnProperty(circuitName)) {
+				self.newComponent.setCircuit(circuitName);
+				self.newComponent = null;
+				self.dialogs.close();
+			} else {
+				self.dialogs.displayChooseCustomComponentError('\'' + circuitName + '\' does not exist');
+			}
+		});
+
+		this.dialogs.on('choose-custom-component-cancelled', function () {
+			self.deleteComponent(self.newComponent);
+			self.newComponent = null;
+		});
+
 		this.sidebar.on('component-mousedown', function (evt, entry) {
 			self.sidebar.hide();
 
@@ -390,7 +425,7 @@ define([
 			var snappedX = Math.round(x / 10);
 			var snappedY = Math.round(y / 10);
 
-			var component = new entry.ctor();
+			var component = new entry.ctor(self.app);
 			self.addComponent(component, snappedX, snappedY);
 
 			self.deselectAll()
@@ -399,6 +434,8 @@ define([
 			self.startDragging(evt.clientX, evt.clientY);
 
 			self.showSidebarOnDrop = true;
+
+			self.newComponent = component;
 		});
 	};
 
@@ -538,6 +575,7 @@ define([
 	}
 
 	Editor.prototype.load = function (data) {
+		var self = this;
 		function loadCircuit(componentsData, connectionsData) {
 			var components = [];
 			var connections = [];
@@ -550,7 +588,7 @@ define([
 					throw new Error('Invalid component type: ' + type);
 				}
 
-				var component = new componentConstructorsByType[type]();
+				var component = new componentConstructorsByType[type](self.app);
 				component.load(componentData);
 
 				components.push(component);

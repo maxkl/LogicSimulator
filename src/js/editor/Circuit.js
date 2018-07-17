@@ -10,7 +10,49 @@ define([
 	function Circuit(components, connections) {
 		this.components = components;
 		this.connections = connections;
+		this.label = '?';
 	}
+
+	Circuit.prototype.findInputsAndOutputs = function () {
+		var inputs = [];
+		var outputs = [];
+
+		for (var i = 0; i < this.components.length; i++) {
+			var component = this.components[i];
+
+			if (component.isInput) {
+				inputs.push({
+					x: component.x,
+					y: component.y,
+					label: component.getLabel(),
+					component: component
+				});
+			} else if (component.isOutput) {
+				outputs.push({
+					x: component.x,
+					y: component.y,
+					label: component.getLabel(),
+					component: component
+				});
+			}
+		}
+
+		function comparePosition(a, b) {
+			if (a.y !== b.y) {
+				return a.y - b.y;
+			} else {
+				return a.x - b.x;
+			}
+		}
+
+		inputs.sort(comparePosition);
+		outputs.sort(comparePosition);
+
+		return {
+			inputs: inputs,
+			outputs: outputs
+		};
+	};
 
 	function ConstructionConnection(points, editorConnections) {
 		this.points = points;

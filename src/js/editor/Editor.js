@@ -531,6 +531,8 @@ define([
 		this.circuit = new Circuit(this.components, this.connections);
 		this.circuitName = 'main';
 		this.circuits = { 'main': this.circuit };
+
+		this.updateCircuitsList();
 	};
 
 	Editor.prototype.resetCircuit = function () {

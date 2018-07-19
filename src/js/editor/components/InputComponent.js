@@ -7,17 +7,50 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, extend) {
+	'lib/extend',
+	'lib/SvgUtil'
+], function (Component, ComponentProperties, displayComponent, extend, SvgUtil) {
+	function displayInputComponent($container, label) {
+		var $polygon = SvgUtil.createElement('polygon');
+		$polygon.setAttribute('points', '0 0 50 0 60 10 50 20 0 20');
+		$polygon.setAttribute('fill', 'white');
+		$polygon.setAttribute('stroke', 'black');
+		$polygon.setAttribute('stroke-width', '2');
+		$container.appendChild($polygon);
+
+		var $label = SvgUtil.createElement('text');
+		$label.setAttribute('x', 25);
+		$label.setAttribute('y', 15);
+		$label.setAttribute('text-anchor', 'middle');
+		$label.setAttribute('font-size', '16');
+		$label.setAttribute('font-family', 'Source Code Pro');
+		$label.setAttribute('pointer-events', 'none');
+		$label.appendChild(document.createTextNode(label));
+		$container.appendChild($label);
+
+		return $polygon;
+	}
+
 	function InputComponent() {
 		Component.call(this);
 
 		this.isInput = true;
 
-		this.pins = null;
+		this.width = 6;
+		this.height = 2;
+		this.pins = [
+			{
+				out: true,
+				x: 6,
+				y: 1,
+				inverted: false,
+				label: '',
+				index: 0
+			}
+		];
 
 		this.$container = null;
-		this.$rect = null;
+		this.$polygon = null;
 
 		var self = this;
 		function updateDisplay() {
@@ -27,8 +60,6 @@ define([
 		this.properties = new ComponentProperties([
 			[ 'label', 'Label', 'string', 'A', updateDisplay ]
 		]);
-
-		this.layout();
 	}
 
 	extend(InputComponent, Component);
@@ -43,13 +74,6 @@ define([
 		this._updateDisplay();
 	};
 
-	InputComponent.prototype.layout = function () {
-		var layout = displayComponent.layout([], ['']);
-		this.width = layout.width;
-		this.height = layout.height;
-		this.pins = layout.pins;
-	};
-
 	InputComponent.prototype._display = function ($c) {
 		this.$container = $c;
 		this._updateDisplay();
@@ -59,8 +83,8 @@ define([
 		if(!this.$container) return;
 
 		this.$container.innerHTML = '';
-		this.$rect = displayComponent(this.$container, this.width, this.height, this.pins, this.properties.get('label'));
-		this.$rect.addEventListener('mousedown', this.mousedownCallback);
+		this.$polygon = displayInputComponent(this.$container, this.properties.get('label'));
+		this.$polygon.addEventListener('mousedown', this.mousedownCallback);
 
 		if(this.selected) {
 			this._select();
@@ -68,11 +92,11 @@ define([
 	};
 
 	InputComponent.prototype._select = function () {
-		this.$rect.setAttribute('stroke', '#0288d1');
+		this.$polygon.setAttribute('stroke', '#0288d1');
 	};
 
 	InputComponent.prototype._deselect = function () {
-		this.$rect.setAttribute('stroke', '#000');
+		this.$polygon.setAttribute('stroke', '#000');
 	};
 
 	InputComponent.prototype.getLabel = function () {
@@ -88,8 +112,7 @@ define([
 		name: 'Input',
 		category: 'Custom components',
 		drawPreview: function (svg) {
-			var layout = displayComponent.layout([], ['']);
-			displayComponent(svg, layout.width, layout.height, layout.pins, 'A');
+			displayInputComponent(svg, 'A');
 		}
 	};
 

@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -12,8 +12,22 @@ define([
 
 		this.value = false;
 
-		this.userData = null;
+		this.editorConnections = [];
 	}
+
+	Connection.prototype.merge = function (other) {
+		for (var i = 0; i < other.inputs.length; i++) {
+			this.inputs.push(other.inputs[i]);
+		}
+
+		for (var i = 0; i < other.outputs.length; i++) {
+			this.outputs.push(other.outputs[i]);
+		}
+
+		for (var i = 0; i < other.editorConnections.length; i++) {
+			this.editorConnections.push(other.editorConnections[i]);
+		}
+	};
 
 	Connection.prototype.addInput = function (component, pinIndex) {
 		this.inputs.push(new ComponentPin(component, pinIndex));

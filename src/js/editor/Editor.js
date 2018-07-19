@@ -1515,13 +1515,32 @@ define([
 		joint.display(this.$jointsGroup);
 	};
 
+	Editor.prototype.initSimulator = function () {
+		var dateObj = window.performance || Date;
+		var startTime = dateObj.now();
+
+		for (var name in this.circuits) {
+			if (this.circuits.hasOwnProperty(name)) {
+				this.circuits[name].prepareSimulationCircuitConstruction();
+			}
+		}
+
+		var simulationCircuit = this.circuits['main'].getSimulationCircuit(this.circuits);
+
+		var endTime = dateObj.now();
+		var time = endTime - startTime;
+		console.log('Constructed circuit in ' + time + 'ms');
+
+		this.simulator.init(simulationCircuit);
+	};
+
 	Editor.prototype.initSimulationDisplay = function () {
 		var simComponents = this.simulator.circuit.components;
-		for(var i = 0; i < simComponents.length; i++) {
+		for (var i = 0; i < simComponents.length; i++) {
 			var simComponent = simComponents[i];
 
-			var component = simComponent.userData;
-			if(component.initSimulationDisplay) {
+			var component = simComponent.editorComponent;
+			if (component.initSimulationDisplay) {
 				component.initSimulationDisplay(simComponent);
 			}
 		}
@@ -1529,22 +1548,22 @@ define([
 
 	Editor.prototype.updateSimulationDisplay = function () {
 		var simConnections = this.simulator.circuit.connections;
-		for(var i = 0; i < simConnections.length; i++) {
+		for (var i = 0; i < simConnections.length; i++) {
 			var simConnection = simConnections[i];
 
-			var connections = simConnection.userData;
-			for(var j = 0; j < connections.length; j++) {
+			var connections = simConnection.editorConnections;
+			for (var j = 0; j < connections.length; j++) {
 				var connection = connections[j];
 				connection.setState(simConnection.value ? Connection.ACTIVE : Connection.DEFAULT);
 			}
 		}
 
 		var simComponents = this.simulator.circuit.components;
-		for(var i = 0; i < simComponents.length; i++) {
+		for (var i = 0; i < simComponents.length; i++) {
 			var simComponent = simComponents[i];
 
-			var component = simComponent.userData;
-			if(component.updateSimulationDisplay) {
+			var component = simComponent.editorComponent;
+			if (component.updateSimulationDisplay) {
 				component.updateSimulationDisplay(simComponent);
 			}
 		}
@@ -1552,22 +1571,22 @@ define([
 
 	Editor.prototype.resetSimulationDisplay = function () {
 		var simConnections = this.simulator.circuit.connections;
-		for(var i = 0; i < simConnections.length; i++) {
+		for (var i = 0; i < simConnections.length; i++) {
 			var simConnection = simConnections[i];
 
-			var connections = simConnection.userData;
-			for(var j = 0; j < connections.length; j++) {
+			var connections = simConnection.editorConnections;
+			for (var j = 0; j < connections.length; j++) {
 				var connection = connections[j];
 				connection.setState(Connection.DEFAULT);
 			}
 		}
 
 		var simComponents = this.simulator.circuit.components;
-		for(var i = 0; i < simComponents.length; i++) {
+		for (var i = 0; i < simComponents.length; i++) {
 			var simComponent = simComponents[i];
 
-			var component = simComponent.userData;
-			if(component.resetSimulationDisplay) {
+			var component = simComponent.editorComponent;
+			if (component.resetSimulationDisplay) {
 				component.resetSimulationDisplay(simComponent);
 			}
 		}
@@ -1589,16 +1608,7 @@ define([
 	};
 
 	Editor.prototype.startSimulation = function () {
-		var dateObj = window.performance || Date;
-		var startTime = dateObj.now();
-
-		var simulationCircuit = this.circuits['main'].constructSimulationCircuit();
-
-		var endTime = dateObj.now();
-		var time = endTime - startTime;
-		console.log('Constructed circuit in ' + time + 'ms');
-
-		this.simulator.init(simulationCircuit);
+		this.initSimulator();
 
 		this.initSimulationDisplay();
 		this.updateSimulationDisplay();

@@ -5,12 +5,15 @@
 
 define([
 	'sim/Connection',
-	'sim/Circuit'
-], function (SimConnection, SimCircuit) {
+	'sim/Circuit',
+	'lib/DisjointSet'
+], function (SimConnection, SimCircuit, DisjointSet) {
 	function Circuit(components, connections) {
 		this.components = components;
 		this.connections = connections;
 		this.label = '?';
+
+		this.isConstructing = false;
 	}
 
 	Circuit.prototype.findInputsAndOutputs = function () {
@@ -37,6 +40,7 @@ define([
 			}
 		}
 
+		// Sort inputs and outputs from top to bottom and from left to right (as one would expect)
 		function comparePosition(a, b) {
 			if (a.y !== b.y) {
 				return a.y - b.y;
@@ -52,6 +56,25 @@ define([
 			inputs: inputs,
 			outputs: outputs
 		};
+	};
+
+	Circuit.prototype.prepareSimulationCircuitConstruction = function () {
+		this.isConstructing = false;
+	};
+
+	Circuit.prototype.getSimulationCircuit = function (circuits) {
+		// We set isConstructing flag before constructing nested circuits.
+		//  This way, if this circuit is nested inside itself, the isConstructing flag is
+		//  still set here and we detect that
+		if (this.isConstructing) {
+			throw new Error('Detected cyclic nesting of circuit');
+		}
+
+		this.isConstructing = true;
+		var simulationCircuit = this.constructSimulationCircuit(circuits);
+		this.isConstructing = false;
+
+		return simulationCircuit;
 	};
 
 	function ConstructionConnection(points, editorConnections) {
@@ -85,7 +108,7 @@ define([
 		}
 	};
 
-	Circuit.prototype.constructSimulationCircuit = function () {
+	Circuit.prototype.constructSimulationCircuit = function (circuits) {
 		// Holds components and connections hashed by their position in the editor
 		var grid = {};
 
@@ -95,6 +118,11 @@ define([
 		// Put all component pins as connections into the grid
 		for (var i = 0; i < this.components.length; i++) {
 			var editorComponent = this.components[i];
+
+			if (editorComponent.isCustom) {
+				editorComponent.updatePins();
+			}
+
 			var pins = editorComponent.pins;
 
 			// Add a connection point for all pins
@@ -187,7 +215,7 @@ define([
 			var connection = connections[i];
 
 			var simulationConnection = new SimConnection();
-			simulationConnection.userData = connection.editorConnections;
+			simulationConnection.editorConnections = connection.editorConnections;
 
 			// Replace all references in the grid
 			for (var j = 0; j < connection.points.length; j++) {
@@ -198,15 +226,27 @@ define([
 			connections[i] = simulationConnection;
 		}
 
+		var inputConnections = [];
+		var outputConnections = [];
+
+		var connectionsToMerge = new DisjointSet();
+
 		// Finally, use the constructed simulation connections to connect the components
 		for (var i = 0; i < this.components.length; i++) {
 			var editorComponent = this.components[i];
 			var pins = editorComponent.pins;
 
-			var simulationComponent = editorComponent.constructSimComponent();
-			if (simulationComponent !== null) {
-				simulationComponent.userData = editorComponent;
-				// Find the simulation connection for each pin and assign them
+			if (editorComponent.isCustom) {
+				var subCircuit = circuits[editorComponent.circuitName].getSimulationCircuit(circuits);
+
+				for (var j = 0; j < subCircuit.components.length; j++) {
+					components.push(subCircuit.components[j]);
+				}
+
+				for (var j = 0; j < subCircuit.connections.length; j++) {
+					connections.push(subCircuit.connections[j]);
+				}
+
 				for (var j = 0; j < pins.length; j++) {
 					var pin = pins[j];
 
@@ -214,18 +254,129 @@ define([
 					var y = editorComponent.y + pin.y;
 					var connection = grid[x + '|' + y];
 
-					// Careful: outputs of a component are inputs to the connection
+					var pinConnection;
+
 					if (pin.out) {
-						connection.addInput(simulationComponent, pin.index);
+						pinConnection = subCircuit.outputConnections[pin.index];
 					} else {
-						connection.addOutput(simulationComponent, pin.index);
+						pinConnection = subCircuit.inputConnections[pin.index];
 					}
+
+					// Mark the two connections for merging
+					connectionsToMerge.union(
+						connectionsToMerge.insert(pinConnection),
+						connectionsToMerge.insert(connection)
+					);
 				}
-				components.push(simulationComponent);
+			} else if (!editorComponent.isInput && !editorComponent.isOutput) {
+				// Some components may just be visual, so they have no corresponding component for the simulation
+				var simulationComponent = editorComponent.constructSimComponent();
+				if (simulationComponent !== null) {
+					simulationComponent.editorComponent = editorComponent;
+
+					// Find the simulation connection for each pin and assign them
+					for (var j = 0; j < pins.length; j++) {
+						var pin = pins[j];
+
+						var x = editorComponent.x + pin.x;
+						var y = editorComponent.y + pin.y;
+						var connection = grid[x + '|' + y];
+
+						// Careful: outputs of a component are inputs to the connection
+						if (pin.out) {
+							connection.addInput(simulationComponent, pin.index);
+						} else {
+							connection.addOutput(simulationComponent, pin.index);
+						}
+					}
+					components.push(simulationComponent);
+				}
 			}
 		}
 
-		return new SimCircuit(components, connections);
+		var mergedConnections = [];
+
+		var setsToMerge = connectionsToMerge.getSets();
+		for (var i = 0; i < setsToMerge.length; i++) {
+			var setToMerge = setsToMerge[i];
+
+			var targetConnection = setToMerge[0].data;
+
+			for (var j = 1; j < setToMerge.length; j++) {
+				var sourceConnection = setToMerge[j].data;
+
+				targetConnection.merge(sourceConnection);
+
+				var index = connections.indexOf(sourceConnection);
+				if (index !== -1) {
+					connections.splice(index, 1);
+				} else {
+					console.warn('merged connection that is not in `connections`');
+				}
+
+				mergedConnections.push([ sourceConnection, targetConnection ]);
+			}
+		}
+
+		var inputsAndOutputs = this.findInputsAndOutputs();
+
+		for (var i = 0; i < inputsAndOutputs.inputs.length; i++) {
+			var input = inputsAndOutputs.inputs[i];
+			var editorComponent = input.component;
+			var pins = editorComponent.pins;
+
+			for (var j = 0; j < pins.length; j++) {
+				var pin = pins[j];
+
+				var x = editorComponent.x + pin.x;
+				var y = editorComponent.y + pin.y;
+				var connection = grid[x + '|' + y];
+
+				for (var k = 0; k < mergedConnections.length; k++) {
+					if (mergedConnections[k][0] === connection) {
+						connection = mergedConnections[k][1];
+						break;
+					}
+				}
+
+				// Careful: An input component has one _output_ pin, but is an input of the cirucit
+				if (pin.out) {
+					if (editorComponent.isInput) {
+						inputConnections.push(connection);
+					}
+				}
+			}
+		}
+
+		for (var i = 0; i < inputsAndOutputs.outputs.length; i++) {
+			var output = inputsAndOutputs.outputs[i];
+			var editorComponent = output.component;
+			var pins = editorComponent.pins;
+
+			for (var j = 0; j < pins.length; j++) {
+				var pin = pins[j];
+
+				var x = editorComponent.x + pin.x;
+				var y = editorComponent.y + pin.y;
+				var connection = grid[x + '|' + y];
+
+				for (var k = 0; k < mergedConnections.length; k++) {
+					if (mergedConnections[k][0] === connection) {
+						connection = mergedConnections[k][1];
+						break;
+					}
+				}
+
+				// Careful: An output component has one _input_ pin, but is an output of the cirucit
+				if (!pin.out) {
+					if (editorComponent.isOutput) {
+						outputConnections.push(connection);
+					}
+				}
+			}
+		}
+
+		return new SimCircuit(components, connections, inputConnections, outputConnections);
 	};
 
 	return Circuit;

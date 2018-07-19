@@ -81,6 +81,10 @@ define([
 		this.pins = layout.pins;
 	};
 
+	CustomComponent.prototype.updatePins = function () {
+		this.layout();
+	};
+
 	CustomComponent.prototype._display = function ($c) {
 		this.$container = $c;
 		this._updateDisplay();

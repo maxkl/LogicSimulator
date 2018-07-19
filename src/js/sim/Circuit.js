@@ -1,12 +1,14 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
 define(function () {
-	function Circuit(components, connections) {
+	function Circuit(components, connections, inputConnections, outputConnections) {
 		this.components = components || [];
 		this.connections = connections || [];
+		this.inputConnections = inputConnections || [];
+		this.outputConnections = outputConnections || [];
 	}
 
 	Circuit.prototype.init = function () {

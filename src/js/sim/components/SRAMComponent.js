@@ -25,6 +25,10 @@ define([
 
 	extend(SRAMComponent, Component);
 
+	SRAMComponent.prototype._clone = function () {
+		return new SRAMComponent(this.addresswidth, this.datawidth);
+	};
+
 	SRAMComponent.prototype.exec = function () {
 		var oe = this.in[0];
 		var we = this.in[1];

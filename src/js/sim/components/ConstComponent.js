@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -15,6 +15,10 @@ define([
 	}
 
 	extend(ConstComponent, Component);
+
+	ConstComponent.prototype._clone = function () {
+		return new ConstComponent(this.out[0]);
+	};
 
 	ConstComponent.prototype.exec = function () {};
 

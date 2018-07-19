@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -19,6 +19,10 @@ define([
 	}
 
 	extend(ClockComponent, Component);
+
+	ClockComponent.prototype._clone = function () {
+		return new ClockComponent(this.period);
+	};
 
 	ClockComponent.prototype.exec = function () {
 		this.ticks++;

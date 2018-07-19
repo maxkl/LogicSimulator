@@ -14,6 +14,7 @@ define([
 		this.label = '?';
 
 		this.isConstructing = false;
+		this.cachedSimulationCircuit = null;
 	}
 
 	Circuit.prototype.findInputsAndOutputs = function () {
@@ -60,6 +61,7 @@ define([
 
 	Circuit.prototype.prepareSimulationCircuitConstruction = function () {
 		this.isConstructing = false;
+		this.cachedSimulationCircuit = null;
 	};
 
 	Circuit.prototype.getSimulationCircuit = function (circuits) {
@@ -70,11 +72,15 @@ define([
 			throw new Error('Detected cyclic nesting of circuit');
 		}
 
-		this.isConstructing = true;
-		var simulationCircuit = this.constructSimulationCircuit(circuits);
-		this.isConstructing = false;
+		if (this.cachedSimulationCircuit === null) {
+			this.isConstructing = true;
+			var simulationCircuit = this.constructSimulationCircuit(circuits);
+			this.isConstructing = false;
 
-		return simulationCircuit;
+			this.cachedSimulationCircuit = simulationCircuit;
+		}
+
+		return this.cachedSimulationCircuit.clone();
 	};
 
 	function ConstructionConnection(points, editorConnections) {

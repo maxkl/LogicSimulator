@@ -25,6 +25,10 @@ define([
 
 	extend(CounterComponent, Component);
 
+	CounterComponent.prototype._clone = function () {
+		return new CounterComponent(this.width);
+	};
+
 	CounterComponent.prototype.exec = function () {
 		var oe = this.in[0];
 		var clr = this.in[1];

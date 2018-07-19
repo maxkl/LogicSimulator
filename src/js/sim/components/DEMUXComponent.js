@@ -21,6 +21,10 @@ define([
 
 	extend(DEMUXComponent, Component);
 
+	DEMUXComponent.prototype._clone = function () {
+		return new DEMUXComponent(this.selectLines);
+	};
+
 	DEMUXComponent.prototype.exec = function () {
 		var select = 0;
 		for(var i = 0; i < this.selectLines; i++) {

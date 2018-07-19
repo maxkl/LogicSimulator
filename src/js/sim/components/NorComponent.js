@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2017 Max Klein
+ * Copyright: (c) 2017-2018 Max Klein
  * License: MIT
  */
 
@@ -16,6 +16,10 @@ define([
 	}
 
 	extend(NorComponent, Component);
+
+	NorComponent.prototype._clone = function () {
+		return new NorComponent(this.in.length);
+	};
 
 	NorComponent.prototype.exec = function () {
 		for(var i = 0; i < this.in.length; i++) {

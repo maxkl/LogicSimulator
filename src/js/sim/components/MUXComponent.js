@@ -19,6 +19,10 @@ define([
 
 	extend(MUXComponent, Component);
 
+	MUXComponent.prototype._clone = function () {
+		return new MUXComponent(this.selectLines);
+	};
+
 	MUXComponent.prototype.exec = function () {
 		var select = 0;
 		for(var i = 0; i < this.selectLines; i++) {

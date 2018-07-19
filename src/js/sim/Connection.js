@@ -15,6 +15,39 @@ define([
 		this.editorConnections = [];
 	}
 
+	Connection.prototype.clone = function (oldComponents, newComponents) {
+		var newInputs = [];
+		var newOutputs = [];
+
+		function findNewComponent(oldComponent) {
+			var index = oldComponents.indexOf(oldComponent);
+			if (index !== -1) {
+				return newComponents[index];
+			} else {
+				console.warn('component not found in oldComponents');
+				return oldComponent;
+			}
+		}
+
+		for (var i = 0; i < this.inputs.length; i++) {
+			var input = this.inputs[i];
+			var newInput = new ComponentPin(findNewComponent(input.component), input.index);
+			newInputs.push(newInput);
+		}
+
+		for (var i = 0; i < this.outputs.length; i++) {
+			var output = this.outputs[i];
+			var newOutput = new ComponentPin(findNewComponent(output.component), output.index);
+			newOutputs.push(newOutput);
+		}
+
+		var newConnection = new Connection(newInputs, newOutputs);
+		newConnection.value = this.value;
+		newConnection.editorConnections = this.editorConnections.slice();
+
+		return newConnection;
+	};
+
 	Connection.prototype.merge = function (other) {
 		for (var i = 0; i < other.inputs.length; i++) {
 			this.inputs.push(other.inputs[i]);

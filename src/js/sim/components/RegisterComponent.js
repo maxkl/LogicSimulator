@@ -24,6 +24,10 @@ define([
 
 	extend(RegisterComponent, Component);
 
+	RegisterComponent.prototype._clone = function () {
+		return new RegisterComponent(this.width);
+	};
+
 	RegisterComponent.prototype.exec = function () {
 		var clr = this.in[0];
 		var oe = this.in[1];

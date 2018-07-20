@@ -16,5 +16,8 @@
     "gulp-watch": "^5.0.0",
     "gulp-wrap": "^0.14.0",
     "merge-stream": "^1.0.1"
+  },
+  "dependencies": {
+    "gulp-amdclean": "^1.1.1"
   }
 }

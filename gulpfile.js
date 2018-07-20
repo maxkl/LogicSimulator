@@ -1,5 +1,5 @@
 /**
- * Copyright: (c) 2016-2017 Max Klein
+ * Copyright: (c) 2016-2018 Max Klein
  * License: MIT
  */
 
@@ -7,6 +7,7 @@ const gulp = require('gulp');
 const watch = require('gulp-watch');
 const del = require('del');
 const amdOptimize = require('gulp-amd-optimizer');
+const amdclean = require('gulp-amdclean');
 const uglify = require('gulp-uglify');
 const sourcemaps = require('gulp-sourcemaps');
 const concat = require('gulp-concat');
@@ -48,7 +49,14 @@ gulp.task('js:modules', function () {
 				removeExtensions: true,
 				relative: true
 			}))
-			.pipe(wrap('define(<%= contents %>, function () {\n\treturn Array.prototype.slice.call(arguments);\n});\n'))
+			.pipe(wrap(function (data) {
+				var contents = data.contents.toString();
+				var filenames = JSON.parse(contents);
+				var argNames = filenames.map(function (filename, index) {
+					return 'arg' + index;
+				});
+				return 'define(' + contents + ', function (' + argNames + ') {\n\treturn [' + argNames + '];\n});\n';
+			}))
 	);
 	return merged
 		.pipe(sourcemaps.init())
@@ -56,6 +64,10 @@ gulp.task('js:modules', function () {
 			baseUrl: srcDir + dirs.js_modules
 		}))
 		.pipe(concat('main.js'))
+		.pipe(amdclean.gulp({
+			//
+		}))
+		.pipe(wrap('(function () {\n<%= contents %>\n})();\n'))
 		.pipe(uglify())
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(destDir + dirs.js_modules));

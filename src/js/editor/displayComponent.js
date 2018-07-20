@@ -6,6 +6,11 @@
 define([
 	'lib/SvgUtil'
 ], function (SvgUtil) {
+	var RIGHT = 0;
+	var DOWN = 1;
+	var LEFT = 2;
+	var UP = 3;
+
 	var PINS_PADDING = 1;
 	var PINS_SPACING = 2;
 	var MIN_HEIGHT = 4;
@@ -34,7 +39,9 @@ define([
 
 		var width = width || 5;
 		var height = (maxPins - 1) * PINS_SPACING + 2 * PINS_PADDING;
-		if(height < MIN_HEIGHT) height = MIN_HEIGHT;
+		if (height < MIN_HEIGHT) {
+			height = MIN_HEIGHT;
+		}
 
 		var inputsStartY = height / 2 - ((inputCount - 1) * PINS_SPACING) / 2;
 		var outputsStartY = height / 2 - ((outputCount - 1) * PINS_SPACING) / 2;
@@ -42,7 +49,7 @@ define([
 		var pins = [];
 
 		var indexOffset = 0;
-		for(var i = 0; i < inputCount; i++) {
+		for (var i = 0; i < inputCount; i++) {
 			var label = inputs[i];
 			if (label === null) {
 				indexOffset++;
@@ -52,6 +59,7 @@ define([
 					out: false,
 					x: -1,
 					y: inputsStartY + i * PINS_SPACING,
+					orientation: LEFT,
 					clock: labelProperties.clock,
 					inverted: labelProperties.inverted,
 					label: labelProperties.label,
@@ -61,7 +69,7 @@ define([
 		}
 
 		var indexOffset = 0;
-		for(var i = 0; i < outputCount; i++) {
+		for (var i = 0; i < outputCount; i++) {
 			var label = outputs[i];
 			if (label === null) {
 				indexOffset++;
@@ -71,6 +79,7 @@ define([
 					out: true,
 					x: width + 1,
 					y: outputsStartY + i * PINS_SPACING,
+					orientation: RIGHT,
 					clock: labelProperties.clock,
 					inverted: labelProperties.inverted,
 					label: labelProperties.label,
@@ -94,10 +103,30 @@ define([
 	var CLOCK_STROKE_WIDTH = 2;
 	var CLOCK_LABEL_OFFSET = 4;
 
-	function createPin(x1, y1, x2, y2) {
+	function createPin(pinX, pinY, orientation) {
+		var x2, y2;
+		switch (orientation) {
+			case RIGHT:
+				x2 = pinX - 10;
+				y2 = pinY;
+				break;
+			case DOWN:
+				x2 = pinX;
+				y2 = pinY - 10;
+				break;
+			case LEFT:
+				x2 = pinX + 10;
+				y2 = pinY;
+				break;
+			case UP:
+				x2 = pinX;
+				y2 = pinY + 10;
+				break;
+		}
+
 		var $line = SvgUtil.createElement('line');
-		$line.setAttribute('x1', x1);
-		$line.setAttribute('y1', y1);
+		$line.setAttribute('x1', pinX);
+		$line.setAttribute('y1', pinY);
 		$line.setAttribute('x2', x2);
 		$line.setAttribute('y2', y2);
 		$line.setAttribute('stroke', 'black');
@@ -105,25 +134,67 @@ define([
 		return $line;
 	}
 
-	function createClockSymbol(x1, y1, x2, y2) {
+	function createClockSymbol(pinX, pinY, orientation) {
+		var x, y;
+		switch (orientation) {
+			case RIGHT:
+				x = pinX - 10;
+				y = pinY;
+				break;
+			case DOWN:
+				x = pinX;
+				y = pinY - 10;
+				break;
+			case LEFT:
+				x = pinX + 10;
+				y = pinY;
+				break;
+			case UP:
+				x = pinX;
+				y = pinY + 10;
+				break;
+		}
+
+		// TODO: orientation
 		var $clock = SvgUtil.createElement('polyline');
-		$clock.setAttribute('points', [x1, y1 - CLOCK_TRIANGLE_HEIGHT, x1 + CLOCK_TRIANGLE_WIDTH, y1, x1, y1 + CLOCK_TRIANGLE_HEIGHT].join(' '));
+		$clock.setAttribute('points', [
+				x, y - CLOCK_TRIANGLE_HEIGHT,
+				x + CLOCK_TRIANGLE_WIDTH, y,
+				x, y + CLOCK_TRIANGLE_HEIGHT
+			].join(' ')
+		);
 		$clock.setAttribute('fill', 'none');
 		$clock.setAttribute('stroke', 'black');
 		$clock.setAttribute('stroke-width', CLOCK_STROKE_WIDTH);
 		return $clock;
 	}
 
-	function createInvCircle(x1, y1, x2, y2) {
-		var pinLenX = x2 - x1;
-		var pinLenY = y2 - y1;
-		var pinLen = Math.sqrt(pinLenX * pinLenX + pinLenY * pinLenY);
-		var radius = INV_RADIUS + INV_STROKE_WIDTH / 2;
-		var x = x1 + radius * (pinLenX / pinLen);
-		var y = y1 + radius * (pinLenY / pinLen);
+	function createInvCircle(pinX, pinY, orientation) {
+		var distance = INV_RADIUS + INV_STROKE_WIDTH / 2;
+
+		var cx, cy;
+		switch (orientation) {
+			case RIGHT:
+				cx = pinX - 10 + distance;
+				cy = pinY;
+				break;
+			case DOWN:
+				cx = pinX;
+				cy = pinY - 10 + distance;
+				break;
+			case LEFT:
+				cx = pinX + 10 - distance;
+				cy = pinY;
+				break;
+			case UP:
+				cx = pinX;
+				cy = pinY + 10 - distance;
+				break;
+		}
+
 		var $inv = SvgUtil.createElement('circle');
-		$inv.setAttribute('cx', x);
-		$inv.setAttribute('cy', y);
+		$inv.setAttribute('cx', cx);
+		$inv.setAttribute('cy', cy);
 		$inv.setAttribute('r', INV_RADIUS);
 		$inv.setAttribute('fill', 'white');
 		$inv.setAttribute('stroke', 'black');
@@ -131,19 +202,44 @@ define([
 		return $inv;
 	}
 
-	function createPinLabel(x1, y1, x2, y2, label, inverted) {
-		var pinLenX = x2 - x1;
-		var pinLenY = y2 - y1;
-		var pinLen = Math.sqrt(pinLenX * pinLenX + pinLenY * pinLenY);
-		var x = x1 - (label.length * 7) * (pinLenX / pinLen);
-		var y = y1 - 12 * (pinLenY / pinLen);
+	var textAnchorForOrientation = {
+		0: 'end',
+		1: 'start',
+		2: 'start',
+		3: 'end'
+	};
+
+	function createPinLabel(pinX, pinY, orientation, label, inverted) {
+		var x, y;
+		switch (orientation) {
+			case RIGHT:
+				x = pinX - 10 - 3;
+				y = pinY + 4;
+				break;
+			case DOWN:
+				x = pinX + 4;
+				y = pinY - 10 - 3;
+				break;
+			case LEFT:
+				x = pinX + 10 + 3;
+				y = pinY + 4;
+				break;
+			case UP:
+				x = pinX + 4;
+				y = pinY + 10 + 3;
+				break;
+		}
+
 		var $label = SvgUtil.createElement('text');
 		$label.setAttribute('x', x);
-		$label.setAttribute('y', y + 4);
-		$label.setAttribute('text-anchor', 'middle');
+		$label.setAttribute('y', y);
+		if (orientation === UP || orientation === DOWN) {
+			$label.setAttribute('transform', 'rotate(-90 ' + x + ' ' + y + ')');
+		}
+		$label.setAttribute('text-anchor', textAnchorForOrientation[orientation]);
 		$label.setAttribute('font-size', '14');
 		$label.setAttribute('font-family', 'Source Code Pro');
-		if(inverted) {
+		if (inverted) {
 			$label.setAttribute('text-decoration', 'overline');
 		}
 		$label.setAttribute('pointer-events', 'none');
@@ -160,29 +256,25 @@ define([
 		$rect.setAttribute('stroke-width', '2');
 		$container.appendChild($rect);
 
-		for(var i = 0; i < pins.length; i++) {
+		for (var i = 0; i < pins.length; i++) {
 			var pin = pins[i];
 
-			var y = pin.y * 1;
-			var x2 = pin.x;
-			var x1 = pin.out ? x2 - 1 : x2 + 1;
-
-			var $pin = createPin(x1 * 10, y * 10, x2 * 10, y * 10);
+			var $pin = createPin(pin.x * 10, pin.y * 10, pin.orientation);
 			$container.appendChild($pin);
 
 			var labelOffset = 0;
 
-			if(pin.clock) {
-				$container.appendChild(createClockSymbol(x1 * 10, y * 10, x2 * 10, y * 10));
+			if (pin.clock) {
+				$container.appendChild(createClockSymbol(pin.x * 10, pin.y * 10, pin.orientation));
 				labelOffset += CLOCK_LABEL_OFFSET;
 			}
 
-			if(pin.inverted) {
-				$container.appendChild(createInvCircle(x1 * 10, y * 10, x2 * 10, y * 10));
+			if (pin.inverted) {
+				$container.appendChild(createInvCircle(pin.x * 10, pin.y * 10, pin.orientation));
 			}
 
-			if(pin.label) {
-				var $pinLabel = createPinLabel(x1 * 10 + labelOffset, y * 10, x2 * 10, y * 10, pin.label, pin.inverted);
+			if (pin.label) {
+				var $pinLabel = createPinLabel(pin.x * 10 + labelOffset, pin.y * 10, pin.orientation, pin.label, pin.inverted);
 				$container.appendChild($pinLabel);
 			}
 		}

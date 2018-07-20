@@ -424,24 +424,26 @@ define([
 		});
 
 		this.dialogs.on('edit-circuit', function (name, label) {
-			if (name !== self.circuitName && self.circuits.hasOwnProperty(name)) {
-				self.dialogs.displayEditCircuitError('Error: A circuit with the name \'' + name + '\' already exists');
+			try {
+				self.renameCircuit(self.circuitName, name);
+			} catch (e) {
+				self.dialogs.displayEditCircuitError(e.toString());
 				return;
 			}
 
 			self.circuit.label = label;
 
-			if (name !== self.circuitName) {
-				self.renameCircuit(self.circuitName, name);
-				console.log('renamed', self.circuits);
-			}
-
 			self.dialogs.close();
 		});
 
-		this.dialogs.on('delete-circuit', function (name, label) {
-			// TODO
-			console.log('delete');
+		this.dialogs.on('delete-circuit', function () {
+			try {
+				self.deleteCircuit(self.circuitName);
+			} catch (e) {
+				self.dialogs.displayEditCircuitError(e.toString());
+				return;
+			}
+
 			self.dialogs.close();
 		});
 
@@ -706,7 +708,49 @@ define([
 		this.openCircuit(name);
 	};
 
+	Editor.prototype.deleteCircuit = function (name) {
+		var circuitNamesMap = {};
+		for (var circuitName in this.circuits) {
+			if (this.circuits.hasOwnProperty(circuitName)) {
+				var circuit = this.circuits[circuitName];
+
+				for (var i = 0; i < circuit.components.length; i++) {
+					var component = circuit.components[i];
+
+					if (component.isCustom && component.circuitName === name) {
+						circuitNamesMap[circuitName] = true;
+					}
+				}
+			}
+		}
+
+		var circuitNames = [];
+		for (var circuitName in circuitNamesMap) {
+			if (circuitNamesMap.hasOwnProperty(circuitName)) {
+				circuitNames.push(circuitName);
+			}
+		}
+
+		if (circuitNames.length > 0) {
+			var circuitNamesStr = '\'' + circuitNames.join('\', \'') + '\'';
+			throw new Error('Circuit \'' + name + '\' can\'t be deleted because it is used in other circuits: ' + circuitNamesStr);
+		}
+
+		this.openCircuit('main');
+		delete this.circuits[name];
+
+		this.updateCircuitsList();
+	};
+
 	Editor.prototype.renameCircuit = function (oldName, newName) {
+		if (newName === oldName) {
+			return;
+		}
+
+		if (this.circuits.hasOwnProperty(newName)) {
+			throw new Error('A circuit with the name \'' + newName + '\' already exists');
+		}
+
 		this.circuits[newName] = this.circuit;
 		delete this.circuits[oldName];
 		this.circuitName = newName;

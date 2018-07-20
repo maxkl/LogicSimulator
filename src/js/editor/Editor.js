@@ -373,7 +373,8 @@ define([
 		});
 
 		this.tools.on('new-circuit', function () {
-			self.dialogs.open('new-circuit');
+			var hasSelection = self.selectedComponents.length > 0 || self.selectedConnections.length > 0;
+			self.dialogs.open('new-circuit', hasSelection);
 		});
 
 		this.tools.on('select-circuit', function (circuitName) {
@@ -412,14 +413,15 @@ define([
 		});
 
 		this.dialogs.on('new-circuit', function (name, label, moveSelection) {
-			// TODO: move selection
 			try {
-				self.createNewCircuit(name, label);
+				self.createNewCircuit(name, label, moveSelection);
 			} catch (e) {
 				self.dialogs.displayNewCircuitError(e.toString());
 				return;
 			}
+
 			self.openCircuit(name);
+
 			self.dialogs.close();
 		});
 
@@ -689,23 +691,43 @@ define([
 		this.tools.selectCircuit(name);
 	};
 
-	Editor.prototype.createNewCircuit = function (name, label) {
+	Editor.prototype.createNewCircuit = function (name, label, moveSelection) {
 		if (this.circuits.hasOwnProperty(name)) {
 			throw new Error('A circuit with the name \'' + name + '\' already exists');
 		}
 
-		var circuit = new Circuit([], []);
+		var newComponents = [];
+		var newConnections = [];
+
+		if (moveSelection) {
+			var selectedComponents = this.selectedComponents.slice();
+			var selectedConnections = this.selectedConnections.slice();
+
+			this.deselectAll();
+
+			for (var i = 0; i < selectedComponents.length; i++) {
+				var component = selectedComponents[i];
+
+				newComponents.push(component);
+
+				this.deleteComponent(component);
+			}
+
+			for (var i = 0; i < selectedConnections.length; i++) {
+				var connection = selectedConnections[i];
+
+				newConnections.push(connection);
+
+				this.deleteConnection(connection);
+			}
+		}
+
+		var circuit = new Circuit(newComponents, newConnections);
 		circuit.label = label;
 
 		this.circuits[name] = circuit;
 
 		this.updateCircuitsList();
-	};
-
-	Editor.prototype.openNewCircuit = function (name, label) {
-		this.createNewCircuit(name, label);
-
-		this.openCircuit(name);
 	};
 
 	Editor.prototype.deleteCircuit = function (name) {

@@ -215,7 +215,8 @@ define([
 			case 'new-circuit':
 				this.$dialogNewCircuitName.value = '';
 				this.$dialogNewCircuitLabel.value = '';
-				this.$dialogNewCircuitMoveSelection.checked = data;
+				this.$dialogNewCircuitMoveSelection.checked = false;
+				this.$dialogNewCircuitMoveSelection.disabled = !data;
 				this.$dialogNewCircuitError.classList.add('display-none');
 				break;
 			case 'edit-circuit':

@@ -21,7 +21,7 @@
 				<div class="sep"></div>
 				<button id="toolbar-circuit-new" title="New circuit" autocomplete="off"><span class="mdi mdi-library-plus"></span></button>
 				<select id="toolbar-circuit-select"></select>
-				<button id="toolbar-circuit-edit" title="Edit circuit properties" autocomplete="off"><span class="mdi mdi-pencil"></span></button>
+				<button id="toolbar-circuit-edit" title="Edit circuit properties" autocomplete="off"><span class="mdi mdi-tune"></span></button>
 				<div class="sep"></div>
 				<button id="toolbar-run" title="Run simulation" autocomplete="off"><span class="mdi mdi-play"></span></button>
 				<button id="toolbar-step" disabled title="Single-step simulation" autocomplete="off"><span class="mdi mdi-step-forward"></span></button>
@@ -156,6 +156,28 @@
 				<div class="footer">
 					<button id="dialog-new-circuit-cancel" title="Cancel" autocomplete="off">Cancel</button>
 					<button id="dialog-new-circuit-create" class="highlight" title="Create new circuit" autocomplete="off">Create</button>
+				</div>
+			</div>
+
+			<div id="dialog-edit-circuit" class="dialog">
+				<div class="header">
+					Edit circuit '<span id="dialog-edit-circuit-title"></span>'
+				</div>
+				<div class="body">
+					<div class="input-row">
+						<label>Name:</label>
+						<input type="text" id="dialog-edit-circuit-name" />
+					</div>
+					<div class="input-row">
+						<label>Label:</label>
+						<input type="text" id="dialog-edit-circuit-label" title="The label will be shown on the component in the editor. Try to make it short so it doesn't exceed the components width!" />
+					</div>
+					<div id="dialog-edit-circuit-error" class="color-red display-none"></div>
+				</div>
+				<div class="footer">
+					<button id="dialog-edit-circuit-cancel" title="Cancel" autocomplete="off">Cancel</button>
+					<button id="dialog-edit-circuit-delete" class="highlight color-red" title="Delete this circuit" autocomplete="off">Delete</button>
+					<button id="dialog-edit-circuit-save" class="highlight" title="Save circuit properties" autocomplete="off">Save</button>
 				</div>
 			</div>
 

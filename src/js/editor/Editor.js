@@ -385,7 +385,10 @@ define([
 		});
 
 		this.tools.on('edit-circuit', function () {
-			// TODO
+			self.dialogs.open('edit-circuit', {
+				name: self.circuitName,
+				label: self.circuit.label
+			});
 		});
 
 		this.dialogs.on('load-url', function (url) {
@@ -417,6 +420,28 @@ define([
 				return;
 			}
 			self.openCircuit(name);
+			self.dialogs.close();
+		});
+
+		this.dialogs.on('edit-circuit', function (name, label) {
+			if (name !== self.circuitName && self.circuits.hasOwnProperty(name)) {
+				self.dialogs.displayEditCircuitError('Error: A circuit with the name \'' + name + '\' already exists');
+				return;
+			}
+
+			self.circuit.label = label;
+
+			if (name !== self.circuitName) {
+				self.renameCircuit(self.circuitName, name);
+				console.log('renamed', self.circuits);
+			}
+
+			self.dialogs.close();
+		});
+
+		this.dialogs.on('delete-circuit', function (name, label) {
+			// TODO
+			console.log('delete');
 			self.dialogs.close();
 		});
 
@@ -626,7 +651,7 @@ define([
 
 	Editor.prototype.updateCircuitsList = function () {
 		var circuitNames = this.getCircuitNames(false);
-		this.tools.updateCircuitsList(circuitNames);
+		this.tools.updateCircuitsList(circuitNames, this.circuitName);
 	};
 
 	Editor.prototype.openCircuit = function (name) {
@@ -679,6 +704,28 @@ define([
 		this.createNewCircuit(name, label);
 
 		this.openCircuit(name);
+	};
+
+	Editor.prototype.renameCircuit = function (oldName, newName) {
+		this.circuits[newName] = this.circuit;
+		delete this.circuits[oldName];
+		this.circuitName = newName;
+
+		for (var name in this.circuits) {
+			if (this.circuits.hasOwnProperty(name)) {
+				var circuit = this.circuits[name];
+
+				for (var i = 0; i < circuit.components.length; i++) {
+					var component = circuit.components[i];
+
+					if (component.isCustom && component.circuitName === oldName) {
+						component.setCircuit(newName);
+					}
+				}
+			}
+		}
+
+		this.updateCircuitsList();
 	};
 
 	var componentConstructorsByType = {};

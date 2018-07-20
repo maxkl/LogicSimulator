@@ -97,7 +97,9 @@ define([
 		});
 
 		this.$selectCircuit.addEventListener('change', function () {
-			self.emit('select-circuit', self.$selectCircuit.value);
+			var circuitName = self.$selectCircuit.value;
+			self.$editCircuit.disabled = circuitName === 'main';
+			self.emit('select-circuit', circuitName);
 		});
 
 		this.$editCircuit.addEventListener('click', function () {
@@ -172,7 +174,7 @@ define([
 		}
 	};
 
-	EditorTools.prototype.updateCircuitsList = function (circuitNames) {
+	EditorTools.prototype.updateCircuitsList = function (circuitNames, selectedCircuit) {
 		this.$selectCircuit.innerHTML = '';
 
 		for (var i = 0; i < circuitNames.length; i++) {
@@ -183,10 +185,13 @@ define([
 			$opt.textContent = circuitName.pretty;
 			this.$selectCircuit.appendChild($opt);
 		}
+
+		this.selectCircuit(selectedCircuit);
 	};
 
 	EditorTools.prototype.selectCircuit = function (circuitName) {
 		this.$selectCircuit.value = circuitName;
+		this.$editCircuit.disabled = circuitName === 'main';
 	};
 
 	EditorTools.TOOL_SELECT = TOOL_SELECT;

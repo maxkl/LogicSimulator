@@ -40,6 +40,15 @@ define([
 		this.$dialogNewCircuitCreate = document.getElementById('dialog-new-circuit-create');
 		this.$dialogNewCircuitCancel = document.getElementById('dialog-new-circuit-cancel');
 
+		this.$dialogEditCircuit = document.getElementById('dialog-edit-circuit');
+		this.$dialogEditCircuitTitle = document.getElementById('dialog-edit-circuit-title');
+		this.$dialogEditCircuitName = document.getElementById('dialog-edit-circuit-name');
+		this.$dialogEditCircuitLabel = document.getElementById('dialog-edit-circuit-label');
+		this.$dialogEditCircuitError = document.getElementById('dialog-edit-circuit-error');
+		this.$dialogEditCircuitSave = document.getElementById('dialog-edit-circuit-save');
+		this.$dialogEditCircuitDelete = document.getElementById('dialog-edit-circuit-delete');
+		this.$dialogEditCircuitCancel = document.getElementById('dialog-edit-circuit-cancel');
+
 		this.$dialogChooseCustomComponent = document.getElementById('dialog-choose-custom-component');
 		this.$dialogChooseCustomComponentName = document.getElementById('dialog-choose-custom-component-name');
 		this.$dialogChooseCustomComponentError = document.getElementById('dialog-choose-custom-component-error');
@@ -51,6 +60,7 @@ define([
 			'new': this.$dialogNew,
 			'welcome': this.$dialogWelcome,
 			'new-circuit': this.$dialogNewCircuit,
+			'edit-circuit': this.$dialogEditCircuit,
 			'choose-custom-component': this.$dialogChooseCustomComponent
 		};
 
@@ -121,6 +131,20 @@ define([
 			self.close();
 		});
 
+		this.$dialogEditCircuitSave.addEventListener('click', function () {
+			var name = self.$dialogEditCircuitName.value;
+			var label = self.$dialogEditCircuitLabel.value;
+			self.emit('edit-circuit', name, label);
+		});
+
+		this.$dialogEditCircuitDelete.addEventListener('click', function () {
+			self.emit('delete-circuit');
+		});
+
+		this.$dialogEditCircuitCancel.addEventListener('click', function () {
+			self.close();
+		});
+
 		this.$dialogChooseCustomComponentName.addEventListener('change', function () {
 			self.$dialogChooseCustomComponentError.classList.add('display-none');
 		});
@@ -161,6 +185,11 @@ define([
 		this.$dialogNewCircuitError.classList.remove('display-none');
 	};
 
+	EditorDialogs.prototype.displayEditCircuitError = function (msg) {
+		this.$dialogEditCircuitError.textContent = msg;
+		this.$dialogEditCircuitError.classList.remove('display-none');
+	};
+
 	EditorDialogs.prototype.displayChooseCustomComponentError = function (msg) {
 		this.$dialogChooseCustomComponentError.textContent = 'Error: ' + msg;
 		this.$dialogChooseCustomComponentError.classList.remove('display-none');
@@ -188,6 +217,12 @@ define([
 				this.$dialogNewCircuitLabel.value = '';
 				this.$dialogNewCircuitMoveSelection.checked = data;
 				this.$dialogNewCircuitError.classList.add('display-none');
+				break;
+			case 'edit-circuit':
+				this.$dialogEditCircuitTitle.textContent = data.name;
+				this.$dialogEditCircuitName.value = data.name;
+				this.$dialogEditCircuitLabel.value = data.label;
+				this.$dialogEditCircuitError.classList.add('display-none');
 				break;
 			case 'choose-custom-component':
 				this.$dialogChooseCustomComponentError.classList.add('display-none');

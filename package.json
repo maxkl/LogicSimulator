@@ -12,8 +12,8 @@
     "gulp-filelist": "^1.0.2",
     "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.4",
-    "gulp-uglify": "^3.0.0",
-    "gulp-watch": "^5.0.0",
+    "gulp-uglify": "^3.0.1",
+    "gulp-watch": "^5.0.1",
     "gulp-wrap": "^0.14.0",
     "merge-stream": "^1.0.1"
   },

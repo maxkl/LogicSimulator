@@ -108,6 +108,10 @@ define([
 	};
 
 	EditorTools.prototype.startSimulation = function () {
+		if (!this.simulationActive) {
+			this.emit('pre-run');
+		}
+
 		this.simulationActive = true;
 
 		if(this.simulationRunning) {
@@ -128,6 +132,8 @@ define([
 			this.$toolConnect.disabled = true;
 			this.$toolPan.disabled = true;
 			this.$actionDelete.disabled = true;
+			this.$newCircuit.disabled = true;
+			this.$selectCircuit.disabled = true;
 
 			this.emit('run');
 		}
@@ -150,6 +156,8 @@ define([
 		this.$toolConnect.disabled = false;
 		this.$toolPan.disabled = false;
 		this.$actionDelete.disabled = false;
+		this.$newCircuit.disabled = false;
+		this.$selectCircuit.disabled = false;
 
 		this.emit('stop');
 	};

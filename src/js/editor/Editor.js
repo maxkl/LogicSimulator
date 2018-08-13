@@ -61,6 +61,7 @@ define([
 		this.propertyOverlayVisible = false;
 
 		this.previousTool = null;
+		this.previousCircuitName = null;
 
 		this.simulator = new Simulator();
 		var self = this;
@@ -323,6 +324,13 @@ define([
 			self.updateJoints();
 		});
 
+		this.tools.on('pre-run', function () {
+			self.previousCircuitName = self.circuitName;
+			if (self.circuitName !== 'main') {
+				self.openCircuit('main');
+			}
+		})
+
 		this.tools.on('run', function () {
 			self.sidebar.hide(true);
 			self.$propertyOverlay.classList.remove('visible');
@@ -337,6 +345,11 @@ define([
 			self.stopSimulation();
 
 			self.tools.setTool(self.previousTool);
+
+			if (self.previousCircuitName !== 'main') {
+				self.openCircuit(self.previousCircuitName);
+			}
+
 			self.sidebar.show();
 			if(self.propertyOverlayVisible) {
 				self.$propertyOverlay.classList.add('visible');

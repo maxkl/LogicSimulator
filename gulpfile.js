@@ -21,14 +21,19 @@ const srcDir = 'src/';
 const destDir = 'build/';
 const dirs = {
 	js: 'js/',
+	js_shared: 'js/shared/',
+	js_main: 'js/main/',
+	js_worker: 'js/worker/',
 	sass: 'css/',
 	html: '',
 	fonts: 'fonts/',
 	examples: 'examples/'
 };
 const paths = {
-	js: srcDir + dirs.js + '**/*.js',
-	js_components: srcDir + dirs.js + 'editor/components/**/*.js',
+	js_shared: srcDir + dirs.js_shared + '**/*.js',
+	js_main: srcDir + dirs.js_main + '**/*.js',
+	js_main_components: srcDir + dirs.js_main + 'editor/components/**/*.js',
+	js_worker: srcDir + dirs.js_worker + '**/*.js',
 	sass: srcDir + dirs.sass + '**/*.{sass,scss}',
 	html: srcDir + dirs.html + '**/*.html',
 	fonts: srcDir + dirs.fonts + '**/*.{woff,woff2}',
@@ -39,10 +44,35 @@ gulp.task('clean', function () {
 	return del([ destDir ]);
 });
 
-gulp.task('js', function () {
+function processAmdModules(stream, dir, destFileName, wrapIIFE) {
+	var concatenated = stream
+		.pipe(sourcemaps.init())
+		.pipe(amdOptimize({
+			baseUrl: srcDir + dir
+		}))
+		.pipe(concat(destFileName))
+		.pipe(amdclean.gulp({
+			//
+		}));
+
+	var maybeWrapped;
+	if (wrapIIFE) {
+		maybeWrapped = concatenated.pipe(wrap('(function () {\n<%= contents %>\n})();\n'));
+	} else {
+		maybeWrapped = concatenated;
+	}
+
+	return maybeWrapped
+		.pipe(uglify())
+		.pipe(sourcemaps.write('./'))
+		.pipe(gulp.dest(destDir + dir));
+}
+
+gulp.task('js_main', function () {
 	const merged = mergeStream(
-		gulp.src(paths.js, { base: srcDir + dirs.js }),
-		gulp.src(paths.js_components, { base: srcDir + dirs.js })
+		gulp.src(paths.js_shared, { base: srcDir + dirs.js_shared }),
+		gulp.src(paths.js_main, { base: srcDir + dirs.js_main }),
+		gulp.src(paths.js_main_components, { base: srcDir + dirs.js_main })
 			.pipe(filelist('generated/editorComponents.js', {
 				removeExtensions: true,
 				relative: true
@@ -56,20 +86,18 @@ gulp.task('js', function () {
 				return 'define(' + contents + ', function (' + argNames + ') {\n\treturn [' + argNames + '];\n});\n';
 			}))
 	);
-	return merged
-		.pipe(sourcemaps.init())
-		.pipe(amdOptimize({
-			baseUrl: srcDir + dirs.js
-		}))
-		.pipe(concat('main.js'))
-		.pipe(amdclean.gulp({
-			//
-		}))
-		.pipe(wrap('(function () {\n<%= contents %>\n})();\n'))
-		.pipe(uglify())
-		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destDir + dirs.js));
+	return processAmdModules(merged, dirs.js_main, 'main.min.js', true);
 });
+
+gulp.task('js_worker', function () {
+	const merged = mergeStream(
+		gulp.src(paths.js_shared, { base: srcDir + dirs.js_shared }),
+		gulp.src(paths.js_worker, { base: srcDir + dirs.js_worker })
+	);
+	return processAmdModules(merged, dirs.js_worker, 'worker.min.js', true);
+});
+
+gulp.task('js', gulp.parallel('js_main', 'js_worker'));
 
 gulp.task('html', function () {
 	return gulp.src(paths.html, { base: srcDir + dirs.html })

@@ -20,17 +20,15 @@ const mergeStream = require('merge-stream');
 const srcDir = 'src/';
 const destDir = 'build/';
 const dirs = {
-	js_modules: 'js/',
-	js_lib: 'lib/',
+	js: 'js/',
 	sass: 'css/',
 	html: '',
 	fonts: 'fonts/',
 	examples: 'examples/'
 };
 const paths = {
-	js_modules: srcDir + dirs.js_modules + '**/*.js',
-	js_lib: srcDir + dirs.js_lib + '**/*.js',
-	js_components: srcDir + dirs.js_modules + 'editor/components/**/*.js',
+	js: srcDir + dirs.js + '**/*.js',
+	js_components: srcDir + dirs.js + 'editor/components/**/*.js',
 	sass: srcDir + dirs.sass + '**/*.{sass,scss}',
 	html: srcDir + dirs.html + '**/*.html',
 	fonts: srcDir + dirs.fonts + '**/*.{woff,woff2}',
@@ -41,10 +39,10 @@ gulp.task('clean', function () {
 	return del([ destDir ]);
 });
 
-gulp.task('js:modules', function () {
+gulp.task('js', function () {
 	const merged = mergeStream(
-		gulp.src(paths.js_modules, { base: srcDir + dirs.js_modules }),
-		gulp.src(paths.js_components, { base: srcDir + dirs.js_modules })
+		gulp.src(paths.js, { base: srcDir + dirs.js }),
+		gulp.src(paths.js_components, { base: srcDir + dirs.js })
 			.pipe(filelist('generated/editorComponents.js', {
 				removeExtensions: true,
 				relative: true
@@ -61,7 +59,7 @@ gulp.task('js:modules', function () {
 	return merged
 		.pipe(sourcemaps.init())
 		.pipe(amdOptimize({
-			baseUrl: srcDir + dirs.js_modules
+			baseUrl: srcDir + dirs.js
 		}))
 		.pipe(concat('main.js'))
 		.pipe(amdclean.gulp({
@@ -70,15 +68,7 @@ gulp.task('js:modules', function () {
 		.pipe(wrap('(function () {\n<%= contents %>\n})();\n'))
 		.pipe(uglify())
 		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destDir + dirs.js_modules));
-});
-
-gulp.task('js:lib', function () {
-	return gulp.src(paths.js_lib, { base: srcDir + dirs.js_lib })
-		.pipe(sourcemaps.init())
-		.pipe(uglify())
-		.pipe(sourcemaps.write('./'))
-		.pipe(gulp.dest(destDir + dirs.js_lib));
+		.pipe(gulp.dest(destDir + dirs.js));
 });
 
 gulp.task('html', function () {
@@ -105,7 +95,7 @@ gulp.task('examples', function () {
 		.pipe(gulp.dest(destDir + dirs.examples));
 });
 
-gulp.task('build', gulp.series('clean', gulp.parallel('js:modules', 'js:lib', 'html', 'sass', 'fonts', 'examples')));
+gulp.task('build', gulp.series('clean', gulp.parallel('js', 'html', 'sass', 'fonts', 'examples')));
 
 gulp.task('watch', gulp.series('build', function () {
 	gulp.watch(srcDir + '**/*', gulp.series('build'));

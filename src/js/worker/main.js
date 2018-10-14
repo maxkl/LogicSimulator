@@ -72,6 +72,9 @@ define([
             case 'compile':
                 tryCompileCircuit(data.payload);
                 break;
+            case 'start-simulation':
+                // TODO
+                break;
             default:
                 console.warn('Message of unknown type received:', data.type);
         }

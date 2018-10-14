@@ -6,10 +6,9 @@
 define([
 	'editor/Component',
 	'editor/ComponentProperties',
-	'sim/components/BarGraphComponent',
-	'lib/extend',
+	'shared/lib/extend',
 	'lib/SvgUtil'
-], function (Component, ComponentProperties, SimBarGraphComponent, extend, SvgUtil) {
+], function (Component, ComponentProperties, extend, SvgUtil) {
 	var WIDTH = 5;
 
 	var DEFAULT_SIZE = 4;
@@ -164,8 +163,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	BarGraphComponent.prototype.constructSimComponent = function () {
-		return new SimBarGraphComponent(this.properties.get('size'));
+	BarGraphComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'bargraph',
+			properties: [ this.properties.get('size') ]
+		};
 	};
 
 	BarGraphComponent.prototype.updateSimulationDisplay = function (simComponent) {

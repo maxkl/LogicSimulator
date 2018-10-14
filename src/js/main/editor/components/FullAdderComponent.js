@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/FullAdderComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimFullAdderComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function FullAdderComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	FullAdderComponent.prototype.constructSimComponent = function () {
-		return new SimFullAdderComponent();
+	FullAdderComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'fulladder'
+		};
 	};
 
 	FullAdderComponent.typeName = 'fulladder';

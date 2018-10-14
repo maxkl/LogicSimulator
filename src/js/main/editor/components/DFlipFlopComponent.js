@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/DFlipFlopComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimDFlipFlopComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function DFlipFlopComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	DFlipFlopComponent.prototype.constructSimComponent = function () {
-		return new SimDFlipFlopComponent();
+	DFlipFlopComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'dflipflop'
+		};
 	};
 
 	DFlipFlopComponent.typeName = 'dflipflop';

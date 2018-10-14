@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/DEMUXComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimDEMUXComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	var COMPONENT_LABEL = 'DEMUX';
 	var COMPONENT_WIDTH = 9;
 
@@ -92,8 +91,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	DEMUXComponent.prototype.constructSimComponent = function () {
-		return new SimDEMUXComponent(this.properties.get('selectlines'));
+	DEMUXComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'demux',
+			properties: [ this.properties.get('selectlines') ]
+		};
 	};
 
 	DEMUXComponent.typeName = 'demux';

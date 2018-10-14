@@ -4,8 +4,8 @@
  */
 
 define([
-	'lib/EventEmitter',
-	'lib/extend'
+	'shared/lib/EventEmitter',
+	'shared/lib/extend'
 ], function (EventEmitter, extend) {
 	var EXAMPLES_PATH = 'examples/';
 

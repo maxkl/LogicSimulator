@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/OrComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimOrComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function OrComponent() {
 		Component.call(this);
 
@@ -78,8 +77,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	OrComponent.prototype.constructSimComponent = function () {
-		return new SimOrComponent(this.properties.get('inputs'));
+	OrComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'or',
+			properties: [ this.properties.get('inputs') ]
+		};
 	};
 
 	OrComponent.typeName = 'or';

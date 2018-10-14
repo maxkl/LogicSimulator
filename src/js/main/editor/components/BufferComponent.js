@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/BufferComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimBufferComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function BufferComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	BufferComponent.prototype.constructSimComponent = function () {
-		return new SimBufferComponent();
+	BufferComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'buffer'
+		};
 	};
 
 	BufferComponent.typeName = 'buffer';

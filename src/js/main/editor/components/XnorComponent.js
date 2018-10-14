@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/XnorComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimXnorComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function XnorComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	XnorComponent.prototype.constructSimComponent = function () {
-		return new SimXnorComponent();
+	XnorComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'xnor'
+		};
 	};
 
 	XnorComponent.typeName = 'xnor';

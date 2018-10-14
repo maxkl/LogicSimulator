@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/SRLatchComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimSRLatchComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function SRLatchComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	SRLatchComponent.prototype.constructSimComponent = function () {
-		return new SimSRLatchComponent();
+	SRLatchComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'srlatch'
+		};
 	};
 
 	SRLatchComponent.typeName = 'srlatch';

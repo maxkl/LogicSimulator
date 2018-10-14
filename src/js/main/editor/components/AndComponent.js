@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/AndComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimAndComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function AndComponent() {
 		Component.call(this);
 
@@ -82,8 +81,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	AndComponent.prototype.constructSimComponent = function () {
-		return new SimAndComponent(this.properties.get('inputs'));
+	AndComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'and',
+			args: [ this.properties.get('inputs') ]
+		};
 	};
 
 	AndComponent.typeName = 'and';

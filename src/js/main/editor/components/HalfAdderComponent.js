@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/HalfAdderComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimHalfAdderComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function HalfAdderComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	HalfAdderComponent.prototype.constructSimComponent = function () {
-		return new SimHalfAdderComponent();
+	HalfAdderComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'halfadder'
+		};
 	};
 
 	HalfAdderComponent.typeName = 'halfadder';

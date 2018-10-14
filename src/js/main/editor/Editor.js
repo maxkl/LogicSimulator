@@ -11,10 +11,10 @@ define([
 	'editor/Connection',
 	'editor/Joint',
 	'editor/Circuit',
-	'sim/Simulator',
+	'editor/SimulatorInterface',
 	'lib/SvgUtil',
 	'generated/editorComponents'
-], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, Joint, Circuit, Simulator, SvgUtil, editorComponents) {
+], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, Joint, Circuit, SimulatorInterface, SvgUtil, editorComponents) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG = 2;
@@ -63,7 +63,7 @@ define([
 		this.previousTool = null;
 		this.previousCircuitName = null;
 
-		this.simulator = new Simulator();
+		this.simulator = new SimulatorInterface();
 		var self = this;
 		this.simulator.stepCallback = function () {
 			self.updateSimulationDisplay();
@@ -545,6 +545,14 @@ define([
 			self.showSidebarOnDrop = true;
 
 			self.newComponent = component;
+		});
+
+		this.simulator.on('compile-ok', function () {
+			console.log('Circuit compilation successful!');
+		});
+
+		this.simulator.on('compile-failed', function (message) {
+			console.error('Circuit compilation failed:', message);
 		});
 	};
 
@@ -1645,19 +1653,23 @@ define([
 		var dateObj = window.performance || Date;
 		var startTime = dateObj.now();
 
+		var serializedCircuits = {};
+
 		for (var name in this.circuits) {
 			if (this.circuits.hasOwnProperty(name)) {
-				this.circuits[name].prepareSimulationCircuitConstruction();
+				serializedCircuits[name] = this.circuits[name].serializeForSimulation();
 			}
 		}
 
-		var simulationCircuit = this.circuits['main'].getSimulationCircuit(this.circuits);
+		this.simulator.compileCircuit(serializedCircuits);
 
-		var endTime = dateObj.now();
-		var time = endTime - startTime;
-		console.log('Constructed circuit in ' + time + 'ms');
+		// var simulationCircuit = this.circuits['main'].getSimulationCircuit(this.circuits);
 
-		this.simulator.init(simulationCircuit);
+		// var endTime = dateObj.now();
+		// var time = endTime - startTime;
+		// console.log('Constructed circuit in ' + time + 'ms');
+
+		// this.simulator.init(simulationCircuit);
 	};
 
 	Editor.prototype.initSimulationDisplay = function () {
@@ -1736,10 +1748,10 @@ define([
 	Editor.prototype.startSimulation = function () {
 		this.initSimulator();
 
-		this.initSimulationDisplay();
-		this.updateSimulationDisplay();
+		// this.initSimulationDisplay();
+		// this.updateSimulationDisplay();
 
-		this.startSimulationInterval();
+		// this.startSimulationInterval();
 	};
 
 	Editor.prototype.stopSimulation = function () {

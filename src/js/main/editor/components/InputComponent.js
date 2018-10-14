@@ -7,7 +7,7 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'lib/extend',
+	'shared/lib/extend',
 	'lib/SvgUtil'
 ], function (Component, ComponentProperties, displayComponent, extend, SvgUtil) {
 	function displayInputComponent($container, label) {
@@ -103,8 +103,10 @@ define([
 		return this.properties.get('label');
 	};
 
-	InputComponent.prototype.constructSimComponent = function () {
-		return null;
+	InputComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'input'
+		};
 	};
 
 	InputComponent.typeName = 'input';

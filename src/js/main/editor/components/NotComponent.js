@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/NotComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimNotComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function NotComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	NotComponent.prototype.constructSimComponent = function () {
-		return new SimNotComponent();
+	NotComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'not'
+		};
 	};
 
 	NotComponent.typeName = 'not';

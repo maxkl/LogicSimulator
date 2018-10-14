@@ -17,6 +17,24 @@ define([
 		this.cachedSimulationCircuit = null;
 	}
 
+	Circuit.prototype.serializeForSimulation = function () {
+		var components = [];
+		for (var i = 0; i < this.components.length; i++) {
+			components.push(this.components[i].serializeForSimulation());
+		}
+
+		var connections = [];
+		for (var i = 0; i < this.connections.length; i++) {
+			connections.push(this.connections[i].serializeForSimulation());
+		}
+		
+		return {
+			components: components,
+			connections: connections,
+			label: this.label
+		};
+	};
+
 	Circuit.prototype.findInputsAndOutputs = function () {
 		var inputs = [];
 		var outputs = [];

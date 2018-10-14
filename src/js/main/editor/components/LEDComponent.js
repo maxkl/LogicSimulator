@@ -6,10 +6,9 @@
 define([
 	'editor/Component',
 	'editor/ComponentProperties',
-	'sim/components/LEDComponent',
-	'lib/extend',
+	'shared/lib/extend',
 	'lib/SvgUtil'
-], function (Component, ComponentProperties, SimLEDComponent, extend, SvgUtil) {
+], function (Component, ComponentProperties, extend, SvgUtil) {
 	var WIDTH = 5;
 	var HEIGHT = 4;
 	var DEFAULT_OFF_COLOR = '#888';
@@ -126,8 +125,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	LEDComponent.prototype.constructSimComponent = function () {
-		return new SimLEDComponent();
+	LEDComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'led'
+		};
 	};
 
 	LEDComponent.prototype.updateSimulationDisplay = function (simComponent) {

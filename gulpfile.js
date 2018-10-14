@@ -34,6 +34,7 @@ const paths = {
 	js_main: srcDir + dirs.js_main + '**/*.js',
 	js_main_components: srcDir + dirs.js_main + 'editor/components/**/*.js',
 	js_worker: srcDir + dirs.js_worker + '**/*.js',
+	js_worker_components: srcDir + dirs.js_worker + 'sim/components/**/*.js',
 	sass: srcDir + dirs.sass + '**/*.{sass,scss}',
 	html: srcDir + dirs.html + '**/*.html',
 	fonts: srcDir + dirs.fonts + '**/*.{woff,woff2}',
@@ -70,7 +71,6 @@ function processAmdModules(stream, dir, destFileName, wrapIIFE) {
 
 gulp.task('js_main', function () {
 	const merged = mergeStream(
-		gulp.src(paths.js_shared, { base: srcDir + dirs.js_shared }),
 		gulp.src(paths.js_main, { base: srcDir + dirs.js_main }),
 		gulp.src(paths.js_main_components, { base: srcDir + dirs.js_main })
 			.pipe(filelist('generated/editorComponents.js', {
@@ -91,8 +91,20 @@ gulp.task('js_main', function () {
 
 gulp.task('js_worker', function () {
 	const merged = mergeStream(
-		gulp.src(paths.js_shared, { base: srcDir + dirs.js_shared }),
-		gulp.src(paths.js_worker, { base: srcDir + dirs.js_worker })
+		gulp.src(paths.js_worker, { base: srcDir + dirs.js_worker }),
+		gulp.src(paths.js_worker_components, { base: srcDir + dirs.js_worker })
+			.pipe(filelist('generated/components.js', {
+				removeExtensions: true,
+				relative: true
+			}))
+			.pipe(wrap(function (data) {
+				var contents = data.contents.toString();
+				var filenames = JSON.parse(contents);
+				var argNames = filenames.map(function (filename, index) {
+					return 'arg' + index;
+				});
+				return 'define(' + contents + ', function (' + argNames + ') {\n\treturn [' + argNames + '];\n});\n';
+			}))
 	);
 	return processAmdModules(merged, dirs.js_worker, 'worker.min.js', true);
 });

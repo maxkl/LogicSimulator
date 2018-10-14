@@ -7,7 +7,7 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'lib/extend',
+	'shared/lib/extend',
 	'lib/SvgUtil'
 ], function (Component, ComponentProperties, displayComponent, extend, SvgUtil) {
 	function displayOutputComponent($container, label) {
@@ -112,8 +112,10 @@ define([
 		return this.properties.get('label');
 	};
 
-	OutputComponent.prototype.constructSimComponent = function () {
-		return null;
+	OutputComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'output'
+		};
 	};
 
 	OutputComponent.typeName = 'output';

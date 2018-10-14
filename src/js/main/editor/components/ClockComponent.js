@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/ClockComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimClockComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function ClockComponent(period) {
 		Component.call(this);
 
@@ -70,8 +69,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	ClockComponent.prototype.constructSimComponent = function () {
-		return new SimClockComponent(this.properties.get('period'));
+	ClockComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'clock',
+			properties: [ this.properties.get('period') ]
+		};
 	};
 
 	ClockComponent.typeName = 'clock';

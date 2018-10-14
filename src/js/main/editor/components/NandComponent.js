@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/NandComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimNandComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function NandComponent() {
 		Component.call(this);
 
@@ -82,8 +81,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	NandComponent.prototype.constructSimComponent = function () {
-		return new SimNandComponent(this.properties.get('inputs'));
+	NandComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'nand',
+			properties: [ this.properties.get('inputs') ]
+		};
 	};
 
 	NandComponent.typeName = 'nand';

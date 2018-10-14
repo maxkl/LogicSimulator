@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/CounterComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimCounterComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	var COMPONENT_LABEL = 'CTR';
 	var COMPONENT_WIDTH = 11;
 
@@ -95,8 +94,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	CounterComponent.prototype.constructSimComponent = function () {
-		return new SimCounterComponent(this.properties.get('width'));
+	CounterComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'counter',
+			properties: [ this.properties.get('width') ]
+		};
 	};
 
 	CounterComponent.typeName = 'counter';

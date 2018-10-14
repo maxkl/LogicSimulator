@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/JKFlipFlopComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimJKFlipFlopComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function JKFlipFlopComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	JKFlipFlopComponent.prototype.constructSimComponent = function () {
-		return new SimJKFlipFlopComponent();
+	JKFlipFlopComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'jkflipflop'
+		};
 	};
 
 	JKFlipFlopComponent.typeName = 'jkflipflop';

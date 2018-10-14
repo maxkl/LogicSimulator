@@ -83,6 +83,15 @@ define([
 		this.$line.setAttribute('stroke', STATE_COLORS[state]);
 	};
 
+	Connection.prototype.serializeForSimulation = function () {
+		return {
+			x1: this.x1,
+			y1: this.y1,
+			x2: this.x2,
+			y2: this.y2
+		};
+	};
+
 	Connection.DEFAULT = DEFAULT;
 	Connection.SELECTED = SELECTED;
 	Connection.ACTIVE = ACTIVE;

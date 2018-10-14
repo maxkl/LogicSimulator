@@ -72,5 +72,30 @@ define([
 		this.transform.matrix.f = this.y * 10;
 	};
 
+	Component.prototype.serializeForSimulation = function () {
+		var data = this._serializeForSimulation();
+
+		data.x = this.x;
+		data.y = this.y;
+
+		if (this.isCustom) {
+			this.updatePins();
+		}
+
+		var pinsData = [];
+		for (var i = 0; i < this.pins.length; i++) {
+			var pin = this.pins[i];
+			pinsData.push({
+				x: pin.x,
+				y: pin.y,
+				out: pin.out,
+				index: pin.index
+			});
+		}
+		data.pins = pinsData;
+
+		return data;
+	};
+
 	return Component;
 });

@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/ConstComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimConstComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function ConstComponent() {
 		Component.call(this);
 
@@ -74,8 +73,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	ConstComponent.prototype.constructSimComponent = function () {
-		return new SimConstComponent(this.properties.get('value'));
+	ConstComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'const',
+			properties: [ this.properties.get('value') ]
+		};
 	};
 
 	ConstComponent.typeName = 'const';

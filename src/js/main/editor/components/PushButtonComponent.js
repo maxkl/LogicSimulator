@@ -6,10 +6,9 @@
 define([
 	'editor/Component',
 	'editor/ComponentProperties',
-	'sim/components/PushButtonComponent',
-	'lib/extend',
+	'shared/lib/extend',
 	'lib/SvgUtil'
-], function (Component, ComponentProperties, SimPushButtonComponent, extend, SvgUtil) {
+], function (Component, ComponentProperties, extend, SvgUtil) {
 	var WIDTH = 5;
 	var HEIGHT = 4;
 	var RELEASED_COLOR = '#555';
@@ -113,8 +112,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	PushButtonComponent.prototype.constructSimComponent = function () {
-		return new SimPushButtonComponent();
+	PushButtonComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'pushbutton'
+		};
 	};
 
 	PushButtonComponent.prototype.initSimulationDisplay = function (simComponent) {

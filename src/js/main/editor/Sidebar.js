@@ -5,8 +5,8 @@
 
 define([
 	'lib/SvgUtil',
-	'lib/EventEmitter',
-	'lib/extend',
+	'shared/lib/EventEmitter',
+	'shared/lib/extend',
 	'generated/editorComponents'
 ], function (SvgUtil, EventEmitter, extend, editorComponents) {
 	function Sidebar(app) {

@@ -7,7 +7,7 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'lib/extend'
+	'shared/lib/extend'
 ], function (Component, ComponentProperties, displayComponent, extend) {
 	var COMPONENT_WIDTH = 11;
 
@@ -123,9 +123,11 @@ define([
 		this._updateDisplay();
 	};
 
-	CustomComponent.prototype.constructSimComponent = function () {
-		// TODO
-		return null;
+	CustomComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'custom',
+			circuitName: this.circuitName
+		};
 	};
 
 	CustomComponent.typeName = 'custom';

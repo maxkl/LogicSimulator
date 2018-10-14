@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/SRAMComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimSRAMComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	var COMPONENT_LABEL = 'SRAM';
 	var COMPONENT_WIDTH = 11;
 
@@ -103,8 +102,14 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	SRAMComponent.prototype.constructSimComponent = function () {
-		return new SimSRAMComponent(this.properties.get('addresswidth'), this.properties.get('datawidth'));
+	SRAMComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'sram',
+			properties: [
+				this.properties.get('addresswidth'),
+				this.properties.get('datawidth')
+			]
+		};
 	};
 
 	SRAMComponent.typeName = 'sram';

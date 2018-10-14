@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/RegisterComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimRegisterComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	var COMPONENT_LABEL = 'REG';
 	var COMPONENT_WIDTH = 11;
 
@@ -95,8 +94,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	RegisterComponent.prototype.constructSimComponent = function () {
-		return new SimRegisterComponent(this.properties.get('width'));
+	RegisterComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'register',
+			properties: [ this.properties.get('width') ]
+		};
 	};
 
 	RegisterComponent.typeName = 'register';

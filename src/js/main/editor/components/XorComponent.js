@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/XorComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimXorComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function XorComponent() {
 		Component.call(this);
 
@@ -59,8 +58,10 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	XorComponent.prototype.constructSimComponent = function () {
-		return new SimXorComponent();
+	XorComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'xor'
+		};
 	};
 
 	XorComponent.typeName = 'xor';

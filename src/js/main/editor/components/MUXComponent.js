@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/MUXComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimMUXComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	var COMPONENT_LABEL = 'MUX';
 	var COMPONENT_WIDTH = 9;
 
@@ -90,8 +89,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	MUXComponent.prototype.constructSimComponent = function () {
-		return new SimMUXComponent(this.properties.get('selectlines'));
+	MUXComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'mux',
+			properties: [ this.properties.get('selectlines') ]
+		};
 	};
 
 	MUXComponent.typeName = 'mux';

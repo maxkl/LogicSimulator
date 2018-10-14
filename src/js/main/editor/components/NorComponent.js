@@ -7,9 +7,8 @@ define([
 	'editor/Component',
 	'editor/ComponentProperties',
 	'editor/displayComponent',
-	'sim/components/NorComponent',
-	'lib/extend'
-], function (Component, ComponentProperties, displayComponent, SimNorComponent, extend) {
+	'shared/lib/extend'
+], function (Component, ComponentProperties, displayComponent, extend) {
 	function NorComponent() {
 		Component.call(this);
 
@@ -78,8 +77,11 @@ define([
 		this.$rect.setAttribute('stroke', '#000');
 	};
 
-	NorComponent.prototype.constructSimComponent = function () {
-		return new SimNorComponent(this.properties.get('inputs'));
+	NorComponent.prototype._serializeForSimulation = function () {
+		return {
+			name: 'nor',
+			properties: [ this.properties.get('inputs') ]
+		};
 	};
 
 	NorComponent.typeName = 'nor';

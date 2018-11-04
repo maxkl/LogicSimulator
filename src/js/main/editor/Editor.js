@@ -367,6 +367,11 @@ define([
 			self.pauseSimulation();
 		});
 
+		this.tools.on('sync-screen-changed', function () {
+			self.pauseSimulation();
+			self.resumeSimulation();
+		});
+
 		this.tools.on('new-file', function () {
 			self.dialogs.open('new');
 		});
@@ -554,7 +559,7 @@ define([
 			self.initSimulationDisplay();
 			self.updateSimulationDisplay();
 
-			self.startSimulationInterval();
+			self.resumeSimulation();
 		});
 
 		this.simulator.on('compile-failed', function (message) {
@@ -563,7 +568,11 @@ define([
 
 		this.simulator.on('get-circuit-state-ok', function (state) {
 			self.simulationCircuitState = state;
-			self.updateSimulationDisplay();
+			self.simulationCircuitStateUpdated = true;
+
+			if (self.tools.simulationActive && !self.tools.simulationRunning) {
+				self.updateSimulationDisplay();
+			}
 		});
 
 		this.simulator.on('get-circuit-state-failed', function (message) {
@@ -584,6 +593,10 @@ define([
 
 		this.simulator.on('step-simulation-failed', function (message) {
 			console.error('Failed to step simulation:', message);
+		});
+
+		this.simulator.on('run-simulation-failed', function (message) {
+			console.error('Failed to run simulation:', message);
 		});
 	};
 
@@ -1772,6 +1785,8 @@ define([
 	};
 
 	Editor.prototype.startSimulationInterval = function () {
+		var syncScreen = this.tools.syncScreen;
+
 		var self = this;
 		function update() {
 			self.simulationAnimationFrame = requestAnimationFrame(update);
@@ -1779,20 +1794,30 @@ define([
 			if (self.simulationCircuitStateUpdated) {
 				self.simulationCircuitStateUpdated = false;
 
-				self.simulator.stepSimulation(true);
+				if (syncScreen) {
+					self.simulator.stepSimulation(true);
+				} else {
+					self.simulator.getCircuitState();
+				}
 
 				self.updateSimulationDisplay();
 			}
 		}
 
-		self.simulationCircuitStateUpdated = false;
+		this.simulationCircuitStateUpdated = false;
 
-		self.simulator.stepSimulation(true);
+		if (syncScreen) {
+			this.simulator.stepSimulation(true);
+		} else {
+			this.simulator.runSimulation();
+			this.simulator.getCircuitState();
+		}
 
 		this.simulationAnimationFrame = requestAnimationFrame(update);
 	};
 
 	Editor.prototype.stopSimulationInterval = function () {
+		this.simulator.stopSimulation();
 		cancelAnimationFrame(this.simulationAnimationFrame);
 	};
 

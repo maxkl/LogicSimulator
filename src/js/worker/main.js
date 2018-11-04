@@ -5,10 +5,15 @@
 
 define([
     'Circuit',
+    'lib/setImmediate',
     'shared/lib/createArray'
-], function (Circuit, createArray) {
-    var simulationActive = false;
+], function (Circuit, setImmediate, createArray) {
+    var SIMULATION_CYCLE_REPEAT_COUNT = 10;
+
+    var simulationRunning = false;
     var simulationCircuit = null;
+
+    var setImmediateHandle = null;
 
     function getCircuitState() {
         var componentsState = createArray(simulationCircuit.numComponentReferences, null);
@@ -68,7 +73,7 @@ define([
     }
 
     function handleCompileCircuit(serializedCircuits) {
-        if (simulationActive) {
+        if (simulationRunning) {
             postMessage({
                 type: 'compile',
                 success: false,
@@ -139,6 +144,57 @@ define([
         });
     }
 
+    function doSimulationStep() {
+        setImmediateHandle = setImmediate(doSimulationStep);
+
+        for (var i = 0; i < SIMULATION_CYCLE_REPEAT_COUNT; i++) {
+            simulationCircuit.cycle();
+        }
+    }
+
+    function runSimulation() {
+        if (simulationRunning) {
+            return;
+        }
+
+        simulationRunning = true;
+
+        setImmediateHandle = setImmediate(doSimulationStep);
+    }
+
+    function stopSimulation() {
+        setImmediate.clearImmediate(setImmediateHandle);
+
+        simulationRunning = false;
+    }
+
+    function handleRunSimulation() {
+        if (simulationCircuit === null) {
+            postMessage({
+                type: 'run-simulation',
+                success: false,
+                message: 'No circuit loaded'
+            });
+            return;
+        }
+
+        runSimulation();
+
+        postMessage({
+            type: 'run-simulation',
+            success: true
+        });
+    }
+
+    function handleStopSimulation() {
+        stopSimulation();
+
+        postMessage({
+            type: 'stop-simulation',
+            success: true
+        });
+    }
+
     function handleUpdateInputs(inputData) {
         for (var i = 0; i < simulationCircuit.components.length; i++) {
             var component = simulationCircuit.components[i];
@@ -160,6 +216,12 @@ define([
                 break;
             case 'step-simulation':
                 handleStepSimulation(data.getCircuitState);
+                break;
+            case 'run-simulation':
+                handleRunSimulation();
+                break;
+            case 'stop-simulation':
+                handleStopSimulation();
                 break;
             case 'update-inputs':
                 handleUpdateInputs(data.inputData);

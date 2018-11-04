@@ -30,7 +30,8 @@
 		}
 
 		> button,
-		> select {
+		> select,
+		> label {
 			flex: none;
 			display: block;
 			line-height: $toolbar-height - 2 * $toolbar-padding;
@@ -82,6 +83,14 @@
 			&:disabled {
 				color: #bfbfbf;
 				cursor: default;
+			}
+		}
+
+		> label {
+			font-size: 0.8em;
+
+			> input[type=checkbox] {
+				vertical-align: middle;
 			}
 		}
 	}

@@ -35,6 +35,7 @@ define([
 		this.$newCircuit = document.getElementById('toolbar-circuit-new');
 		this.$selectCircuit = document.getElementById('toolbar-circuit-select');
 		this.$editCircuit = document.getElementById('toolbar-circuit-edit');
+		this.$syncScreen = document.getElementById('toolbar-sync-screen');
 
 		this.registerListeners();
 	}
@@ -105,9 +106,19 @@ define([
 		this.$editCircuit.addEventListener('click', function () {
 			self.emit('edit-circuit');
 		});
+
+		this.$syncScreen.addEventListener('change', function () {
+			self.syncScreen = self.$syncScreen.checked;
+
+			if (self.simulationRunning) {
+				self.emit('sync-screen-changed');
+			}
+		});
 	};
 
 	EditorTools.prototype.startSimulation = function () {
+		this.syncScreen = this.$syncScreen.checked;
+
 		if (this.simulationActive) {
 			this.simulationRunning = true;
 

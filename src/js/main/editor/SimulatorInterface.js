@@ -40,6 +40,20 @@ define([
                         self.emit('step-simulation-failed', data.message);
                     }
                     break;
+                case 'run-simulation':
+                    if (data.success) {
+                        self.emit('run-simulation-ok');
+                    } else {
+                        self.emit('run-simulation-failed', data.message);
+                    }
+                    break;
+                case 'stop-simulation':
+                    if (data.success) {
+                        self.emit('stop-simulation-ok');
+                    } else {
+                        self.emit('stop-simulation-failed', data.message);
+                    }
+                    break;
                 default:
                     console.warn('Message of unknown type received:', message);
             }
@@ -65,6 +79,18 @@ define([
         this.worker.postMessage({
             type: 'step-simulation',
             getCircuitState: getCircuitState
+        });
+    };
+
+    SimulatorInterface.prototype.runSimulation = function () {
+        this.worker.postMessage({
+            type: 'run-simulation'
+        });
+    };
+
+    SimulatorInterface.prototype.stopSimulation = function () {
+        this.worker.postMessage({
+            type: 'stop-simulation'
         });
     };
 

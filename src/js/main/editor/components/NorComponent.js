@@ -80,7 +80,7 @@ define([
 	NorComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'nor',
-			properties: [ this.properties.get('inputs') ]
+			args: [ this.properties.get('inputs') ]
 		};
 	};
 

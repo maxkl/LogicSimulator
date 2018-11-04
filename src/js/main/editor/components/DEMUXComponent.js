@@ -94,7 +94,7 @@ define([
 	DEMUXComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'demux',
-			properties: [ this.properties.get('selectlines') ]
+			args: [ this.properties.get('selectlines') ]
 		};
 	};
 

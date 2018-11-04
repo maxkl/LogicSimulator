@@ -70,7 +70,8 @@ define([
 		this.width = WIDTH;
 		this.height = HEIGHT;
 
-		this.simComponent = null;
+		this.simulationComponentReference = null;
+		this.inputCallback = null;
 	}
 
 	extend(PushButtonComponent, Component);
@@ -95,8 +96,9 @@ define([
 		this.$btn.addEventListener('mousedown', function (evt) {
 			evt.stopPropagation();
 
-			self.simComponent.pressed = true;
 			self.$btn.setAttribute('fill', PRESSED_COLOR);
+
+			self.inputCallback(true);
 		});
 
 		if(this.selected) {
@@ -118,8 +120,9 @@ define([
 		};
 	};
 
-	PushButtonComponent.prototype.initSimulationDisplay = function (simComponent) {
-		this.simComponent = simComponent;
+	PushButtonComponent.prototype.initSimulationDisplay = function (reference, inputCallback) {
+		this.simulationComponentReference = reference;
+		this.inputCallback = inputCallback;
 
 		this.$btn.setAttribute('pointer-events', 'visiblePainted');
 	};

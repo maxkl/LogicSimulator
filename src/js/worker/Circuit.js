@@ -9,7 +9,7 @@ define([
 	'lib/DisjointSet',
 	'ComponentRegistry'
 ], function (SimConnection, SimCircuit, DisjointSet, ComponentRegistry) {
-	function EditorComponent(ref, x, y, isInput, isOutput, isCustom, circuitName, pins, constructor) {
+	function EditorComponent(ref, x, y, isInput, isOutput, isCustom, circuitName, pins, constructor, simulationArguments) {
 		this.ref = ref;
 		this.x = x;
 		this.y = y;
@@ -19,6 +19,7 @@ define([
 		this.circuitName = circuitName;
 		this.pins = pins;
 		this.constructor = constructor;
+		this.simulationArguments = simulationArguments;
 	}
 
 	EditorComponent.deserializeForSimulation = function (data, ref) {
@@ -38,29 +39,35 @@ define([
 			}
 		}
 
+		var simulationArguments = data.args;
+
 		return new EditorComponent(
 			ref,
 			data.x, data.y,
 			isInput, isOutput, isCustom,
 			circuitName,
 			data.pins,
-			constructor
+			constructor,
+			simulationArguments
 		);
 	}
 
-	function EditorConnection(ref, x1, y1, x2, y2) {
+	function EditorConnection(ref, x1, y1, x2, y2, circuitName) {
 		this.ref = ref;
 		this.x1 = x1;
 		this.y1 = y1;
 		this.x2 = x2;
 		this.y2 = y2;
+		this.circuitName = circuitName;
 	}
 
-	EditorConnection.deserializeForSimulation = function (data, ref) {
-		return new EditorConnection(ref, data.x1, data.y1, data.x2, data.y2);
+	EditorConnection.deserializeForSimulation = function (data, ref, circuitName) {
+		return new EditorConnection(ref, data.x1, data.y1, data.x2, data.y2, circuitName);
 	}
 
-	function Circuit(components, connections) {
+	function Circuit(circuitName, components, connections) {
+		this.circuitName = circuitName;
+
 		this.components = components;
 		this.connections = connections;
 		this.label = '?';
@@ -69,7 +76,7 @@ define([
 		this.cachedSimulationCircuit = null;
 	}
 
-	Circuit.deserializeForSimulation = function (data) {
+	Circuit.deserializeForSimulation = function (circuitName, data) {
 		var components = [];
 		for (var i = 0; i < data.components.length; i++) {
 			components.push(EditorComponent.deserializeForSimulation(data.components[i], i));
@@ -77,10 +84,10 @@ define([
 
 		var connections = [];
 		for (var i = 0; i < data.connections.length; i++) {
-			connections.push(EditorConnection.deserializeForSimulation(data.connections[i], i));
+			connections.push(EditorConnection.deserializeForSimulation(data.connections[i], i, circuitName));
 		}
 
-		var circuit = new Circuit(components, connections);
+		var circuit = new Circuit(circuitName, components, connections);
 		circuit.label = data.label;
 		
 		return circuit;
@@ -132,7 +139,7 @@ define([
 	};
 
 	Circuit.prototype.getSimulationCircuit = function (circuits) {
-		// We set isCompiling flag before compiling nested circuits.
+		// We set the isCompiling flag before compiling nested circuits.
 		//  This way, if this circuit is nested inside itself, the isCompiling flag is
 		//  still set here and we detect that
 		if (this.isCompiling) {
@@ -150,9 +157,9 @@ define([
 		return this.cachedSimulationCircuit.clone();
 	};
 
-	function CompilationConnection(points, editorConnectionReferences) {
+	function CompilationConnection(points, editorConnections) {
 		this.points = points;
-		this.editorConnectionReferences = editorConnectionReferences;
+		this.editorConnections = editorConnections;
 	}
 
 	CompilationConnection.prototype.merge = function (other, grid, connectionList) {
@@ -168,8 +175,8 @@ define([
 		}
 
 		// Copy the editor connections
-		for (var i = 0; i < other.editorConnectionReferences.length; i++) {
-			this.editorConnectionReferences.push(other.editorConnectionReferences[i]);
+		for (var i = 0; i < other.editorConnections.length; i++) {
+			this.editorConnections.push(other.editorConnections[i]);
 		}
 
 		// Remove `other` from the list of connections
@@ -181,9 +188,10 @@ define([
 		}
 	};
 
-	function createSimulationComponent(editorComponent) {
+	function createSimulationComponent(editorComponent, needsReference) {
 		var simulationComponent = new editorComponent.constructor(editorComponent.simulationArguments);
-		simulationComponent.editorComponentReference = editorComponent.ref;
+		simulationComponent.needsReference = needsReference;
+		simulationComponent.editorComponent = editorComponent;
 		return simulationComponent;
 	}
 
@@ -227,23 +235,23 @@ define([
 				// There are connections at both endpoints
 				// -> merge them
 				grid[pt1].merge(grid[pt2], grid, connections);
-				grid[pt1].editorConnectionReferences.push(editorConnection.ref);
+				grid[pt1].editorConnections.push(editorConnection);
 			} else if (grid[pt1]) {
 				// There is a connection at the first endpoint
 				// -> add pt2 to it
 				grid[pt1].points.push(pt2);
-				grid[pt1].editorConnectionReferences.push(editorConnection.ref);
+				grid[pt1].editorConnections.push(editorConnection);
 				grid[pt2] = grid[pt1];
 			} else if (grid[pt2]) {
 				// There is a connection at the second endpoint
 				// -> add pt1 to it
 				grid[pt2].points.push(pt1);
-				grid[pt2].editorConnectionReferences.push(editorConnection.ref);
+				grid[pt2].editorConnections.push(editorConnection);
 				grid[pt1] = grid[pt2];
 			} else {
 				// There is no connection at either endpoint
 				// -> create a new connection connecting both endpoints
-				var con = new CompilationConnection([pt1, pt2], [editorConnection.ref]);
+				var con = new CompilationConnection([pt1, pt2], [editorConnection]);
 				grid[pt1] = grid[pt2] = con;
 				connections.push(con);
 			}
@@ -290,7 +298,8 @@ define([
 			var connection = connections[i];
 
 			var simulationConnection = new SimConnection();
-			simulationConnection.editorConnectionReferences = connection.editorConnectionReferences;
+			simulationConnection.needsReference = this.circuitName === 'main';
+			simulationConnection.editorConnections = connection.editorConnections;
 
 			// Replace all references in the grid
 			for (var j = 0; j < connection.points.length; j++) {
@@ -344,7 +353,7 @@ define([
 					);
 				}
 			} else if (!editorComponent.isInput && !editorComponent.isOutput) {
-				var simulationComponent = createSimulationComponent(editorComponent);
+				var simulationComponent = createSimulationComponent(editorComponent, this.circuitName === 'main');
 
 				// Find the simulation connection for each pin and assign them
 				for (var j = 0; j < pins.length; j++) {
@@ -447,7 +456,9 @@ define([
 			}
 		}
 
-		return new SimCircuit(components, connections, inputConnections, outputConnections);
+		var simulationCircuit = new SimCircuit(components, connections, inputConnections, outputConnections);
+
+		return simulationCircuit;
 	};
 
 	return Circuit;

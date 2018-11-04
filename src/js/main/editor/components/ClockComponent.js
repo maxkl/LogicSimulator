@@ -72,7 +72,7 @@ define([
 	ClockComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'clock',
-			properties: [ this.properties.get('period') ]
+			args: [ this.properties.get('period') ]
 		};
 	};
 

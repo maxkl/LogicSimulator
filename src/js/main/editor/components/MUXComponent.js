@@ -92,7 +92,7 @@ define([
 	MUXComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'mux',
-			properties: [ this.properties.get('selectlines') ]
+			args: [ this.properties.get('selectlines') ]
 		};
 	};
 

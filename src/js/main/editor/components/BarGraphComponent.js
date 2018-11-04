@@ -166,13 +166,13 @@ define([
 	BarGraphComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'bargraph',
-			properties: [ this.properties.get('size') ]
+			args: [ this.properties.get('size') ]
 		};
 	};
 
-	BarGraphComponent.prototype.updateSimulationDisplay = function (simComponent) {
+	BarGraphComponent.prototype.updateSimulationDisplay = function (displayData) {
 		for (var i = 0; i < this.size; i++) {
-			if (simComponent.in[i]) {
+			if (displayData[i]) {
 				this.$lights[i].setAttribute('fill', this.onColor);
 			} else {
 				this.$lights[i].setAttribute('fill', this.offColor);

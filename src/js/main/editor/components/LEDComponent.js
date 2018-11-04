@@ -131,8 +131,8 @@ define([
 		};
 	};
 
-	LEDComponent.prototype.updateSimulationDisplay = function (simComponent) {
-		if(simComponent.in[0]) {
+	LEDComponent.prototype.updateSimulationDisplay = function (displayData) {
+		if (displayData) {
 			this.$light.setAttribute('fill', this.onColor);
 		} else {
 			this.$light.setAttribute('fill', this.offColor);

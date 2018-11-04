@@ -19,6 +19,10 @@ define([
 
 	extend(ToggleButtonComponent, Component);
 
+	ToggleButtonComponent.prototype.updateInput = function (data) {
+		this.pressed = data;
+	};
+
 	ToggleButtonComponent.prototype.exec = function () {
 		this.out[0] = this.pressed;
 	};

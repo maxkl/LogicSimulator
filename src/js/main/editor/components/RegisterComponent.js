@@ -97,7 +97,7 @@ define([
 	RegisterComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'register',
-			properties: [ this.properties.get('width') ]
+			args: [ this.properties.get('width') ]
 		};
 	};
 

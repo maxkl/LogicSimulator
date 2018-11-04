@@ -3,12 +3,17 @@
  * License: MIT
  */
 
-define(function () {
+define([
+	'shared/lib/createArray'
+], function (createArray) {
 	function Circuit(components, connections, inputConnections, outputConnections) {
 		this.components = components || [];
 		this.connections = connections || [];
 		this.inputConnections = inputConnections || [];
 		this.outputConnections = outputConnections || [];
+
+		this.numComponentReferences = 0;
+		this.numConnectionReferences = 0;
 	}
 
 	Circuit.prototype.clone = function () {
@@ -44,7 +49,59 @@ define(function () {
 			newOutputConnections.push(findNewConnection(this.outputConnections[i]));
 		}
 
-		return new Circuit(newComponents, newConnections, newInputConnections, newOutputConnections);
+		var circuit = new Circuit(newComponents, newConnections, newInputConnections, newOutputConnections);
+		circuit.numComponentReferences = this.numComponentReferences;
+		circuit.numConnectionReferences = this.numConnectionReferences;
+
+		return circuit;
+	};
+
+	Circuit.prototype.createReferences = function () {
+		var nextComponentReference = 0;
+		for (var i = 0; i < this.components.length; i++) {
+			var component = this.components[i];
+			if (component.needsReference) {
+				component.reference = nextComponentReference++;
+			}
+		}
+		this.numComponentReferences = nextComponentReference;
+
+		var nextConnectionReference = 0;
+		for (var i = 0; i < this.connections.length; i++) {
+			var connection = this.connections[i];
+			if (connection.needsReference) {
+				connection.reference = nextConnectionReference++;
+			}
+		}
+		this.numConnectionReferences = nextConnectionReference;
+	};
+
+	Circuit.prototype.deriveMapping = function () {
+		var componentsMapping = createArray(this.numComponentReferences, null);
+		var connectionsMapping = createArray(this.numConnectionReferences, null);
+
+		for (var i = 0; i < this.components.length; i++) {
+			var reference = this.components[i].reference;
+			if (reference !== null) {
+				componentsMapping[reference] = this.components[i].editorComponent.ref;
+			}
+		}
+
+		for (var i = 0; i < this.connections.length; i++) {
+			var reference = this.connections[i].reference;
+			if (reference !== null) {
+				connectionsMapping[reference] = this.connections[i].editorConnections.filter(function (editorConnection) {
+					return editorConnection.circuitName === 'main';
+				}).map(function (editorConnection) {
+					return editorConnection.ref;
+				});
+			}
+		}
+
+		return {
+			components: componentsMapping,
+			connections: connectionsMapping
+		};
 	};
 
 	Circuit.prototype.init = function () {

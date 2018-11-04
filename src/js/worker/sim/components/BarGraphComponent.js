@@ -18,6 +18,10 @@ define([
 
 	extend(BarGraphComponent, Component);
 
+	BarGraphComponent.prototype.getDisplayData = function () {
+		return this.in;
+	};
+
 	BarGraphComponent.prototype.exec = function () {};
 
 	ComponentRegistry.register('bargraph', BarGraphComponent);

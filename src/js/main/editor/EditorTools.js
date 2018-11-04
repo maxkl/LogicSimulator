@@ -108,19 +108,18 @@ define([
 	};
 
 	EditorTools.prototype.startSimulation = function () {
-		if (!this.simulationActive) {
-			this.emit('pre-run');
-		}
+		if (this.simulationActive) {
+			this.simulationRunning = true;
 
-		this.simulationActive = true;
-
-		if(this.simulationRunning) {
 			this.$run.disabled = true;
 			this.$step.disabled = true;
 			this.$pause.disabled = false;
 
 			this.emit('resume');
 		} else {
+			this.emit('pre-run');
+
+			this.simulationActive = true;
 			this.simulationRunning = true;
 
 			this.$run.disabled = true;
@@ -167,6 +166,8 @@ define([
 	};
 
 	EditorTools.prototype.pauseSimulation = function () {
+		this.simulationRunning = false;
+
 		this.$run.disabled = false;
 		this.$step.disabled = false;
 		this.$pause.disabled = true;

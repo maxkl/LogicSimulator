@@ -19,6 +19,10 @@ define([
 
 	extend(PushButtonComponent, Component);
 
+	PushButtonComponent.prototype.updateInput = function (data) {
+		this.pressed = data;
+	};
+
 	PushButtonComponent.prototype.exec = function () {
 		if(this.pressed) {
 			this.pressed = false;

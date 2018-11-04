@@ -17,6 +17,10 @@ define([
 
 	extend(LEDComponent, Component);
 
+	LEDComponent.prototype.getDisplayData = function () {
+		return this.in[0];
+	};
+
 	LEDComponent.prototype.exec = function () {};
 
 	ComponentRegistry.register('led', LEDComponent);

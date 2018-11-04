@@ -12,7 +12,9 @@ define([
 
 		this.value = false;
 
-		this.editorConnectionReferences = [];
+		this.needsReference = false;
+		this.reference = null;
+		this.editorConnections = [];
 	}
 
 	Connection.prototype.clone = function (oldComponents, newComponents) {
@@ -43,7 +45,9 @@ define([
 
 		var newConnection = new Connection(newInputs, newOutputs);
 		newConnection.value = this.value;
-		newConnection.editorConnectionReferences = this.editorConnectionReferences.slice();
+		newConnection.needsReference = this.needsReference;
+		newConnection.reference = this.reference;
+		newConnection.editorConnections = this.editorConnections.slice();
 
 		return newConnection;
 	};
@@ -57,9 +61,11 @@ define([
 			this.outputs.push(other.outputs[i]);
 		}
 
-		for (var i = 0; i < other.editorConnectionReferences.length; i++) {
-			this.editorConnectionReferences.push(other.editorConnectionReferences[i]);
+		for (var i = 0; i < other.editorConnections.length; i++) {
+			this.editorConnections.push(other.editorConnections[i]);
 		}
+
+		this.needsReference = this.needsReference || other.needsReference;
 	};
 
 	Connection.prototype.addInput = function (component, pinIndex) {

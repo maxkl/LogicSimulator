@@ -80,7 +80,7 @@ define([
 	OrComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'or',
-			properties: [ this.properties.get('inputs') ]
+			args: [ this.properties.get('inputs') ]
 		};
 	};
 

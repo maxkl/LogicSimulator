@@ -76,7 +76,7 @@ define([
 	ConstComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'const',
-			properties: [ this.properties.get('value') ]
+			args: [ this.properties.get('value') ]
 		};
 	};
 

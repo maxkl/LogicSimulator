@@ -13,8 +13,9 @@ define([
 	'editor/Circuit',
 	'editor/SimulatorInterface',
 	'lib/SvgUtil',
+	'shared/lib/createArray',
 	'generated/editorComponents'
-], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, Joint, Circuit, SimulatorInterface, SvgUtil, editorComponents) {
+], function (Viewport, EditorTools, Sidebar, EditorDialogs, Connection, Joint, Circuit, SimulatorInterface, SvgUtil, createArray, editorComponents) {
 	var MOUSE_UP = 0;
 	var MOUSE_PAN = 1;
 	var MOUSE_DRAG = 2;
@@ -64,10 +65,8 @@ define([
 		this.previousCircuitName = null;
 
 		this.simulator = new SimulatorInterface();
-		var self = this;
-		this.simulator.stepCallback = function () {
-			self.updateSimulationDisplay();
-		};
+		this.simulationCircuitState = null;
+		this.simulationCircuitStateUpdated = false;
 		this.simulationAnimationFrame = null;
 
 		this.registerListeners();
@@ -547,12 +546,44 @@ define([
 			self.newComponent = component;
 		});
 
-		this.simulator.on('compile-ok', function () {
-			console.log('Circuit compilation successful!');
+		this.simulator.on('compile-ok', function (mapping, initialState) {
+			self.setSimulationMapping(mapping);
+
+			self.simulationCircuitState = initialState;
+
+			self.initSimulationDisplay();
+			self.updateSimulationDisplay();
+
+			self.startSimulationInterval();
 		});
 
 		this.simulator.on('compile-failed', function (message) {
 			console.error('Circuit compilation failed:', message);
+		});
+
+		this.simulator.on('get-circuit-state-ok', function (state) {
+			self.simulationCircuitState = state;
+			self.updateSimulationDisplay();
+		});
+
+		this.simulator.on('get-circuit-state-failed', function (message) {
+			console.error('Failed to retrieve circuit state:', message);
+		});
+
+		this.simulator.on('step-simulation-ok', function (circuitState) {
+			if (circuitState !== null) {
+				self.simulationCircuitState = circuitState;
+				self.simulationCircuitStateUpdated = true;
+			}
+
+			// Single-step mode?
+			if (self.tools.simulationActive && !self.tools.simulationRunning) {
+				self.updateSimulationDisplay();
+			}
+		});
+
+		this.simulator.on('step-simulation-failed', function (message) {
+			console.error('Failed to step simulation:', message);
 		});
 	};
 
@@ -1662,70 +1693,80 @@ define([
 		}
 
 		this.simulator.compileCircuit(serializedCircuits);
+	};
 
-		// var simulationCircuit = this.circuits['main'].getSimulationCircuit(this.circuits);
+	Editor.prototype.setSimulationMapping = function (mapping) {
+		var componentsMapping = [];
+		for (var i = 0; i < mapping.components.length; i++) {
+			componentsMapping.push(this.circuits['main'].components[mapping.components[i]]);
+		}
 
-		// var endTime = dateObj.now();
-		// var time = endTime - startTime;
-		// console.log('Constructed circuit in ' + time + 'ms');
+		var connectionsMapping = [];
+		for (var i = 0; i < mapping.connections.length; i++) {
+			var editorConnections = [];
+			for (var j = 0; j < mapping.connections[i].length; j++) {
+				editorConnections.push(this.circuits['main'].connections[mapping.connections[i][j]]);
+			}
+			connectionsMapping.push(editorConnections);
+		}
 
-		// this.simulator.init(simulationCircuit);
+		this.simulationComponentsMapping = componentsMapping;
+		this.simulationConnectionsMapping = connectionsMapping;
 	};
 
 	Editor.prototype.initSimulationDisplay = function () {
-		var simComponents = this.simulator.circuit.components;
-		for (var i = 0; i < simComponents.length; i++) {
-			var simComponent = simComponents[i];
+		var self = this;
 
-			var component = simComponent.editorComponent;
+		for (var reference = 0; reference < this.simulationComponentsMapping.length; reference++) {
+			var component = this.simulationComponentsMapping[reference];
 			if (component.initSimulationDisplay) {
-				component.initSimulationDisplay(simComponent);
+				var inputCallback = (function (reference) {
+					return function (data) {
+						var inputData = createArray(self.simulationComponentsMapping.length, null);
+						inputData[reference] = data;
+						self.simulator.updateInputs(inputData);
+					};
+				})(reference);
+
+				component.initSimulationDisplay(reference, inputCallback);
 			}
 		}
 	};
 
 	Editor.prototype.updateSimulationDisplay = function () {
-		var simConnections = this.simulator.circuit.connections;
-		for (var i = 0; i < simConnections.length; i++) {
-			var simConnection = simConnections[i];
+		var connectionsState = this.simulationCircuitState.connections;
+		for (var i = 0; i < connectionsState.length; i++) {
+			var connectionState = connectionsState[i];
 
-			var connections = simConnection.editorConnections;
-			for (var j = 0; j < connections.length; j++) {
-				var connection = connections[j];
-				connection.setState(simConnection.value ? Connection.ACTIVE : Connection.DEFAULT);
+			for (var j = 0; j < this.simulationConnectionsMapping[i].length; j++) {
+				this.simulationConnectionsMapping[i][j].setState(connectionState ? Connection.ACTIVE : Connection.DEFAULT);
 			}
 		}
 
-		var simComponents = this.simulator.circuit.components;
-		for (var i = 0; i < simComponents.length; i++) {
-			var simComponent = simComponents[i];
+		var componentsState = this.simulationCircuitState.components;
+		for (var i = 0; i < componentsState.length; i++) {
+			var componentState = componentsState[i];
 
-			var component = simComponent.editorComponent;
+			var component = this.simulationComponentsMapping[i];
+
 			if (component.updateSimulationDisplay) {
-				component.updateSimulationDisplay(simComponent);
+				component.updateSimulationDisplay(componentState);
 			}
 		}
 	};
 
 	Editor.prototype.resetSimulationDisplay = function () {
-		var simConnections = this.simulator.circuit.connections;
-		for (var i = 0; i < simConnections.length; i++) {
-			var simConnection = simConnections[i];
-
-			var connections = simConnection.editorConnections;
+		for (var i = 0; i < this.simulationConnectionsMapping.length; i++) {
+			var connections = this.simulationConnectionsMapping[i];
 			for (var j = 0; j < connections.length; j++) {
-				var connection = connections[j];
-				connection.setState(Connection.DEFAULT);
+				connections[j].setState(Connection.DEFAULT);
 			}
 		}
 
-		var simComponents = this.simulator.circuit.components;
-		for (var i = 0; i < simComponents.length; i++) {
-			var simComponent = simComponents[i];
-
-			var component = simComponent.editorComponent;
+		for (var reference = 0; reference < this.simulationComponentsMapping.length; reference++) {
+			var component = this.simulationComponentsMapping[reference];
 			if (component.resetSimulationDisplay) {
-				component.resetSimulationDisplay(simComponent);
+				component.resetSimulationDisplay();
 			}
 		}
 	};
@@ -1735,8 +1776,18 @@ define([
 		function update() {
 			self.simulationAnimationFrame = requestAnimationFrame(update);
 
-			self.simulator.step();
+			if (self.simulationCircuitStateUpdated) {
+				self.simulationCircuitStateUpdated = false;
+
+				self.simulator.stepSimulation(true);
+
+				self.updateSimulationDisplay();
+			}
 		}
+
+		self.simulationCircuitStateUpdated = false;
+
+		self.simulator.stepSimulation(true);
 
 		this.simulationAnimationFrame = requestAnimationFrame(update);
 	};
@@ -1747,23 +1798,16 @@ define([
 
 	Editor.prototype.startSimulation = function () {
 		this.initSimulator();
-
-		// this.initSimulationDisplay();
-		// this.updateSimulationDisplay();
-
-		// this.startSimulationInterval();
 	};
 
 	Editor.prototype.stopSimulation = function () {
 		this.stopSimulationInterval();
 
 		this.resetSimulationDisplay();
-
-		this.simulator.reset();
 	};
 
 	Editor.prototype.stepSimulation = function () {
-		this.simulator.step();
+		this.simulator.stepSimulation(true);
 	};
 
 	Editor.prototype.resumeSimulation = function () {

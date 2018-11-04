@@ -105,7 +105,7 @@ define([
 	SRAMComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'sram',
-			properties: [
+			args: [
 				this.properties.get('addresswidth'),
 				this.properties.get('datawidth')
 			]

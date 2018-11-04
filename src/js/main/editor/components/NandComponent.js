@@ -84,7 +84,7 @@ define([
 	NandComponent.prototype._serializeForSimulation = function () {
 		return {
 			name: 'nand',
-			properties: [ this.properties.get('inputs') ]
+			args: [ this.properties.get('inputs') ]
 		};
 	};
 

@@ -70,7 +70,10 @@ define([
 		this.width = WIDTH;
 		this.height = HEIGHT;
 
-		this.simComponent = null;
+		this.pressed = false;
+
+		this.simulationComponentReference = null;
+		this.inputCallback = null;
 	}
 
 	extend(ToggleButtonComponent, Component);
@@ -95,8 +98,10 @@ define([
 		this.$btn.addEventListener('mousedown', function (evt) {
 			evt.stopPropagation();
 
-			self.simComponent.pressed = !self.simComponent.pressed;
-			self.$btn.setAttribute('fill', self.simComponent.pressed ? PRESSED_COLOR : RELEASED_COLOR);
+			self.pressed = !self.pressed;
+			self.$btn.setAttribute('fill', self.pressed ? PRESSED_COLOR : RELEASED_COLOR);
+
+			self.inputCallback(self.pressed);
 		});
 
 		if(this.selected) {
@@ -118,13 +123,15 @@ define([
 		};
 	};
 
-	ToggleButtonComponent.prototype.initSimulationDisplay = function (simComponent) {
-		this.simComponent = simComponent;
+	ToggleButtonComponent.prototype.initSimulationDisplay = function (reference, inputCallback) {
+		this.simulationComponentReference = reference;
+		this.inputCallback = inputCallback;
 
 		this.$btn.setAttribute('pointer-events', 'visiblePainted');
 	};
 
 	ToggleButtonComponent.prototype.resetSimulationDisplay = function () {
+		this.pressed = false;
 		this.$btn.setAttribute('pointer-events', 'none');
 		this.$btn.setAttribute('fill', RELEASED_COLOR);
 	};

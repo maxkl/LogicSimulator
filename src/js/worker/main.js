@@ -15,6 +15,10 @@ define([
 
     var setImmediateHandle = null;
 
+    var ticksPerSecond = 0;
+    var currentTicksPerSecond = 0;
+    var lastTicksPerSecondIntervalTime = null;
+
     function getCircuitState() {
         var componentsState = createArray(simulationCircuit.numComponentReferences, null);
         for (var i = 0; i < simulationCircuit.components.length; i++) {
@@ -36,7 +40,8 @@ define([
 
         return {
             components: componentsState,
-            connections: connectionsState
+            connections: connectionsState,
+            ticksPerSecond: ticksPerSecond
         };
     }
 
@@ -131,6 +136,7 @@ define([
         }
 
         simulationCircuit.cycle();
+        currentTicksPerSecond++;
 
         var circuitState = null;
         if (circuitStateRequested) {
@@ -149,6 +155,7 @@ define([
 
         for (var i = 0; i < SIMULATION_CYCLE_REPEAT_COUNT; i++) {
             simulationCircuit.cycle();
+            currentTicksPerSecond++;
         }
     }
 
@@ -204,6 +211,21 @@ define([
             }
         }
     }
+
+    setInterval(function () {
+        var actualDuration;
+
+        var now = Date.now();
+        if (lastTicksPerSecondIntervalTime == null) {
+            actualDuration = 1;
+        } else {
+            actualDuration = (now - lastTicksPerSecondIntervalTime) / 1000;
+        }
+        lastTicksPerSecondIntervalTime = now;
+
+        ticksPerSecond = currentTicksPerSecond / actualDuration;
+        currentTicksPerSecond = 0;
+    }, 1000);
 
     self.onmessage = function (message) {
         var data = message.data;

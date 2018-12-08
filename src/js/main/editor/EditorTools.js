@@ -36,6 +36,8 @@ define([
 		this.$selectCircuit = document.getElementById('toolbar-circuit-select');
 		this.$editCircuit = document.getElementById('toolbar-circuit-edit');
 		this.$syncScreen = document.getElementById('toolbar-sync-screen');
+		this.$ticksPerSecondSep = document.getElementById('toolbar-ticks-per-second-sep');
+		this.$ticksPerSecondText = document.getElementById('toolbar-ticks-per-second-text');
 
 		this.registerListeners();
 	}
@@ -145,6 +147,9 @@ define([
 			this.$newCircuit.disabled = true;
 			this.$selectCircuit.disabled = true;
 
+			this.$ticksPerSecondSep.classList.remove('hidden');
+			this.$ticksPerSecondText.classList.remove('hidden');
+
 			this.emit('run');
 		}
 	};
@@ -169,6 +174,9 @@ define([
 		this.$newCircuit.disabled = false;
 		this.$selectCircuit.disabled = false;
 
+		this.$ticksPerSecondSep.classList.add('hidden');
+		this.$ticksPerSecondText.classList.add('hidden');
+
 		this.emit('stop');
 	};
 
@@ -182,6 +190,8 @@ define([
 		this.$run.disabled = false;
 		this.$step.disabled = false;
 		this.$pause.disabled = true;
+
+		this.setTicksPerSecond(0);
 
 		this.emit('pause');
 	};
@@ -212,6 +222,10 @@ define([
 	EditorTools.prototype.selectCircuit = function (circuitName) {
 		this.$selectCircuit.value = circuitName;
 		this.$editCircuit.disabled = circuitName === 'main';
+	};
+
+	EditorTools.prototype.setTicksPerSecond = function (ticksPerSecond) {
+		this.$ticksPerSecondText.textContent = Math.round(ticksPerSecond) + ' ticks/s';
 	};
 
 	EditorTools.TOOL_SELECT = TOOL_SELECT;

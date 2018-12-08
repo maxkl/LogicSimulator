@@ -1766,6 +1766,8 @@ define([
 				component.updateSimulationDisplay(componentState);
 			}
 		}
+
+		this.tools.setTicksPerSecond(this.simulationCircuitState.ticksPerSecond);
 	};
 
 	Editor.prototype.resetSimulationDisplay = function () {

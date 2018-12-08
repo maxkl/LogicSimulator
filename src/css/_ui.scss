@@ -22,6 +22,10 @@
 			margin: 0 3px;
 		}
 
+		> .hidden {
+			display: none !important;
+		}
+
 		> .sep {
 			flex: none;
 			width: 1px;
@@ -31,7 +35,8 @@
 
 		> button,
 		> select,
-		> label {
+		> label,
+		> div.text {
 			flex: none;
 			display: block;
 			line-height: $toolbar-height - 2 * $toolbar-padding;
@@ -92,6 +97,10 @@
 			> input[type=checkbox] {
 				vertical-align: middle;
 			}
+		}
+
+		> div.text {
+			font-size: 0.8em;
 		}
 	}
 

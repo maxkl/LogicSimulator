@@ -61,7 +61,7 @@ define([
 
 	ROMComponent.prototype._save = function (data) {
 		data.addresswidth = this.properties.get('addresswidth');
-		data.wordsize = this.properties.get('wordsize');
+		data.wordsize = +this.properties.get('wordsize');
 		data.contents = arrayBufferToBase64(this.properties.get('contents'));
 	};
 
@@ -75,7 +75,7 @@ define([
 
 	ROMComponent.prototype.layout = function () {
 		var addresswidth = Math.max(1, this.properties.get('addresswidth'));
-		var wordsize = this.properties.get('wordsize');
+		var wordsize = +this.properties.get('wordsize');
 
 		var inputs = ['OE', null];
 		for (var i = 0; i < addresswidth; i++) {

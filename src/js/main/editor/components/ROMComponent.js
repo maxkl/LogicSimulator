@@ -127,7 +127,7 @@ define([
 		};
 	};
 
-	ROMComponent.typeName = 'ROM';
+	ROMComponent.typeName = 'rom';
 	ROMComponent.sidebarEntry = {
 		name: 'ROM',
 		category: 'Memory',
